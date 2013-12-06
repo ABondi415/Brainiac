@@ -24,7 +24,7 @@ import java.io.File;
  */
 public class BrainiacGUI extends JFrame implements ActionListener{
     private JTabbedPane browserChatPane, whiteboardDocumentPane;
-    private JPanel mainPanel, browserChatPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardPanel, whiteboardDocumentPanel;
+    private JPanel mainPanel, chatCalendarPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardPanel, whiteboardDocumentPanel;
     private JPanel welcomeButtonsPanel, welcomeFieldsPanel, welcomeLabelsPanel, welcomePanel;
     private JButton connectButton, exitButton;
     private JMenu fileMenu, editMenu;
@@ -40,7 +40,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private ChatClientGUI chatGUI;
     private Browser browser;
     
-    //Marcus added 11/11
+    //Marcus added 11/21
     private FileOpener fileOpener;
     private JFileChooser fileChooser;
     private DocumentViewer docViewer;
@@ -48,6 +48,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JButton closeFileBut, newFileBut;
     private JPopupMenu fileSelectPopup;
     private JList fileSelectList;
+    private JPopupMenu dialog;
     
     private BrainiacGUI(){
         GridBagConstraints gridBagConstraints;
@@ -68,7 +69,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         sessionNameField = new JTextField();
         sessionPasswordField = new JPasswordField();
         mainPanel = new JPanel();
-        browserChatPanel = new JPanel();
+        chatCalendarPanel = new JPanel();
         browserChatPane = new JTabbedPane();
         chatPanel = new JPanel();
         browserPanel = new JPanel();
@@ -120,6 +121,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                                         fileSelectPopup.setVisible(false);
                                     }
                                 });
+            
             
 
             
@@ -199,19 +201,16 @@ public class BrainiacGUI extends JFrame implements ActionListener{
 
         mainPanel.setLayout(new BorderLayout());
 
-        browserChatPanel.setLayout(new BorderLayout());
+        chatCalendarPanel.setLayout(new GridLayout(1,2,10,10));
 
         browserChatPane.setName(""); 
 
         chatPanel.setLayout(new BorderLayout());
-        browserChatPane.addTab("Chat", chatPanel);
 
         browserPanel.setLayout(new BorderLayout());
-        browserChatPane.addTab("Browser", browserPanel);
 
-        browserChatPanel.add(browserChatPane, BorderLayout.CENTER);
+        chatCalendarPanel.add(chatPanel);
 
-        mainPanel.add(browserChatPanel, BorderLayout.PAGE_END);
 
         //Document and whiteboard
         fileOpener.setPreferredSize(new Dimension(200, 800));
@@ -226,6 +225,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         //whiteboardPanel.add(temporaryLabel1, BorderLayout.CENTER);
         
         whiteboardDocumentPane.addTab("Whiteboard", whiteboardPanel);
+        whiteboardDocumentPane.addTab("Browser", browserPanel);
         whiteboardDocumentPanel.add(whiteboardDocumentPane, BorderLayout.CENTER);
 
         mainPanel.add(whiteboardDocumentPanel, BorderLayout.CENTER);
@@ -236,8 +236,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
 
         temporaryLabel3.setText("Calendar/Tasks");
         calendarTasksPanel.add(temporaryLabel3, BorderLayout.CENTER);
+        
+        
+        chatCalendarPanel.add(calendarTasksPanel);
 
-        mainPanel.add(calendarTasksPanel, BorderLayout.LINE_END);
+        mainPanel.add(chatCalendarPanel, BorderLayout.SOUTH);
 
         getContentPane().add(mainPanel, "card3");
 
@@ -307,16 +310,48 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         }
         if (o == saveLocal){
                 //gets the selected tab saves the file
-            if (whiteboardDocumentPane.getSelectedComponent() != whiteboardPanel){
+            Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
+            if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
                 saveLocal.writeFile((DocumentViewer) whiteboardDocumentPane.getSelectedComponent());
             }
         }    
         if (o == closeFileBut){
-            if (whiteboardDocumentPane.getSelectedComponent() != whiteboardPanel){
+            Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
+            if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
                 //gets the selected tab closes the file and removes the tab
-                DocumentViewer doc = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
-                doc.closeFile();
+                docViewer = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
+                if (docViewer.isEdited()){
+                    dialog = new JPopupMenu();
+                    UnsavedEditDialog unsavedEditDialog = new UnsavedEditDialog();
+                    dialog.setLayout(new BorderLayout());
+                    dialog.add(unsavedEditDialog);
+                    Dimension size = unsavedEditDialog.getPreferredSize();
+                    dialog.show(this, (this.getWidth() - size.width)/2, (this.getHeight() - size.height)/2);
+                    
+                    JButton yes = unsavedEditDialog.getYesButton();
+                        yes.addMouseListener(new MouseAdapter() {
+                              public void mouseClicked(MouseEvent evt){
+                                      docViewer.closeFile();
+                                      whiteboardDocumentPane.removeTabAt(whiteboardDocumentPane.getSelectedIndex());
+                                      dialog.setVisible(false);
+                                      mainPanel.revalidate();
+                              }
+                        });
+                        
+                     JButton cancel = unsavedEditDialog.getCancelButton();
+                         cancel.addMouseListener(new MouseAdapter(){
+                                        public void mouseClicked(MouseEvent evt){
+                                                dialog.setVisible(false);
+                                                whiteboardDocumentPane.setSelectedComponent(docViewer);
+                                                mainPanel.revalidate();
+                                        }
+                                        });
+                }
+                
+                else{
+                docViewer.closeFile();
                 whiteboardDocumentPane.removeTabAt(whiteboardDocumentPane.getSelectedIndex());
+                }
             }
         }
         if (o == newFileBut){

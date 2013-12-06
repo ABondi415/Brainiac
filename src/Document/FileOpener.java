@@ -70,7 +70,7 @@ public class FileOpener extends JPanel implements ActionListener{
     public void readFile(File selectedFile) {
         String fileStr = selectedFile.toString();
         if (fileStr.endsWith(".txt")) {docViewer = new TextEditor(selectedFile);}
-        if (fileStr.endsWith(".doc")) {docViewer = new DocEditor(selectedFile);}
+        if (fileStr.endsWith(".doc") || fileStr.endsWith(".docx")) {docViewer = new DocEditor(selectedFile);}
         
     }
     

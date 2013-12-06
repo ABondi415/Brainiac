@@ -13,7 +13,8 @@ import javax.swing.JPanel;
  * @author Marcus
  */
 public abstract class DocumentViewer extends JPanel{
-    public String getFileName(){return null;}
-    public void closeFile(){}
-    public void saveLocal(File saveFile){}
+    public abstract Boolean isEdited();
+    public abstract String getFileName();
+    public abstract void closeFile();
+    public abstract void saveLocal(File saveFile);
 }
