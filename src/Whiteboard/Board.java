@@ -12,7 +12,7 @@ import java.awt.event.MouseListener;
 import java.util.Vector;
 import javax.swing.*;
 
-public class Board extends JPanel implements MouseListener {
+public class Board extends JPanel {
 
     private Color c;
     private int oldX, oldY, newX, newY;
@@ -75,34 +75,12 @@ public class Board extends JPanel implements MouseListener {
 
         drawPanel.setBackground(new java.awt.Color(255, 255, 255));
         drawPanel.setLayout(new BorderLayout());
-        drawPanel.addMouseListener(this);
+     
 
         colorPanel.setBackground(new java.awt.Color(102, 102, 102));
 
         freeDrawButton.setText("Draw");
         shapesButton.setText("Shapes");
-        shapesButton.addMouseListener(new java.awt.event.MouseAdapter(){
-            public void mouseClicked(MouseEvent e) {
-                Object o = e.getSource();
-                if (o == shapesButton) {
-                    //shapeMenu = new JFrame();
-//                    linebutton.setText("Line");
-//                    ovalbutton.setText("Oval");
-//                    rectbutton.setText("Rectangle");
-//                    shapeMenu.setLayout(new GridLayout());
-//                    shapeMenu.add(linebutton);
-//                    shapeMenu.add(ovalbutton);
-//                    shapeMenu.add(rectbutton);
-//                    shapeMenu.pack();
-//                    shapeMenu.setVisible(true);
-                    Dimension size = shapeMenu.getPreferredSize();
-                    int x = (shapesButton.getWidth() - size.width);
-                    int y = shapesButton.getHeight();
-                    //shapeMenu.show(shapesButton, x, y);
-                    shapeMenu.show(drawPanel, x, y);
-                }
-            }
-        });
         textButton.setText("Text");
         eraserButton.setText("Eraser");
         clearButton.setText("Clear");
@@ -137,47 +115,7 @@ public class Board extends JPanel implements MouseListener {
         });
         
         drawPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                Object o = e.getSource();
-                if (o == shapesButton) {
-                    //shapeMenu = new JFrame();
-//                    linebutton.setText("Line");
-//                    ovalbutton.setText("Oval");
-//                    rectbutton.setText("Rectangle");
-//                    shapeMenu.setLayout(new GridLayout());
-//                    shapeMenu.add(linebutton);
-//                    shapeMenu.add(ovalbutton);
-//                    shapeMenu.add(rectbutton);
-//                    shapeMenu.pack();
-//                    shapeMenu.setVisible(true);
-                    Dimension size = shapeMenu.getPreferredSize();
-                    int x = (shapesButton.getWidth() - size.width);
-                    int y = shapesButton.getHeight();
-                    //shapeMenu.show(shapesButton, x, y);
-                    shapeMenu.show(drawPanel, x, y);
-                }
-                if (o == linebutton) {
-                    s = new Line();
-                    freeDrawButton.setSelected(false);
-                    shapeMenu.setVisible(false);
-                }
-                if (o == ovalbutton) {
-                    s = new Line();
-                    freeDrawButton.setSelected(false);
-                    shapeMenu.setVisible(false);
-                }
-                if (o == rectbutton) {
-                    s = new Line();
-                    freeDrawButton.setSelected(false);
-                    shapeMenu.setVisible(false);
-                }
-                if (o == colorPanel) {
-                    JColorChooser jcc = new JColorChooser();
-                    c = JColorChooser.showDialog(jcc, "Color Selector", null);
-                    colorPanel.setBackground(c);
-                }
-            }
-
+     
             public void mousePressed(MouseEvent e) {
                 Object o = e.getSource();
                 if (o == drawPanel) {
@@ -199,51 +137,48 @@ public class Board extends JPanel implements MouseListener {
                 }
             }
 
-//            public void mouseEntered(MouseEvent e) {
-//                Object o = e.getSource();
-//                if (o == drawPanel) {
-//
-//                }
-//            }
-//
-//            public void mouseExited(MouseEvent e) {
-//                Object o = e.getSource();
-//                if (o == drawPanel) {
-//
-//                }
-//            }
+
     });
         this.setLayout(new BorderLayout());
         this.add(drawPanel, BorderLayout.CENTER);
+        
+        
+        toolBar.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseClicked(MouseEvent e) {
+                Object o = e.getSource();
+                if (o == shapesButton) {
+                    Dimension size = shapeMenu.getPreferredSize();
+                    int x = (shapesButton.getWidth() - size.width);
+                    int y = shapesButton.getHeight();
+                    //shapeMenu.show(shapesButton, x, y);
+                    shapeMenu.show(drawPanel, x, y);
+                }
+                   if (o == linebutton) {
+                    s = new Line();
+                    freeDrawButton.setSelected(false);
+                    shapeMenu.setVisible(false);
+                }
+                if (o == ovalbutton) {
+                    s = new Line();
+                    freeDrawButton.setSelected(false);
+                    shapeMenu.setVisible(false);
+                }
+                if (o == rectbutton) {
+                    s = new Line();
+                    freeDrawButton.setSelected(false);
+                    shapeMenu.setVisible(false);
+                }
+                if (o == colorPanel) {
+                    JColorChooser jcc = new JColorChooser();
+                    c = JColorChooser.showDialog(jcc, "Color Selector", null);
+                    colorPanel.setBackground(c);
+                }
+                
+            }
+        });
+        
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        Object o = e.getSource();
-        if (o == drawPanel){
-            
-        }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
     
 }
