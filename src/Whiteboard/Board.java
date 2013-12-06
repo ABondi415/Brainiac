@@ -42,7 +42,6 @@ public class Board extends JPanel {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        //super.paint(g);
         drawPanel.getGraphics().drawImage(bg, 0, 0, null);
     }
 
@@ -71,7 +70,7 @@ public class Board extends JPanel {
             shapeMenuPanel.add(rectbutton);
         shapeMenu.add(shapeMenuPanel);
         shapeMenu.pack();
-        //shapeMenu.setVisible(false);
+     
 
         drawPanel.setBackground(new java.awt.Color(255, 255, 255));
         drawPanel.setLayout(new BorderLayout());
@@ -93,8 +92,48 @@ public class Board extends JPanel {
         toolBar.add(colorPanel);
 
         drawPanel.add(toolBar, BorderLayout.NORTH);
-
-        drawPanel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+        
+        shapesButton.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+               Object o = evt.getSource();
+                if (o == shapesButton) {
+                    Dimension size = shapeMenu.getPreferredSize();
+                    int x = 5;
+                    int y = 5;
+                    shapeMenu.show(drawPanel, x, y);
+                }
+            }
+        });
+        linebutton.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+               Object o = evt.getSource();
+                if (o == linebutton) {
+                    s = new Line();
+                    freeDrawButton.setSelected(false);
+                    shapeMenu.setVisible(false);
+                }
+            }
+        });
+          ovalbutton.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+               Object o = evt.getSource();
+                if (o == linebutton) {
+                    s = new Line();
+                    freeDrawButton.setSelected(false);
+                    shapeMenu.setVisible(false);
+                }
+            }
+        });
+                
+               
+                
+                if (o == colorPanel) {
+                    JColorChooser jcc = new JColorChooser();
+                    c = JColorChooser.showDialog(jcc, "Color Selector", null);
+                    colorPanel.setBackground(c);
+                }
+        
+        this.addMouseMotionListener(new java.awt.event.MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
                 Object o = e.getSource();
                 if (o == drawPanel) {
@@ -112,9 +151,18 @@ public class Board extends JPanel {
                     g.drawImage(fg, 0, 0, null);
                 }
             }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+             //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
         });
         
-        drawPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+
+        this.setLayout(new BorderLayout());
+        this.add(drawPanel, BorderLayout.CENTER);
+ 
+        this.addMouseListener(new java.awt.event.MouseListener() {
      
             public void mousePressed(MouseEvent e) {
                 Object o = e.getSource();
@@ -136,24 +184,16 @@ public class Board extends JPanel {
                     bgg.drawImage(fg, 0, 0, null);
                 }
             }
-
-
-    });
-        this.setLayout(new BorderLayout());
-        this.add(drawPanel, BorderLayout.CENTER);
-        
-        
-        toolBar.addMouseListener(new java.awt.event.MouseAdapter(){
+            
             public void mouseClicked(MouseEvent e) {
                 Object o = e.getSource();
                 if (o == shapesButton) {
                     Dimension size = shapeMenu.getPreferredSize();
-                    int x = (shapesButton.getWidth() - size.width);
-                    int y = shapesButton.getHeight();
-                    //shapeMenu.show(shapesButton, x, y);
+                    int x = 5;
+                    int y = 5;
                     shapeMenu.show(drawPanel, x, y);
                 }
-                   if (o == linebutton) {
+                if (o == linebutton) {
                     s = new Line();
                     freeDrawButton.setSelected(false);
                     shapeMenu.setVisible(false);
@@ -175,9 +215,61 @@ public class Board extends JPanel {
                 }
                 
             }
-        });
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+              //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+              //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+
+    });
+        
+    
+        
+//        toolBar.addMouseListener(new java.awt.event.MouseListener() {
+//            int i =0;
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                Object o = e.getSource();
+//                if (o == shapesButton) {
+//                    Dimension size = shapeMenu.getPreferredSize();
+//                    int x = (shapesButton.getWidth() - size.width);
+//                    int y = shapesButton.getHeight();
+//                    shapeMenu.show(drawPanel, x, y);
+//                }
+//                if (o == linebutton) {
+//                    s = new Line();
+//                    freeDrawButton.setSelected(false);
+//                    shapeMenu.setVisible(false);
+//                }
+//                if (o == ovalbutton) {
+//                    s = new Line();
+//                    freeDrawButton.setSelected(false);
+//                    shapeMenu.setVisible(false);
+//                }
+//                if (o == rectbutton) {
+//                    s = new Line();
+//                    freeDrawButton.setSelected(false);
+//                    shapeMenu.setVisible(false);
+//                }
+//                if (o == colorPanel) {
+//                    JColorChooser jcc = new JColorChooser();
+//                    c = JColorChooser.showDialog(jcc, "Color Selector", null);
+//                    colorPanel.setBackground(c);
+//                }
+//                
+//            }
+
+//
         
     }
+
+    
 
    
     
