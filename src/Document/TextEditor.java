@@ -26,6 +26,7 @@ public class TextEditor extends DocumentViewer{
     private String inputStr = "";
     private String fileName = "";
     private FileReader fr;
+    private String checkText ;
     
     public TextEditor(){
         fileName = "Utitled.txt";
@@ -53,14 +54,17 @@ public class TextEditor extends DocumentViewer{
     
     private void createEditorPanel(){
         textArea.setText(inputStr);
-        
-        
+        checkText = textArea.getText();
         
         textScroll = new JScrollPane(); 
         textScroll.setViewportView(textArea);
         
         this.setLayout(new BorderLayout());
         this.add(textScroll, BorderLayout.CENTER);
+    }
+    
+    public Boolean isEdited(){
+        return !(textArea.getText().equals(checkText));
     }
     
     public String getFileName(){
