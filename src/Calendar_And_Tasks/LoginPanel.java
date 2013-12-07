@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 public class LoginPanel extends JPanel {
 
     private TextField userNameTF, passwordTF;
-    private String userName, password;
+    private static String userName, password;
     private final JButton login;
     
     public LoginPanel(final JFrame frame){
@@ -45,7 +45,7 @@ public class LoginPanel extends JPanel {
         this.add(login);
     }
     
-    public String[] getUserCredentials() {
+    public static String[] getUserCredentials() {
         
         String[] creds = {userName, password};
         
