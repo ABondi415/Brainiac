@@ -48,12 +48,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JFileChooser fileChooser;
     private DocumentViewer docViewer;
     private SaveLocal saveLocal;
+    private SaveMaster saveMaster;
     private JButton closeFileBut, newFileBut;
     private JPopupMenu fileSelectPopup;
     private JList fileSelectList;
     private JPopupMenu dialog;
     
-    private DBAdapter adapter;
+//    private DBAdapter adapter;
     
     private BrainiacGUI(){
         GridBagConstraints gridBagConstraints;
@@ -107,6 +108,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             fileChooser.addActionListener(this);
         saveLocal = fileOpener.getSaveLocal();
             saveLocal.addActionListener(this);
+        saveMaster = fileOpener.getSaveMaster();
+            saveMaster.addActionListener(this);
         closeFileBut = fileOpener.getCloseButton();
             closeFileBut.addActionListener(this);
         newFileBut = fileOpener.getNewButton();
@@ -327,7 +330,16 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
                 saveLocal.writeFile((DocumentViewer) whiteboardDocumentPane.getSelectedComponent());
             }
-        }    
+        } 
+        if (o == saveMaster){
+            Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
+            if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
+                DocumentViewer dv = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
+                File file = dv.getFile();
+                saveMaster.writeFile(file);
+            }
+        }
+            
         if (o == closeFileBut){
             Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
             if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
@@ -392,11 +404,11 @@ private boolean verifyConnect(){
         for (int i = 0; i < sessionPassword.length; i++){
             stringPassword += sessionPassword[i];
         }
-        adapter = DBAdapter.getInstance();
-        if(adapter.checkLogin(username, stringPassword)){
-            loginErrorLabel.setText("     Invalid username and password!");
-            return false;
-        }
+//        adapter = DBAdapter.getInstance();
+//        if(adapter.checkLogin(username, stringPassword)){
+//            loginErrorLabel.setText("     Invalid username and password!");
+//            return false;
+//        }
         return true;
         
         //Verify a connection event here.  Check for valid username, session name, and session password.
@@ -415,7 +427,7 @@ private boolean verifyConnect(){
         //Start the Browser
         browser = new Browser(browserPanel);
         
-        adapter = DBAdapter.getInstance();
-        adapter.createUser("root", "password");
+//        adapter = DBAdapter.getInstance();
+//        adapter.createUser("root", "password");
     }
 }
