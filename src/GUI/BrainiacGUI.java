@@ -9,6 +9,7 @@ import Chat.*;
 import Document.*;
 import Whiteboard.*;
 import Calendar_And_Tasks.*;
+import Network.DBAdapter;
 
 
 import javax.swing.*;
@@ -34,7 +35,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JMenuBar menuBar;
     private JTextField usernameField, sessionNameField;
     private JPasswordField sessionPasswordField;
-    private JLabel sessionPasswordLabel, sessionNameLabel, titleLabel, usernameLabel;
+    private JLabel sessionPasswordLabel, sessionNameLabel, titleLabel, usernameLabel, loginErrorLabel;
     private JLabel temporaryLabel1, temporaryLabel2, temporaryLabel3;
     private String username, sessionName;
     private char[] sessionPassword;
@@ -52,6 +53,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JList fileSelectList;
     private JPopupMenu dialog;
     
+    private DBAdapter adapter;
+    
     private BrainiacGUI(){
         GridBagConstraints gridBagConstraints;
         gctp = gCTPane.instanceOf();
@@ -66,6 +69,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         usernameLabel = new JLabel();
         sessionNameLabel = new JLabel();
         sessionPasswordLabel = new JLabel();
+        loginErrorLabel = new JLabel();
         welcomeFieldsPanel = new JPanel();
         usernameField = new JTextField();
         sessionNameField = new JTextField();
@@ -199,7 +203,10 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         gridBagConstraints.ipady = 5;
         gridBagConstraints.insets = new Insets(0, 20, 0, 80);
         welcomeFieldsPanel.add(sessionPasswordField, gridBagConstraints);
-
+        
+        loginErrorLabel.setText("");
+        welcomeButtonsPanel.add(loginErrorLabel, BorderLayout.NORTH);
+        
         welcomePanel.add(welcomeFieldsPanel, BorderLayout.CENTER);
 
         getContentPane().add(welcomePanel, "card2");
@@ -291,11 +298,12 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanel.setVisible(true);
         }
         if (o == connectButton){
-            verifyConnect();
-            establishConnection();
-            loadSession();
-            welcomePanel.setVisible(false);
-            mainPanel.setVisible(true);
+            loginErrorLabel.setText("");
+            //if (verifyConnect()){
+                loadSession();
+                welcomePanel.setVisible(false);
+                mainPanel.setVisible(true);
+            //}
         }
         //Marcus added 11/12
         if (o == fileChooser){
@@ -372,16 +380,28 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         //Handle logoff event here.  Save session, clear screen, disconnect from DB, etc.  
     }
     
-    private void verifyConnect(){
+private boolean verifyConnect(){
         username = usernameField.getText();
         sessionName = sessionNameField.getText();
         sessionPassword = sessionPasswordField.getPassword();
+        if (username.matches("") || sessionPassword.length == 0){
+            loginErrorLabel.setText("     Invalid username and password!");
+            return false;
+        }
+        String stringPassword = "";
+        for (int i = 0; i < sessionPassword.length; i++){
+            stringPassword += sessionPassword[i];
+        }
+        adapter = DBAdapter.getInstance();
+        if(adapter.checkLogin(username, stringPassword)){
+            loginErrorLabel.setText("     Invalid username and password!");
+            return false;
+        }
+        return true;
+        
         //Verify a connection event here.  Check for valid username, session name, and session password.
     }
     
-    private void establishConnection(){
-        //Establish a DB connection here.
-    }
     
     private void loadSession(){
         //Load all session related information here.
@@ -395,5 +415,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         //Start the Browser
         browser = new Browser(browserPanel);
         
+        adapter = DBAdapter.getInstance();
+        adapter.createUser("root", "password");
     }
 }
