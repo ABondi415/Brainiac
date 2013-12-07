@@ -11,9 +11,11 @@ import ag.ion.bion.officelayer.desktop.IFrame;
 import ag.ion.bion.officelayer.document.DocumentDescriptor;
 import ag.ion.bion.officelayer.document.IDocument;
 import ag.ion.bion.officelayer.internal.application.ApplicationAssistant;
+import ag.ion.bion.officelayer.internal.document.DocumentWriter;
 import ag.ion.bion.officelayer.spreadsheet.ISpreadsheetDocument;
 import ag.ion.bion.officelayer.text.ITextDocument;
 import ag.ion.bion.officelayer.text.ITextField;
+import ag.ion.noa.frame.ILayoutManager;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -24,6 +26,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,27 +45,26 @@ import javax.swing.JPanel;
  */
 public class DocEditor extends DocumentViewer{
     private String fileName = "";
-    private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
-    //final JFrame editorFrame = new JFrame(); 
-    private NativeView nat;
-    private IOfficeApplication officeApplication;
-    private IFrame officeFrame;
-
-    //private JInternalFrame editorFrame;
-    //private JPanel editorPanel;
-    private ITextDocument document;
-    private JPanel noaPanel;
+    private File inputFile;
+    FileInputStream iS;
+    //private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
+    private String OpenOfficePath = "E:\\OpenOffice.org 3";
+    final JFrame editorFrame = new JFrame(); 
+    private IDocument document;
     
     public DocEditor(File inputFile){
         fileName = inputFile.getName();
-        noaPanel = new JPanel();
+        this.inputFile = inputFile;
+        try {
+            iS = new FileInputStream(inputFile);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(DocEditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
         this.setLayout(new BorderLayout());
-        //this.add(noaPanel, BorderLayout.CENTER);
-        //fillNOAPanel();
 
-        //createDocPanel();
+        createDocPanel();
 
-        //this.add(testPanel, BorderLayout.CENTER);
+        this.add(new JLabel("Please see new Open Office frame for editing"), BorderLayout.CENTER);
 
 
         //this.add(editorF.getLayeredPane(), BorderLayout.CENTER);
@@ -79,34 +84,30 @@ public class DocEditor extends DocumentViewer{
             editor.activate();
             
             //final JFrame editorFrame = new JFrame(); 
-            //editorFrame.setVisible(true);
-            //editorFrame.setSize(this.getWidth(), this.getHeight());
-            //editorFrame.validate();
+            editorFrame.setVisible(true);
+            editorFrame.setSize(this.getWidth(), this.getHeight());
+            editorFrame.validate();
             final JPanel editorPanel = new JPanel(new BorderLayout());
-            nat = new NativeView(System.getProperty("user.dir") + "\\lib");
-            nat.setSize(editorPanel.getWidth(), editorPanel.getHeight());
-            //testPanel.add(editorPanel);
-            editorPanel.add(nat);
+            editorFrame.add(editorPanel);
             editorPanel.setVisible(true);
-            //editorFrame.add(editorPanel);
-            //editorPanel.setVisible(true);
-            //testPanel.setVisible(true);
-            
-            
-            editor.getDocumentService().constructNewDocument(fileName, null);
 
-            IFrame officeFrame =  editor.getDesktopService().constructNewOfficeFrame(editorPanel);
-            editor.getDocumentService().constructNewDocument(officeFrame, IDocument.WRITER, DocumentDescriptor.DEFAULT);
-            //editorFrame.validate();
+            IFrame officeFrame = editor.getDesktopService().constructNewOfficeFrame(editorPanel);
+            if (fileName.equals("Untitled.doc")){ 
+                editor.getDocumentService().constructNewDocument(officeFrame, IDocument.WRITER, DocumentDescriptor.DEFAULT);
+            }
+            else{
+                editor.getDocumentService().loadDocument(officeFrame, iS, null);
+            }
+            IDocument docs[] = editor.getDocumentService().getCurrentDocuments();
+            document = (IDocument)docs[0];
+            editorFrame.validate();
+            
+            ILayoutManager layoutManager = officeFrame.getLayoutManager();
+            layoutManager.hideElement(layoutManager.URL_MENUBAR);
             
             officeFrame.disableDispatch(GlobalCommands.CLOSE_DOCUMENT);
             officeFrame.disableDispatch(GlobalCommands.QUIT_APPLICATION);
             officeFrame.updateDispatches();
-            
-            //JInternalFrame test = (JInternalFrame)officeFrame.getXFrame();
-            //JInternalFrame test2 = (JInternalFrame)officeFrame.getXFrame();
-            //this.add(test, BorderLayout.CENTER);
-            //this.add(test2, BorderLayout.CENTER);
             
             //if (fileName == null)
             //    editor.getDocumentService().constructNewDocument(officeFrame, IDocument.WRITER, DocumentDescriptor.DEFAULT);
@@ -116,69 +117,33 @@ public class DocEditor extends DocumentViewer{
             Logger.getLogger(DocEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        //return editorFrame;
     }
     
-    //stolen code
-//   private void fillNOAPanel() {
-//    if (noaPanel != null) {
-//      try {
-//        if (officeApplication == null)
-//          officeApplication = startOOO();
-//        officeFrame = constructOOOFrame(officeApplication, noaPanel);
-//        document = (ITextDocument) officeApplication.getDocumentService().constructNewDocument(officeFrame,
-//            IDocument.WRITER,
-//            DocumentDescriptor.DEFAULT);
-//
-//        noaPanel.setVisible(true);
-//      }
-//      catch (Throwable throwable) {
-//        noaPanel.add(new JLabel("An error occured while creating the NOA panel: " + throwable.getMessage()));
-//      }
-//    }
-//  }   
-//    
-//  private IFrame constructOOOFrame(IOfficeApplication officeApplication, final Container parent)
-//      throws Throwable {
-//    final NativeView nativeView = new NativeView(System.getProperty("user.dir") + "\\lib");
-//    parent.add(nativeView);
-//    parent.addComponentListener(new ComponentAdapter() {
-//      public void componentResized(ComponentEvent e) {
-//        nativeView.setPreferredSize(new Dimension(parent.getWidth() - 5, parent.getHeight() - 5));
-//        parent.getLayout().layoutContainer(parent);
-//      }
-//    });
-//    nativeView.setPreferredSize(new Dimension(parent.getWidth() - 5, parent.getHeight() - 5));
-//    parent.getLayout().layoutContainer(parent);
-//    IFrame officeFrame = officeApplication.getDesktopService().constructNewOfficeFrame(nativeView);
-//    parent.validate();
-//    return officeFrame;
-//  }
-//  
-//  private IOfficeApplication startOOO() throws Throwable {
-//    IApplicationAssistant applicationAssistant = new ApplicationAssistant(System.getProperty("user.dir") + "\\lib");
-//    ILazyApplicationInfo[] appInfos = applicationAssistant.getLocalApplications();
-//    if (appInfos.length < 1)
-//      throw new Throwable("No OpenOffice.org Application found.");
-//    HashMap configuration = new HashMap();
-//    configuration.put(IOfficeApplication.APPLICATION_HOME_KEY, appInfos[0].getHome());
-//    configuration.put(IOfficeApplication.APPLICATION_TYPE_KEY, IOfficeApplication.LOCAL_APPLICATION);
-//    IOfficeApplication officeAplication = OfficeApplicationRuntime.getApplication(configuration);
-//
-//    officeAplication.setConfiguration(configuration);
-//    officeAplication.activate();
-//    return officeAplication;
-//  }
     
     public String getFileName(){return fileName;}
     
-    public void closeFile(){}
+    public File getFile(){
+        //File file = new File(fileName, document);
+        File file = new File("fixMe");
+        return file;
+    }
+    
+    public void closeFile(){
+        editorFrame.setVisible(false);
+        editorFrame.dispose();
+    }
     
     public void saveLocal(File saveFile){
+        try {
+            DocumentWriter dw = new DocumentWriter();
+            dw.storeDocument(document, saveFile.getPath());
+        } catch (Exception ex) {
+            Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public Boolean isEdited() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 }

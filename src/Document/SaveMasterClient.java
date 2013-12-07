@@ -21,15 +21,13 @@ public class SaveMasterClient {
     private Socket socket;
 
     // the server, the port and the username
-    private String server, username;
+    private String server;
     private int port;
     private File file;
     
-    SaveMasterClient(String server, int port, String username, File file) {
+    SaveMasterClient(String server, int port) {
         this.server = server;
         this.port = port;
-        this.username = username;
-        this.file = file;
     }
     
     public boolean start() {
@@ -58,13 +56,13 @@ public class SaveMasterClient {
         new ListenFromServer().start();
         // Send our username to the server this is the only message that we
         // will send as a String. All other messages will be ChatMessage objects
-        try {
-            sOutput.writeObject(username);
-        } catch (IOException eIO) {
-            System.out.println("Exception doing login : " + eIO);
-            disconnect();
-            return false;
-        }
+//        try {
+//            sOutput.writeObject(username);
+//        } catch (IOException eIO) {
+//            System.out.println("Exception doing login : " + eIO);
+//            disconnect();
+//            return false;
+//        }
         // success we inform the caller that it worked
         return true;
     }
@@ -97,6 +95,49 @@ public class SaveMasterClient {
         } catch (Exception e) {
         } // not much else I can do
     }
+ 
+    
+    public static void Main(String[] args){
+        int portNumber = 1600;
+        String serverAddress = "localHost";
+        
+        switch (args.length) {
+            // > javac ChatClient username portNumber serverAddr
+            case 2:
+                serverAddress = args[1];
+            // > javac ChatClient username portNumber
+            case 1:
+                try {
+                    portNumber = Integer.parseInt(args[1]);
+                } catch (Exception e) {
+                    System.out.println("Invalid port number.");
+                   // System.out.println("Usage is: > java Client [username] [portNumber] [serverAddress]");
+                    return;
+                }
+            case 0:
+                break;
+            // invalid number of arguments
+            default:
+                //System.out.println("Usage is: > java Client [username] [portNumber] {serverAddress]");
+                return;
+        }
+        
+        SaveMasterClient saveClient = new SaveMasterClient(serverAddress, portNumber);
+        
+        if (!saveClient.start()){
+            return;
+        }
+        
+        //wait for file from user
+        
+        while (true){
+            File file = new File("fixMe"); 
+            saveClient.sendFile(file);
+            break;
+        }
+        
+        saveClient.disconnect();
+    }
     
     class ListenFromServer extends Thread {
 
@@ -114,4 +155,5 @@ public class SaveMasterClient {
             }
         }
     }
+     
 }

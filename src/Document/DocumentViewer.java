@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 public abstract class DocumentViewer extends JPanel{
     public abstract Boolean isEdited();
     public abstract String getFileName();
+    public abstract File getFile();
     public abstract void closeFile();
     public abstract void saveLocal(File saveFile);
 }

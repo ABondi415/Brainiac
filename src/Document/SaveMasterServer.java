@@ -70,19 +70,84 @@ public class SaveMasterServer implements Runnable{
     }
     
 
-    private static class ClientThread extends Thread{
+    class ClientThread extends Thread{
         
         Socket socket;
-        FileInputStream sInput;
-        FileInputStream sOutput;
+        ObjectInputStream sInput;
+        ObjectOutputStream sOutput;
+        File file;
         
         int id;        
              
 
         public ClientThread(Socket socket) {
-            id = ++uniqueId;
-            this.socket = socket;
-
+            
+                id = ++uniqueId;
+                this.socket = socket;
+                
+                
+            try {    
+                sOutput = new ObjectOutputStream(socket.getOutputStream());
+                sInput  = new ObjectInputStream(socket.getInputStream());
+            } catch (IOException ex) {
+                Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } 
+            
+        public void run(){
+            boolean keepGoing = true;
+            while (keepGoing) {
+                try {
+                    file = (File) sInput.readObject();
+                } catch (IOException ex) {
+                    Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+                }   
+            String fileName = file.getName();
+            SaveLocal sl = new SaveLocal();
+            sl.writeFile(file);
+            }
+        remove(id);
+        close();
         }
+        
+        private void close() {
+            if (sOutput != null){
+                try {
+                    sOutput.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+                } 
+            }
+            if (sInput != null){
+                try {
+                    sInput.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (socket != null){
+                try {
+                    socket.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+            
+        private boolean writeMsg(String msg){
+            if(!socket.isConnected()){
+                close();
+                return false;
+            }
+            try {
+                sOutput.writeObject(msg);
+            } catch (IOException ex) {
+                Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return true;
+        }
+        
     }
 }

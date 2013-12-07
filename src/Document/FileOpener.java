@@ -19,7 +19,7 @@ public class FileOpener extends JPanel implements ActionListener{
     private DocumentViewer docViewer;
     private JPanel buttonPanel;
     private SaveLocal saveLocalBut;
-    //private SaveMaster saveMasterBut;
+    private SaveMaster saveMasterBut;
     private JButton closeFile;
     private JButton newFile;
     private JPopupMenu newFileSelect;
@@ -40,10 +40,13 @@ public class FileOpener extends JPanel implements ActionListener{
         buttonPanel.setLayout(new GridLayout(1, 3, 5, 5));
         
         saveLocalBut = new SaveLocal();
+        saveMasterBut = new SaveMaster();
         closeFile = new JButton();
             closeFile.setText("Close");
         newFile = new JButton();
             newFile.setText("New");
+            
+            
 
         DefaultListModel<String> model = new DefaultListModel();
         model.addElement("Text File");
@@ -59,6 +62,7 @@ public class FileOpener extends JPanel implements ActionListener{
         buttonPanel.add(newFile);
         buttonPanel.add(closeFile);
         buttonPanel.add(saveLocalBut);
+        buttonPanel.add(saveMasterBut);
             
         this.setLayout(new BorderLayout());
         this.add(fileChooser, BorderLayout.CENTER);
@@ -88,6 +92,10 @@ public class FileOpener extends JPanel implements ActionListener{
     
     public SaveLocal getSaveLocal(){
         return saveLocalBut;
+    }
+    
+    public SaveMaster getSaveMaster(){
+        return saveMasterBut;
     }
     
     public DocumentViewer getDocViewer(){

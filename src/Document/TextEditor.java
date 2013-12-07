@@ -71,6 +71,11 @@ public class TextEditor extends DocumentViewer{
         return fileName;
     }
     
+    public File getFile(){
+        File retFile = new File(fileName, textArea.getText());
+        return retFile;
+    }
+    
     public String getText(){
         return textArea.getText();
     }

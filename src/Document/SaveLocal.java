@@ -39,4 +39,25 @@ public class SaveLocal extends JButton{
         }
         saveChooser.rescanCurrentDirectory();
     }
+    
+    public void writeFile(File file){
+        FileOpener fo = new FileOpener();
+        DocumentViewer dv;
+        fo.readFile(file);
+        dv = fo.getDocViewer();
+        
+        int returnVal = saveChooser.showSaveDialog(dv);
+        
+        if ( returnVal == JFileChooser.APPROVE_OPTION ){
+                File saveFile = new File(saveChooser.getSelectedFile() + "");
+                if(saveFile == null){
+                    return;
+                }
+                if(saveFile.exists()){
+                    return; //***TODO: add are you sure you want to overwirte dialog***
+                }
+        }
+        dv.saveLocal(file);
+        saveChooser.rescanCurrentDirectory();
+    }
 }
