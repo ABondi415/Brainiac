@@ -27,20 +27,23 @@ public class DBAdapter {
         return instance;
     }
 
-    public void createUser(String username, String userPass) {
+    public boolean createUser(String username, String userPass) {
         try {
             if (!checkUsername(username)) {
                 Statement sta = conn.createStatement();
                 sta.executeUpdate("INSERT INTO USERS"
                         + " (USERNAME, USERPASSWORD)"
                         + " VALUES ('" + username + "', '" + userPass + "')");
+                return true;
             }
             else {
                 System.out.println("That username already exists!");
+                return false;
             }
         } catch (SQLException ex) {
             System.out.println("I could not create new user! " + ex);
         }
+        return false;
     }
     
     private boolean checkUsername(String username){
