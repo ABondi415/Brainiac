@@ -46,6 +46,21 @@ public class DBAdapter {
         return false;
     }
     
+    public boolean createSession(String sessionName){
+        try {
+            if (!checkSessionName(sessionName)){
+                Statement sta = conn.createStatement();
+                sta.executeUpdate("INSERT INTO SESSIONS"
+                        + " (SESSIONNAME)"
+                        + " VALUES ('"+sessionName+"')");
+                return true;
+            }
+        } catch (SQLException ex){
+            return false;
+        }
+        return false;
+    }
+    
     private boolean checkUsername(String username){
         boolean nameExists = false;
         try{
@@ -53,18 +68,32 @@ public class DBAdapter {
             ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '"+username+"'");
             nameExists = rs.next();
         }
-        catch (SQLException ex) {
-            System.out.println("I had an issue checking the username! " + ex);
-        }
+        catch (SQLException ex) {}
         return nameExists;
     }
     
-    public boolean checkLogin(String username, String pass){
+    private boolean checkSessionName(String sessionname){
+        boolean nameExists = false;
+        try{
+            Statement sta = conn.createStatement();
+            ResultSet rs = sta.executeQuery("SELECT SESSIONNAME FROM SESSIONS WHERE SESSIONNAME = '"+sessionname+"'");
+            nameExists = rs.next();
+        }
+        catch (SQLException ex){}
+        return nameExists;
+    }
+    
+    public boolean checkLogin(String username, String pass, String sessionname){
         boolean matchFound = false;
         try{
             Statement sta = conn.createStatement();
             ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '"+username+"' AND USERPASSWORD = '"+pass+"'");
-            matchFound = rs.next();
+            boolean loginFound = rs.next();
+            if (loginFound){
+                if (checkSessionName(sessionname)){
+                    matchFound = true;
+                }
+            }
         }
         catch (SQLException ex) {
             System.out.println("I had an issue checking the username! " + ex);
