@@ -30,17 +30,19 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JPanel mainPanel, chatCalendarPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardPanel, whiteboardDocumentPanel;
     private JPanel welcomeButtonsPanel, welcomeFieldsPanel, welcomeLabelsPanel, welcomePanel;
     private JPanel createAccountPanel, createAccountButtonsPanel, createAccountFieldsPanel, createAccountLabelsPanel;
-    private JButton connectButton, createAccountButton, exitButton, createButton, cancelButton;
+    private JPanel createSessionPanel, createSessionButtonsPanel, createSessionFieldsPanel, createSessionLabelsPanel;
+    private JButton connectButton, createAccountButton, newSessionButton, createSessionButton, exitButton, createButton, cancelButton, sessionCancelButton;
     private JMenu fileMenu, editMenu;
     private JMenuItem exitMenuItem, logoffMenuItem;
     private JMenuBar menuBar;
     private JTextField usernameField, sessionNameField, newUsernameField, createAccountErrorField, welcomePanelErrorField;
+    private JTextField newSessionNameField, newSessionErrorField;
     private JPasswordField userPasswordField, newUserPasswordField;
     private JLabel userPasswordLabel, sessionNameLabel, titleLabel, usernameLabel;
     private JLabel newUsernameLabel, newUserPasswordLabel, createAccountLabel, createAccountErrorLabel, welcomePanelErrorLabel;
+    private JLabel newSessionNameLabel, newSessionErrorLabel, newSessionTitleLabel;
     private JLabel temporaryLabel1, temporaryLabel2, temporaryLabel3;
     private String username, sessionName;
-    private char[] userPassword;
     private ChatServer chatServer;
     private ChatClientGUI chatGUI;
     private Browser browser;
@@ -56,7 +58,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JList fileSelectList;
     private JPopupMenu dialog;
     
-//    private DBAdapter adapter;
+    private DBAdapter adapter;
     
     private BrainiacGUI(){
         GridBagConstraints gridBagConstraints;
@@ -94,6 +96,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         calendarTasksPanel = new JPanel();
         temporaryLabel3 = new JLabel();
         //whiteboardPanel = new JPanel();
+        //Added for the createAccount panel 12/08
         createAccountFieldsPanel = new JPanel();
         createAccountLabelsPanel = new JPanel();
         newUsernameField = new JTextField();
@@ -105,6 +108,22 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         createAccountErrorField = new JTextField();
         welcomePanelErrorField = new JTextField();
         welcomePanelErrorLabel = new JLabel();
+        //Added for the createSession panel 12/09
+        createSessionPanel = new JPanel();
+        createSessionButtonsPanel = new JPanel();
+        createSessionFieldsPanel = new JPanel();
+        createSessionLabelsPanel = new JPanel();
+        createSessionButton = new JButton();
+        createSessionButton.addActionListener(this);
+        sessionCancelButton = new JButton();
+        sessionCancelButton.addActionListener(this);
+        newSessionButton = new JButton();
+        newSessionButton.addActionListener(this);
+        newSessionNameField = new JTextField();
+        newSessionErrorField = new JTextField();
+        newSessionNameLabel = new JLabel();
+        newSessionErrorLabel = new JLabel();
+        newSessionTitleLabel = new JLabel();
         
         whiteboardPanel = new Board();
         
@@ -160,6 +179,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         
         createAccountPanel.setLayout(new BorderLayout());
         welcomePanel.setLayout(new BorderLayout());
+        createSessionPanel.setLayout(new BorderLayout());
 
         titleLabel.setFont(new Font("Times New Roman", 1, 36)); 
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -170,12 +190,20 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         createAccountLabel.setHorizontalAlignment(SwingConstants.CENTER);
         createAccountLabel.setText("Create Account");
         createAccountPanel.add(createAccountLabel, BorderLayout.PAGE_START);
-
+        
+        newSessionTitleLabel.setFont(new Font("Times New Roman", 1, 36)); 
+        newSessionTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        newSessionTitleLabel.setText("Create Session");
+        createSessionPanel.add(newSessionTitleLabel, BorderLayout.PAGE_START);
+        
         connectButton.setText("Connect");
         welcomeButtonsPanel.add(connectButton);
         
         createAccountButton.setText("Create Account");
         welcomeButtonsPanel.add(createAccountButton);
+        
+        newSessionButton.setText("Create Session");
+        welcomeButtonsPanel.add(newSessionButton);
 
         exitButton.setText("Exit");
         welcomeButtonsPanel.add(exitButton);
@@ -184,12 +212,16 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         
         createButton.setText("Create");
         createAccountButtonsPanel.add(createButton);
-        
         cancelButton.setText("Cancel");
         createAccountButtonsPanel.add(cancelButton);
-        
         createAccountPanel.add(createAccountButtonsPanel, BorderLayout.PAGE_END);
-
+        
+        createSessionButton.setText("Create");
+        createSessionButtonsPanel.add(createSessionButton);
+        sessionCancelButton.setText("Cancel");
+        createSessionButtonsPanel.add(sessionCancelButton);
+        createSessionPanel.add(createSessionButtonsPanel, BorderLayout.PAGE_END);
+        
         welcomeLabelsPanel.setLayout(new GridBagLayout());
 
         usernameLabel.setText("Username:");
@@ -242,6 +274,23 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         createAccountLabelsPanel.add(createAccountErrorLabel, gridBagConstraints);
 
         createAccountPanel.add(createAccountLabelsPanel, BorderLayout.LINE_START);
+        
+        createSessionLabelsPanel.setLayout(new GridBagLayout());
+        
+        newSessionNameLabel.setText("Session Name:");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.anchor = GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new Insets(29, 80, 58, 0);
+        createSessionLabelsPanel.add(newSessionNameLabel, gridBagConstraints);
+        
+        newSessionErrorLabel.setText("");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new Insets(0, 80, 0, 0);
+        createSessionLabelsPanel.add(newSessionErrorLabel, gridBagConstraints);
+        
+        createSessionPanel.add(createSessionLabelsPanel, BorderLayout.LINE_START);
         
         welcomeFieldsPanel.setLayout(new GridBagLayout());
 
@@ -311,11 +360,38 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         createAccountFieldsPanel.add(createAccountErrorField, gridBagConstraints);
         
         createAccountPanel.add(createAccountFieldsPanel, BorderLayout.CENTER);
+        
+        createSessionFieldsPanel.setLayout(new GridBagLayout());
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.insets = new Insets(0, 20, 0, 80);
+        createSessionFieldsPanel.add(newSessionNameField, gridBagConstraints);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new Insets(0, 20, 0, 80);
+        newSessionErrorField.setBorder(null);
+        newSessionErrorField.setBackground(createSessionPanel.getBackground());
+        newSessionErrorField.setForeground(Color.red);
+        newSessionErrorField.setFont(new Font("Times New Roman", 1, 16));
+        createSessionFieldsPanel.add(newSessionErrorField, gridBagConstraints);
+        
+        createSessionPanel.add(createSessionFieldsPanel, BorderLayout.CENTER);
 
         getContentPane().add(welcomePanel, "card2");
         
         createAccountPanel.setVisible(false);
         getContentPane().add(createAccountPanel, "card4");
+        
+        createSessionPanel.setVisible(false);
+        getContentPane().add(createSessionPanel, "card5");
 
         mainPanel.setLayout(new BorderLayout());
 
@@ -407,28 +483,55 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanel.setVisible(false);
             createAccountPanel.setVisible(true);
         }
+        if (o == newSessionButton){
+            welcomePanel.setVisible(false);
+            createSessionPanel.setVisible(true);
+        }
+        if (o == sessionCancelButton){
+            createSessionPanel.setVisible(false);
+            welcomePanel.setVisible(true);
+        }
+        if (o == createSessionButton){
+            newSessionErrorField.setText("");
+            sessionName = newSessionNameField.getText();
+            if(sessionName.matches("")){
+                newSessionErrorField.setText("Invalid Session name! ");
+            }
+            else {
+                adapter = DBAdapter.getInstance();
+                if(adapter.createSession(sessionName)){
+                    welcomePanelErrorField.setForeground(Color.green);
+                    welcomePanelErrorField.setText("Session created successfully!");
+                    createSessionPanel.setVisible(false);
+                    welcomePanel.setVisible(true);
+                }
+                else {
+                    newSessionErrorField.setText("That Session name is already in use!  Please try a different Session name.");
+                }
+            }
+        }
         if (o == createButton){
             createAccountErrorField.setText("");
-            String newUsername = newUsernameField.getText();
+            username = newUsernameField.getText();
             char[] newPass = newUserPasswordField.getPassword();
-            if (newPass.length == 0 || newUsername.length() == 0) {
+            if (newPass.length == 0 || username.length() == 0) {
                 createAccountErrorField.setText("Invalid Username or User Password!");
             }
             else {
-//                adapter = DBAdapter.getInstance();
+                adapter = DBAdapter.getInstance();
                 String stringPassword = "";
                 for (int i = 0; i < newPass.length; i++) {
-                    stringPassword += userPassword[i];
+                    stringPassword += newPass[i];
                 }
-                //if (adapter.createUser(newUsername, stringPassword)){
+                if (adapter.createUser(username, stringPassword)){
                     welcomePanelErrorField.setForeground(Color.green);
                     welcomePanelErrorField.setText("Account created successfully!");
                     createAccountPanel.setVisible(false);
                     welcomePanel.setVisible(true);
-                //}
-                //else{
-                //    createAccountErrorField.setText("That username is already in use!  Please try a different username.");
-                //}
+                }
+                else{
+                    createAccountErrorField.setText("That username is already in use!  Please try a different username.");
+                }
             }
         }
         if (o == cancelButton){
@@ -439,11 +542,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanelErrorField.setText("");
             welcomePanelErrorField.setForeground(Color.red);
             // Don't uncomment this unless you wish to test a username and password.  
-            //if (verifyConnect()){
+            if (verifyConnect()){
                 loadSession();
                 welcomePanel.setVisible(false);
                 mainPanel.setVisible(true);
-            //}
+            }
         }
         //Marcus added 11/12
         if (o == fileChooser){
@@ -531,22 +634,27 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     
 private boolean verifyConnect(){
         username = usernameField.getText();
-        userPassword = userPasswordField.getPassword();
         sessionName = sessionNameField.getText();
-        if (username.matches("") || userPassword.length == 0){
+        char [] password = userPasswordField.getPassword();
+        sessionName = sessionNameField.getText();
+        if (username.matches("") || password.length == 0){
             welcomePanelErrorField.setText("Invalid username or password!");
             return false;
         }
+        if (sessionName.matches("")){
+            welcomePanelErrorField.setText("Invalid session name!  Please enter a valid session or create a new session. ");
+            return false;
+        }
         String stringPassword = "";
-        for (int i = 0; i < userPassword.length; i++){
-            stringPassword += userPassword[i];
+        for (int i = 0; i < password.length; i++){
+            stringPassword += password[i];
         }
 
-//        adapter = DBAdapter.getInstance();
-//        if(adapter.checkLogin(username, stringPassword)){
-//            loginErrorLabel.setText("     Invalid username and password!");
-//            return false;
-//        }
+        adapter = DBAdapter.getInstance();
+        if(!adapter.checkLogin(username, stringPassword, sessionName)){
+            welcomePanelErrorField.setText("Invalid username or password or Session name!");
+            return false;
+        }
         return true;
     }
     
@@ -563,8 +671,5 @@ private boolean verifyConnect(){
         //Start the Browser
         browser = new Browser(browserPanel);
 
-        
-//        adapter = DBAdapter.getInstance();
-//        adapter.createUser("root", "password");
     }
 }
