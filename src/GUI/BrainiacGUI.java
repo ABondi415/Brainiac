@@ -143,11 +143,15 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         //Marcus added 11/11
         whiteboardDocumentPanel = new JPanel();
         whiteboardDocumentPane = new JTabbedPane();
+        //start file server    
+        sms = new SaveMasterServer();
+            sms.start();
         fileOpener = new FileOpener();
         fileChooser = fileOpener.getFileChooser();
             fileChooser.addActionListener(this);
         saveLocal = fileOpener.getSaveLocal();
             saveLocal.addActionListener(this);
+   
         saveMaster = fileOpener.getSaveMaster();
             saveMaster.addActionListener(this);
         closeFileBut = fileOpener.getCloseButton();
@@ -575,9 +579,9 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         if (o == saveMaster){
             Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
             if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
-                DocumentViewer dv = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
-                File file = dv.getFile();
-                saveMaster.writeFile(file);
+                //DocumentViewer dv = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
+                //File file = dv.getFile();
+                saveMaster.getFile();
             }
         }
             
@@ -669,10 +673,6 @@ private boolean verifyConnect(){
         //Start the chatGUI
         chatGUI = new ChatClientGUI("localhost", 1500, chatPanel);
         chatGUI.login(username, 1500, "localhost");
-        
-        //start file server       
-        sms = new SaveMasterServer();
-        sms.start();
         
         //Start the Browser
         browser = new Browser(browserPanel);

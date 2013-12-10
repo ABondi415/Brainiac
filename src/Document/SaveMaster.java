@@ -18,7 +18,7 @@ public class SaveMaster extends JButton{
     
     public SaveMaster(){
         this.setText("Save Master");
-        smc = new SaveMasterClient("localhost", 21, "Anonymous");
+        smc = new SaveMasterClient("localhost", 21, "anonymous");
     }
     
     public void writeFile(File file){
