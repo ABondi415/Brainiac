@@ -16,10 +16,11 @@ public class Oval extends Shapes{
     {
          Graphics2D g2d =  (Graphics2D) g;
         g2d.setColor(c);
+        g2d.setStroke(bs);
         if(filled)
-        g2d.fillOval(x,y,w,h);
+        g2d.fillOval(Math.min(x, w), Math.min(y, h), Math.abs(x - w), Math.abs(y - h));
         else
-        g2d.drawOval(x, y, w, h);
+        g2d.drawOval(Math.min(x, w), Math.min(y, h), Math.abs(x - w), Math.abs(y - h));
     }
     
 }
