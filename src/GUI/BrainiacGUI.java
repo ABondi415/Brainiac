@@ -47,12 +47,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private ChatClientGUI chatGUI;
     private Browser browser;
     
-    //Marcus added 11/21
+
     private FileOpener fileOpener;
     private JFileChooser fileChooser;
     private DocumentViewer docViewer;
     private SaveLocal saveLocal;
     private SaveMaster saveMaster;
+    private SaveMasterServer sms;
     private JButton closeFileBut, newFileBut;
     private JPopupMenu fileSelectPopup;
     private JList fileSelectList;
@@ -542,11 +543,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanelErrorField.setText("");
             welcomePanelErrorField.setForeground(Color.red);
             // Don't uncomment this unless you wish to test a username and password.  
-            if (verifyConnect()){
-                loadSession();
+//            if (verifyConnect()){
+//                loadSession();
                 welcomePanel.setVisible(false);
                 mainPanel.setVisible(true);
-            }
+//           }
         }
         //Marcus added 11/12
         if (o == fileChooser){
@@ -668,6 +669,11 @@ private boolean verifyConnect(){
         //Start the chatGUI
         chatGUI = new ChatClientGUI("localhost", 1500, chatPanel);
         chatGUI.login(username, 1500, "localhost");
+        
+        //start file server       
+        sms = new SaveMasterServer();
+        sms.start();
+        
         //Start the Browser
         browser = new Browser(browserPanel);
 
