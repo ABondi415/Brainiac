@@ -140,13 +140,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         addBrainstormersMenuItem.addActionListener(this);
         
         joinSessionDialog = new JDialog(this, "Join Session", false);
-        joinSessionDialog.setLocationRelativeTo(this);
         joinSessionDialog.setSize(250, 400);
         joinSessionDialog.setAlwaysOnTop(true);
         joinSessionDialog.setVisible(false);
         
         editBrainstormersDialog = new JDialog(this, "Add Brainstormers", false);
-        //editBrainstormersDialog.setLocationRelativeTo(this);
         editBrainstormersDialog.setSize(500, 300);
         editBrainstormersDialog.setAlwaysOnTop(true);
         editBrainstormersDialog.setVisible(false);
@@ -593,6 +591,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         setSize(1000, 800);
         setLocationRelativeTo(null);
         editBrainstormersDialog.setLocationRelativeTo(this);
+        joinSessionDialog.setLocationRelativeTo(this);
         setVisible(true);
     }
     
