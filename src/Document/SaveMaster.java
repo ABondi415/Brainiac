@@ -14,14 +14,19 @@ import javax.swing.JButton;
  * @author mzt5106
  */
 public class SaveMaster extends JButton{
-    SaveMasterClient smc = new SaveMasterClient("localHost", 1600); 
+    SaveMasterClient smc; 
     
     public SaveMaster(){
         this.setText("Save Master");
+        smc = new SaveMasterClient("localhost", 21, "Anonymous");
     }
     
     public void writeFile(File file){
-        smc.sendFile(file);
+//        smc.sendFile(file);
+    }
+    
+    public void getFile(){
+        smc.getFile();
     }
 
 }

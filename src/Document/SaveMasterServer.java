@@ -4,79 +4,121 @@
  */
 package Document;
 
-import java.io.*;
-import java.net.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.ftpserver.FtpServer;
+import org.apache.ftpserver.FtpServerFactory;
+import org.apache.ftpserver.ftplet.Authority;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.usermanager.impl.BaseUser;
+import org.apache.ftpserver.usermanager.impl.WritePermission;
 
+
+public class SaveMasterServer{
+    private FtpServer server;
+    
+    public SaveMasterServer(){
+        FtpServerFactory serverFactory = new FtpServerFactory();
+        
+        BaseUser user = new BaseUser();
+            user.setName("Anonymous");
+            user.setPassword("aaa");
+            user.setHomeDirectory("C:/sTest/");
+            
+        ArrayList<Authority> auth = new ArrayList<Authority>();
+            auth.add(new WritePermission());
+            user.setAuthorities((List) auth);
+        try {
+            serverFactory.getUserManager().save(user);
+        } catch (FtpException ex) {
+            Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+             
+        server = serverFactory.createServer();
+    }
+    
+    public void start(){
+
+        try {
+            server.start();
+        } catch (FtpException ex) {
+            Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void stop(){
+        server.stop();
+    }
+}
 /**
  *
  * @author Marcus
  */
-public class SaveMasterServer implements Runnable{
-    private OutputStream oS;
-    private InputStream  iS;
-    private ServerSocket sS;
-    
-    private String server, username;
-    private int port;    
-    
-    
-    public SaveMasterServer(String server, int port, String username) {
-        this.server = server;
-        this.port = port;
-        this.username = username;
-        
-        try {
-            sS = new ServerSocket(port);
-            run();
-        } catch (IOException ex) {
-            Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-    public static void main(String[] args) throws IOException{
-        int portNumber = 1600;
-        String serverAddress = "localhost";
-        String userName = "Anonymous";
-        SaveMasterServer saveServer = new SaveMasterServer(serverAddress, portNumber, userName);
-    }
-    
-    public void sendFile(File file){
-        BufferedInputStream biS = null;
-        try {
-            File sendFile = file;
-            biS = new BufferedInputStream(new FileInputStream(sendFile));
-            byte[] size = new byte[(int)sendFile.length() + 1];
-            biS.read(size, 0, size.length);
-            oS.write(size, 0, size.length);
-            oS.flush();
-            //biS.close();
-        } catch (Exception ex) {
-            Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
-        }   
-    }
-
-    public void getFile(){
-        
-    }
-
-    public void run() {
-        while(true){
-            try {
-                Socket socket = sS.accept();
-                
-                OutputStream oS = socket.getOutputStream();
-                InputStream  iS = socket.getInputStream();
-
-                socket.close();
-            } catch (IOException ex) {
-                Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-}
+//public class SaveMasterServer implements Runnable{
+//    private OutputStream oS;
+//    private InputStream  iS;
+//    private ServerSocket sS;
+//    
+//    private String server, username;
+//    private int port;    
+//    
+//    
+//    public SaveMasterServer(String server, int port, String username) {
+//        this.server = server;
+//        this.port = port;
+//        this.username = username;
+//        
+//        try {
+//            sS = new ServerSocket(port);
+//            run();
+//        } catch (IOException ex) {
+//            Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//    }
+//    public static void main(String[] args) throws IOException{
+//        int portNumber = 1600;
+//        String serverAddress = "localhost";
+//        String userName = "Anonymous";
+//        SaveMasterServer saveServer = new SaveMasterServer(serverAddress, portNumber, userName);
+//    }
+//    
+//    public void sendFile(File file){
+//        BufferedInputStream biS = null;
+//        try {
+//            File sendFile = file;
+//            biS = new BufferedInputStream(new FileInputStream(sendFile));
+//            byte[] size = new byte[(int)sendFile.length() + 1];
+//            biS.read(size, 0, size.length);
+//            oS.write(size, 0, size.length);
+//            oS.flush();
+//            //biS.close();
+//        } catch (Exception ex) {
+//            Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+//        }   
+//    }
+//
+//    public File getFile(){
+//        
+//    }
+//
+//    public void run() {
+//        while(true){
+//            try {
+//                Socket socket = sS.accept();
+//                
+//                OutputStream oS = socket.getOutputStream();
+//                InputStream  iS = socket.getInputStream();
+//
+//                socket.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(SaveMasterServer.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//    }
+//}
     
 //    private int port;
 //    private boolean keepGoing;
