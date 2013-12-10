@@ -31,9 +31,10 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JPanel welcomeButtonsPanel, welcomeFieldsPanel, welcomeLabelsPanel, welcomePanel;
     private JPanel createAccountPanel, createAccountButtonsPanel, createAccountFieldsPanel, createAccountLabelsPanel;
     private JPanel createSessionPanel, createSessionButtonsPanel, createSessionFieldsPanel, createSessionLabelsPanel;
-    private JButton connectButton, createAccountButton, newSessionButton, createSessionButton, exitButton, createButton, cancelButton, sessionCancelButton;
-    private JMenu fileMenu, editMenu;
-    private JMenuItem exitMenuItem, logoffMenuItem;
+    private JButton connectButton, createAccountButton, createSessionButton, exitButton, createButton, cancelButton, sessionCancelButton;
+    //private JButton newSessionButton; //uncomment if we wish to be able to create a session from the welcome panel.
+    private JMenu fileMenu, sessionMenu;
+    private JMenuItem exitMenuItem, createSessionMenuItem, joinSessionMenuItem, addBrainstormersMenuItem, logoffMenuItem;
     private JMenuBar menuBar;
     private JTextField usernameField, sessionNameField, newUsernameField, createAccountErrorField, welcomePanelErrorField;
     private JTextField newSessionNameField, newSessionErrorField;
@@ -46,7 +47,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private ChatServer chatServer;
     private ChatClientGUI chatGUI;
     private Browser browser;
-    
+    private JDialog joinSessionDialog, addBrainstormersDialog;
+    private boolean brainstorming;
 
     private FileOpener fileOpener;
     private JFileChooser fileChooser;
@@ -118,13 +120,34 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         createSessionButton.addActionListener(this);
         sessionCancelButton = new JButton();
         sessionCancelButton.addActionListener(this);
-        newSessionButton = new JButton();
-        newSessionButton.addActionListener(this);
+        //newSessionButton = new JButton();         //uncomment if we wish to be able to create a session from the welcome panel.
+        //newSessionButton.addActionListener(this);
         newSessionNameField = new JTextField();
         newSessionErrorField = new JTextField();
         newSessionNameLabel = new JLabel();
         newSessionErrorLabel = new JLabel();
         newSessionTitleLabel = new JLabel();
+        createSessionMenuItem = new JMenuItem();
+        createSessionMenuItem.addActionListener(this);
+        joinSessionMenuItem = new JMenuItem();
+        joinSessionMenuItem.addActionListener(this);
+        addBrainstormersMenuItem = new JMenuItem();
+        addBrainstormersMenuItem.addActionListener(this);
+        
+        joinSessionDialog = new JDialog(this, "Join Session", false);
+        joinSessionDialog.setLocationRelativeTo(this);
+        joinSessionDialog.setSize(250, 400);
+        joinSessionDialog.setAlwaysOnTop(true);
+        joinSessionDialog.setVisible(false);
+        
+        addBrainstormersDialog = new JDialog(this, "Add Brainstormers", false);
+        addBrainstormersDialog.setLocationRelativeTo(this);
+        addBrainstormersDialog.setSize(250, 400);
+        addBrainstormersDialog.setAlwaysOnTop(true);
+        addBrainstormersDialog.setVisible(false);
+        
+        sessionName = "";
+        brainstorming = false;
         
         whiteboardPanel = new Board();
         
@@ -135,7 +158,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             logoffMenuItem.addActionListener(this);
         exitMenuItem = new JMenuItem();
             exitMenuItem.addActionListener(this);
-        editMenu = new JMenu();
+        sessionMenu = new JMenu();
         
         //Mark added 12/06
         //calendarTasksPanel.add(gctp);
@@ -207,8 +230,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         createAccountButton.setText("Create Account");
         welcomeButtonsPanel.add(createAccountButton);
         
-        newSessionButton.setText("Create Session");
-        welcomeButtonsPanel.add(newSessionButton);
+        //newSessionButton.setText("Create Session");   //uncomment if we wish to be able to create a session from the welcome panel.
+        //welcomeButtonsPanel.add(newSessionButton);
 
         exitButton.setText("Exit");
         welcomeButtonsPanel.add(exitButton);
@@ -453,9 +476,19 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         fileMenu.add(exitMenuItem);
 
         menuBar.add(fileMenu);
+        
+        createSessionMenuItem.setText("Create Session");
+        sessionMenu.add(createSessionMenuItem);
+        
+        joinSessionMenuItem.setText("Join Session");
+        sessionMenu.add(joinSessionMenuItem);
+        
+        addBrainstormersMenuItem.setText("Add Brainstormers");
+        sessionMenu.add(addBrainstormersMenuItem);
 
-        editMenu.setText("Edit");
-        menuBar.add(editMenu);
+        sessionMenu.setText("Session");
+        sessionMenu.setVisible(false);
+        menuBar.add(sessionMenu);
 
         setJMenuBar(menuBar);
         
@@ -488,13 +521,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanel.setVisible(false);
             createAccountPanel.setVisible(true);
         }
-        if (o == newSessionButton){
-            welcomePanel.setVisible(false);
-            createSessionPanel.setVisible(true);
-        }
+//        if (o == newSessionButton){               //uncomment if we wish to be able to create a session from the welcome panel.
+//            welcomePanel.setVisible(false);
+//            createSessionPanel.setVisible(true);
+//        }
         if (o == sessionCancelButton){
             createSessionPanel.setVisible(false);
-            welcomePanel.setVisible(true);
+            mainPanel.setVisible(true);
         }
         if (o == createSessionButton){
             newSessionErrorField.setText("");
@@ -504,11 +537,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             }
             else {
                 adapter = DBAdapter.getInstance();
-                if(adapter.createSession(sessionName)){
-                    welcomePanelErrorField.setForeground(Color.green);
-                    welcomePanelErrorField.setText("Session created successfully!");
+                if(adapter.createSession(username, sessionName)){
+                    //welcomePanelErrorField.setForeground(Color.green);
+                    //welcomePanelErrorField.setText("Session created successfully!");
                     createSessionPanel.setVisible(false);
-                    welcomePanel.setVisible(true);
+                    mainPanel.setVisible(true);
+                    JOptionPane.showMessageDialog(mainPanel, "Session created successfully! You are now in the "+sessionName+" session!");
+                    brainstorming = true;
                 }
                 else {
                     newSessionErrorField.setText("That Session name is already in use!  Please try a different Session name.");
@@ -543,15 +578,55 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanel.setVisible(true);
             createAccountPanel.setVisible(false);
         }
-        if (o == connectButton){
+        if (o == connectButton) {
             welcomePanelErrorField.setText("");
             welcomePanelErrorField.setForeground(Color.red);
-            // Don't uncomment this unless you wish to test a username and password.  
-//            if (verifyConnect()){
-//                loadSession();
-                welcomePanel.setVisible(false);
-                mainPanel.setVisible(true);
-//           }
+            // Don't uncomment this unless you wish to test a username and password. 
+            if (sessionNameField.getText().length() > 0) {
+                if (verifyConnect()) {
+                    loadSession();
+                    welcomePanel.setVisible(false);
+                    mainPanel.setVisible(true);
+                    sessionMenu.setVisible(true);
+                    JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
+                    brainstorming = true;
+                }
+            } else {
+                if (verifyUser()) {
+                    loadSession();
+                    welcomePanel.setVisible(false);
+                    mainPanel.setVisible(true);
+                    sessionMenu.setVisible(true);
+                }
+            }
+        }
+        if (o == createSessionMenuItem){
+            if (brainstorming){
+                JOptionPane.showMessageDialog(mainPanel, "You cannot create a session while in another session!  Please log off and try again! ",
+                        "Create Session Warning", JOptionPane.WARNING_MESSAGE);
+            }
+            else {
+                mainPanel.setVisible(false);
+                createSessionPanel.setVisible(true);
+            }
+        }
+        if (o == joinSessionMenuItem){
+            if (brainstorming){
+                JOptionPane.showMessageDialog(mainPanel, "You cannot join a session while in another session!  Please log off and try again! ",
+                        "Join Session Warning", JOptionPane.WARNING_MESSAGE);
+            }
+            else{
+                joinSessionDialog.setVisible(true);
+            }
+        }
+        if (o == addBrainstormersMenuItem){
+            if (brainstorming){
+                addBrainstormersDialog.setVisible(true);
+            }
+            else {
+                JOptionPane.showMessageDialog(mainPanel, "You cannot add brainstormers without joining a session!",
+                        "Add Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
+            }
         }
         //Marcus added 11/12
         if (o == fileChooser){
@@ -635,13 +710,40 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     
     private void logoff(){
         //Handle logoff event here.  Save session, clear screen, disconnect from DB, etc.  
+        mainPanel.setVisible(false);
+        welcomePanel.setVisible(true);
+        sessionMenu.setVisible(false);
+        username = "";
+        sessionName = "";
+        usernameField.setText("");
+        userPasswordField.setText("");
+        sessionNameField.setText("");
+        brainstorming = false;
     }
     
-private boolean verifyConnect(){
+    private boolean verifyUser(){
+        username = usernameField.getText();
+        char [] password = userPasswordField.getPassword();
+        if (username.matches("") || password.length == 0){
+            welcomePanelErrorField.setText("Invalid username or password!");
+            return false;
+        }
+        String stringPassword = "";
+        for (int i = 0; i < password.length; i++){
+            stringPassword += password[i];
+        }
+        adapter = DBAdapter.getInstance();
+        if(!adapter.checkLogin(username, stringPassword)){
+            welcomePanelErrorField.setText("Invalid username or password or Session name!");
+            return false;
+        }
+        return true;
+    }
+    
+    private boolean verifyConnect(){
         username = usernameField.getText();
         sessionName = sessionNameField.getText();
         char [] password = userPasswordField.getPassword();
-        sessionName = sessionNameField.getText();
         if (username.matches("") || password.length == 0){
             welcomePanelErrorField.setText("Invalid username or password!");
             return false;

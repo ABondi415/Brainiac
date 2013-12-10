@@ -46,13 +46,13 @@ public class DBAdapter {
         return false;
     }
     
-    public boolean createSession(String sessionName){
+    public boolean createSession(String username, String sessionName){
         try {
             if (!checkSessionName(sessionName)){
                 Statement sta = conn.createStatement();
                 sta.executeUpdate("INSERT INTO SESSIONS"
-                        + " (SESSIONNAME)"
-                        + " VALUES ('"+sessionName+"')");
+                        + " (SESSIONNAME, SESSIONUSERS)"
+                        + " VALUES ('"+sessionName+"', '"+ username +"')");
                 return true;
             }
         } catch (SQLException ex){
@@ -81,6 +81,19 @@ public class DBAdapter {
         }
         catch (SQLException ex){}
         return nameExists;
+    }
+    
+    public boolean checkLogin(String username, String pass){
+        boolean matchFound = false;
+        try{
+            Statement sta = conn.createStatement();
+            ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '"+username+"' AND USERPASSWORD = '"+pass+"'");
+            matchFound = rs.next();
+        }
+        catch (SQLException ex) {
+            System.out.println("I had an issue checking the username! " + ex);
+        }
+        return matchFound;
     }
     
     public boolean checkLogin(String username, String pass, String sessionname){
