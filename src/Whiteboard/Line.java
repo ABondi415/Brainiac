@@ -19,7 +19,7 @@ public class Line extends Shapes{
     {
         Graphics2D g2d =  (Graphics2D) g;
         g2d.setColor(c);
-        
+        g2d.setStroke(bs);
         g2d.drawLine(x,y,w,h);
         
     }

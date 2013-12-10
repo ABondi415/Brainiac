@@ -17,9 +17,11 @@ public class Freedraw  extends Shapes{
     
     public void drawShape(Graphics g, Color c, int x, int y, int w, int h, boolean filled, BasicStroke bs)
     {
-        Graphics2D g2d =  (Graphics2D) g;
+        Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(c);
+        g2d.setStroke(bs);
         g2d.drawLine(x, y, w, h);
+        
     }
     
 }
