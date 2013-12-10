@@ -47,8 +47,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private ChatServer chatServer;
     private ChatClientGUI chatGUI;
     private Browser browser;
-    private JDialog joinSessionDialog, addBrainstormersDialog;
+    private JDialog joinSessionDialog, editBrainstormersDialog;
     private boolean brainstorming;
+    //Added for the addBrainstormersDialog
+    private JPanel addBrainstormersTablePanel, editBrainstormersButtonsPanel;
+    private JButton editBrainstormersCancelButton, addBrainstormersButton, removeBrainstormerButton;
+    private JScrollPane editBrainstormersExistingPane, editBrainstormersCurrentPane;
+    private JTable editBrainstormersCurrentTable, editBrainstormersExistingTable;
 
     private FileOpener fileOpener;
     private JFileChooser fileChooser;
@@ -140,12 +145,22 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         joinSessionDialog.setAlwaysOnTop(true);
         joinSessionDialog.setVisible(false);
         
-        addBrainstormersDialog = new JDialog(this, "Add Brainstormers", false);
-        addBrainstormersDialog.setLocationRelativeTo(this);
-        addBrainstormersDialog.setSize(250, 400);
-        addBrainstormersDialog.setAlwaysOnTop(true);
-        addBrainstormersDialog.setVisible(false);
+        editBrainstormersDialog = new JDialog(this, "Add Brainstormers", false);
+        //editBrainstormersDialog.setLocationRelativeTo(this);
+        editBrainstormersDialog.setSize(500, 300);
+        editBrainstormersDialog.setAlwaysOnTop(true);
+        editBrainstormersDialog.setVisible(false);
         
+        editBrainstormersButtonsPanel = new JPanel();
+        addBrainstormersButton = new JButton();
+        removeBrainstormerButton = new JButton();
+        editBrainstormersCancelButton = new JButton();
+        addBrainstormersTablePanel = new JPanel();
+        editBrainstormersExistingPane = new JScrollPane();
+        editBrainstormersExistingTable = new JTable();
+        editBrainstormersCurrentPane = new JScrollPane();
+        editBrainstormersCurrentTable = new JTable();
+       
         sessionName = "";
         brainstorming = false;
         
@@ -492,9 +507,92 @@ public class BrainiacGUI extends JFrame implements ActionListener{
 
         setJMenuBar(menuBar);
         
+        //Added for Add Brainstormers JDialog.
+        addBrainstormersButton.setText("Add Brainstormer");
+        editBrainstormersButtonsPanel.add(addBrainstormersButton);
+
+        removeBrainstormerButton.setText("Remove Brainstormer");
+        editBrainstormersButtonsPanel.add(removeBrainstormerButton);
+
+        editBrainstormersCancelButton.setText("Cancel");
+        editBrainstormersButtonsPanel.add(editBrainstormersCancelButton);
+
+        editBrainstormersDialog.add(editBrainstormersButtonsPanel, java.awt.BorderLayout.PAGE_END);
+
+        addBrainstormersTablePanel.setLayout(new java.awt.GridLayout(1, 2));
+
+        editBrainstormersExistingTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Existing Users"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        editBrainstormersExistingTable.setColumnSelectionAllowed(true);
+        editBrainstormersExistingTable.getTableHeader().setReorderingAllowed(false);
+        editBrainstormersExistingPane.setViewportView(editBrainstormersExistingTable);
+        editBrainstormersExistingTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (editBrainstormersExistingTable.getColumnModel().getColumnCount() > 0) {
+            editBrainstormersExistingTable.getColumnModel().getColumn(0).setResizable(false);
+        }
+
+        addBrainstormersTablePanel.add(editBrainstormersExistingPane);
+
+        editBrainstormersCurrentTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Current Brainstormers"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        editBrainstormersCurrentTable.setColumnSelectionAllowed(true);
+        editBrainstormersCurrentTable.getTableHeader().setReorderingAllowed(false);
+        editBrainstormersCurrentPane.setViewportView(editBrainstormersCurrentTable);
+        editBrainstormersCurrentTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (editBrainstormersCurrentTable.getColumnModel().getColumnCount() > 0) {
+            editBrainstormersCurrentTable.getColumnModel().getColumn(0).setResizable(false);
+        }
+
+        addBrainstormersTablePanel.add(editBrainstormersCurrentPane);
+
+        editBrainstormersDialog.add(addBrainstormersTablePanel, java.awt.BorderLayout.CENTER);
+        
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1000, 800);
         setLocationRelativeTo(null);
+        editBrainstormersDialog.setLocationRelativeTo(this);
         setVisible(true);
     }
     
@@ -621,7 +719,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         }
         if (o == addBrainstormersMenuItem){
             if (brainstorming){
-                addBrainstormersDialog.setVisible(true);
+                editBrainstormersDialog.setVisible(true);
             }
             else {
                 JOptionPane.showMessageDialog(mainPanel, "You cannot add brainstormers without joining a session!",

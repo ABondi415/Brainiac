@@ -51,8 +51,8 @@ public class DBAdapter {
             if (!checkSessionName(sessionName)){
                 Statement sta = conn.createStatement();
                 sta.executeUpdate("INSERT INTO SESSIONS"
-                        + " (SESSIONNAME, SESSIONUSERS)"
-                        + " VALUES ('"+sessionName+"', '"+ username +"')");
+                        + " (SESSIONNAME, SESSIONHOST, SESSIONUSERS)"
+                        + " VALUES ('"+sessionName+"', '"+ username +"' ,'"+""+"')");
                 return true;
             }
         } catch (SQLException ex){
