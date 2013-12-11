@@ -192,8 +192,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         saveLocal = fileOpener.getSaveLocal();
             saveLocal.addActionListener(this);
    
-        //saveMaster = fileOpener.getSaveMaster();
-        //    saveMaster.addActionListener(this);
+        saveMaster = fileOpener.getSaveMaster();
+            saveMaster.addActionListener(this);
         closeFileBut = fileOpener.getCloseButton();
             closeFileBut.addActionListener(this);
         newFileBut = fileOpener.getNewButton();
