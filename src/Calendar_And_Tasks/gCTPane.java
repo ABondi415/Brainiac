@@ -5,6 +5,10 @@
  */
 package Calendar_And_Tasks;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JTabbedPane;
 
 /**
@@ -15,19 +19,37 @@ public class gCTPane extends JTabbedPane{
     private static gCalendarPane gCP;
     private static gTaskPane gTP ;
     private static gCTPane gCTP;
+    protected static LoginPanel lp;
     
     private gCTPane(){
-        
         gCP = new gCalendarPane();
         gTP = new gTaskPane();
+        lp = new LoginPanel();
         gCTP = null;
     }
     
     public static gCTPane instanceOf(){
         if (gCTP == null) gCTP = new gCTPane();
+        if (LoginPanel.getUserCredentials()[0] == null || 
+                LoginPanel.getUserCredentials()[1] == null){
+            lp.getButton().addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                   gCTP.remove(lp);
+                }
+            });
+            gCTP.addTab("Google Login", lp);
+        }
+        
         gCTP.addTab("Calendar", gCP);
         gCTP.addTab("Tasks", gTP);
         gCTP.setVisible(true);
+        
+        return gCTP;
+    }
+    
+    protected static gCTPane getPane(){
         return gCTP;
     }
 }

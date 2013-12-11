@@ -18,6 +18,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Vector;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
@@ -71,6 +73,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private RemotePanel remotePanel;
     
     private DBAdapter adapter;
+    private String userIP;
+    
     
     private BrainiacGUI(){
         GridBagConstraints gridBagConstraints;
@@ -726,7 +730,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             }
             else {
                 adapter = DBAdapter.getInstance();
-                if(adapter.createSession(username, sessionName)){
+                try{
+                    userIP = InetAddress.getLocalHost().getHostAddress();
+                }
+                catch (UnknownHostException ex){}
+                if(adapter.createSession(username, sessionName, userIP)){
                     //welcomePanelErrorField.setForeground(Color.green);
                     //welcomePanelErrorField.setText("Session created successfully!");
                     createSessionPanel.setVisible(false);
@@ -752,7 +760,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 for (int i = 0; i < newPass.length; i++) {
                     stringPassword += newPass[i];
                 }
-                if (adapter.createUser(username, stringPassword)){
+                try{
+                    userIP = InetAddress.getLocalHost().getHostAddress();
+                }
+                catch (UnknownHostException ex){}
+                if (adapter.createUser(username, stringPassword, userIP)){
                     welcomePanelErrorField.setForeground(Color.green);
                     welcomePanelErrorField.setText("Account created successfully!");
                     createAccountPanel.setVisible(false);
@@ -775,13 +787,19 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             // Don't uncomment this unless you wish to test a username and password. 
             if (sessionNameField.getText().length() > 0) {
                 if (verifyConnect()) {
+                    adapter = DBAdapter.getInstance();
+                    try{
+                        userIP = InetAddress.getLocalHost().getHostAddress();
+                    }
+                    catch (UnknownHostException ex){}
+                    adapter.updateUserIP(username, userIP);
                     loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
                     //If you are the host, you can add other brainstormers.
-                    adapter = DBAdapter.getInstance();
                     if (username.equals(adapter.getSessionHost(sessionName))){
+                        adapter.updateHostIP(username, userIP);
                         addBrainstormersMenuItem.setVisible(true);
                     }
                     JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
@@ -789,6 +807,12 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 }
             } else {
                 if (verifyUser()) {
+                    adapter = DBAdapter.getInstance();
+                    try{
+                        userIP = InetAddress.getLocalHost().getHostAddress();
+                    }
+                    catch (UnknownHostException ex){}
+                    adapter.updateUserIP(username, userIP);
                     loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);

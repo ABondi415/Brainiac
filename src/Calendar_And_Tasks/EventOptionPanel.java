@@ -14,15 +14,24 @@ import com.google.gdata.data.calendar.CalendarFeed;
 import com.google.gdata.data.extensions.When;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
+import com.sun.star.util.Time;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -31,7 +40,7 @@ import javax.swing.JTextField;
  * @author mark4689
  */
 public class EventOptionPanel extends JPanel {
-
+    
     private static JTextField eventNameTF;
     private static JTextField eventDateTF;
     private static JTextField eventDescriptionTF;
@@ -57,12 +66,12 @@ public class EventOptionPanel extends JPanel {
             
         } catch (AuthenticationException ex) {
             System.out.println("Credentials do not match credentials on file at Google.");
-            JFrame aFrame = new JFrame("Login");
-            LoginPanel lp = new LoginPanel(aFrame);
-            aFrame.add(lp);
-            aFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            aFrame.setSize(200, 200);
-            aFrame.setVisible(true);
+//            JFrame aFrame = new JFrame("Login");
+//            LoginPanel lp = new LoginPanel(aFrame);
+//            aFrame.add(lp);
+//            aFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//            aFrame.setSize(200, 200);
+//            aFrame.setVisible(true);
             user = LoginPanel.getUserCredentials()[0];
             password = LoginPanel.getUserCredentials()[1];
         }
@@ -95,11 +104,34 @@ public class EventOptionPanel extends JPanel {
                 startTime = eventStartTimeTF.getText();
                 endTime = eventEndTimeTF.getText();
                 location = eventLocationTF.getText();
-                chosenCal = cf.getEntries().get(cf.getEntries().indexOf(calendarSelector.getSelectedItem()));
-
+                List<CalendarEntry> entries = cf.getEntries();
+                for(int i = 0; i < entries.size(); i++){
+                    if(entries.get(i).getTitle().getPlainText().equals(calendarSelector.getItemAt(calendarSelector.getSelectedIndex()).toString())){
+                        chosenCal = entries.get(i);
+                    }
+                    
+                }
+                if (!chosenCal.getTitle().getPlainText().equals(calendarSelector.getItemAt(calendarSelector.getSelectedIndex()).toString())) return;
+                parseInfoAndSend(chosenCal);
+                gCalendarPane.eventFrame.setVisible(false);
             }
         });
-
+        
+        eventNameTF.setText("Event Name");
+        eventNameTF.setToolTipText("Event Name");
+        eventDateTF.setText("MM/DD/YYYY");
+        eventDateTF.setToolTipText("Event Date");
+        eventDescriptionTF.setText("Description");
+        eventDescriptionTF.setToolTipText("A brief description of the event");
+        eventStartTimeTF.setText("HH:MM XX");
+        eventStartTimeTF.setToolTipText("Start Time");
+        eventEndTimeTF.setText("HH:MM XX");
+        eventEndTimeTF.setToolTipText("End Time");
+        eventLocationTF.setText("Locale");
+        eventLocationTF.setToolTipText("Where will this event be?");
+        calendarSelector.setToolTipText("Select the calendar you'd like to add an event to.");
+        
+        
         this.setLayout(new GridLayout(7, 1));
         this.add(eventNameTF);
         this.add(eventDateTF);
@@ -111,7 +143,85 @@ public class EventOptionPanel extends JPanel {
         this.add(sendDataButton);
 
     }
-
+    
+    public void parseInfoAndSend(CalendarEntry cal) {
+        Date eventDate = new Date();
+        Date evtStartTime = new Date();
+        Date evtEndTime = new Date();
+        CalendarEventEntry myEntry = new CalendarEventEntry();
+        myEntry.setTitle(new PlainTextConstruct(name));
+        myEntry.setSummary(new PlainTextConstruct(description));
+        myEntry.setContent(new PlainTextConstruct(description));
+        
+        //Parses date from style: MM/DD/YY 
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        try {
+            eventDate = df.parse(date);
+        } catch (ParseException ex) {
+            JOptionPane.showMessageDialog(new JFrame(), "Invalid date format!");
+            return;
+        }
+        
+        
+        //Parses time from style: h:mm a
+        DateFormat dfTime = new SimpleDateFormat("h:mm a");
+        try {
+            evtStartTime = dfTime.parse(startTime);
+            
+            evtEndTime = dfTime.parse(endTime);
+        } catch (ParseException ex) {
+            JOptionPane.showMessageDialog(new JFrame(), "Invalid time format!");
+            return;
+        }
+        
+        Date formattedDateStart = evtStartTime;
+        formattedDateStart.setMonth(eventDate.getMonth());
+        formattedDateStart.setDate(eventDate.getDate());
+        formattedDateStart.setYear(eventDate.getYear());       
+        
+        Date formattedDateEnd = evtEndTime;
+        formattedDateEnd.setMonth(eventDate.getMonth());
+        formattedDateEnd.setDate(eventDate.getDate());
+        formattedDateEnd.setYear(eventDate.getYear());
+        
+        DateTime sTime = new DateTime();
+        sTime.setTzShift(-5);
+        sTime.setValue(formattedDateStart.getTime());
+        //System.out.println(sTime);
+        
+        
+        DateTime eTime = new DateTime();
+        eTime.setTzShift(-5);
+        eTime.setValue(formattedDateEnd.getTime());
+        //System.out.println(eTime);
+        
+        When evtTimes = new When();
+        evtTimes.setStartTime(sTime);
+        evtTimes.setEndTime(eTime);
+        myEntry.addTime(evtTimes);        
+       
+        sendData(cal, myEntry);
+    }
+    
+    private void sendData(CalendarEntry cal, CalendarEventEntry cee){
+        URL postUrl; 
+        CalendarEventEntry insertedEntry;
+        try {
+            //System.out.println(cal.getHtmlLink().toString());
+            postUrl = new URL("https://www.google.com/calendar/feeds/" + cal.getTitle().getPlainText()+"/private/full");
+            
+            
+            insertedEntry = myService.insert(postUrl, cee);
+            System.out.println("Successfuly inserted "
+                + insertedEntry.getEditLink().getHref().toString() + " to calendar.\n");
+            
+        } catch (IOException | ServiceException ex) {
+            
+            Logger.getLogger(EventOptionPanel.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }
+    }
+    
     public static CalendarFeed getCalendars() throws MalformedURLException, IOException, ServiceException{
         
         URL feedUrl = new URL("https://www.google.com/calendar/feeds/default/owncalendars/full");
@@ -122,45 +232,11 @@ public class EventOptionPanel extends JPanel {
     }
 
 
-    public void sendCalendarEventData() throws AuthenticationException, MalformedURLException, IOException, ServiceException {
-        // Create a CalenderService and authenticate
-        CalendarService myService = new CalendarService("sweng411Co-braniacApp-1");
-        myService.setUserCredentials("mark4689@gmail.com", "makjunior4689");
-
-// Send the request and print the response
-        URL feedUrl = new URL("https://www.google.com/calendar/feeds/default/owncalendars/full");
-        CalendarFeed resultFeed = myService.getFeed(feedUrl, CalendarFeed.class);
-        System.out.println("Calendars you own:");
-        System.out.println();
-        for (int i = 0; i < resultFeed.getEntries().size(); i++) {
-            CalendarEntry entry = resultFeed.getEntries().get(i);
-            System.out.println("\t" + entry.getTitle().getPlainText() + "\t"
-                    + resultFeed.getEntries().size());
-        }
-
-        URL postUrl = new URL("https://www.google.com/calendar/feeds/mark4689@gmail.com/private/full");
-        CalendarEventEntry myEntry = new CalendarEventEntry();
-
-        myEntry.setTitle(new PlainTextConstruct("Tennis with Beth"));
-        myEntry.setContent(new PlainTextConstruct("Meet for a quick lesson."));
-
-        DateTime sTime = DateTime.parseDateTime("2013-10-17T15:00:00-08:00");
-        DateTime eTime = DateTime.parseDateTime("2013-10-17T17:00:00-08:00");
-        When eventTimes = new When();
-        eventTimes.setStartTime(sTime);
-        eventTimes.setEndTime(eTime);
-        myEntry.addTime(eventTimes);
-
-// POST the request and receive the response:
-        CalendarEventEntry insertedEntry = myService.insert(postUrl, myEntry);
-
-        System.out.println("Successfuly inserted "
-                + insertedEntry.getEditLink().getHref().toString() + " to calendar.\n");
-
-        insertedEntry.delete();
-        System.out.println("Successfully deleted entry from calendar.\n");
-
-    }
+//    public void sendCalendarEventData() throws AuthenticationException, MalformedURLException, IOException, ServiceException {
+//        insertedEntry.delete();
+//        System.out.println("Successfully deleted entry from calendar.\n");
+//
+//    }
 
 
 }
