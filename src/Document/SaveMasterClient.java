@@ -6,6 +6,7 @@
 
 package Document;
 
+import com.google.api.client.util.IOUtils;
 import java.io.File;
 import java.io.*;
 import java.util.logging.Level;
@@ -46,7 +47,7 @@ public class SaveMasterClient{
     public FTPFile[] getFileList(){
         FTPFile[] fileList = null;
         try {
-            fileList = client.listFiles("\\Python33");
+            fileList = client.mlistDir();
         } catch (IOException ex) {
             Logger.getLogger(SaveMasterClient.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -54,20 +55,33 @@ public class SaveMasterClient{
         
     } 
     
-    public void getFile(){
+    public File getFile(String fileName){
         try {
-            String remoteFile = "\\Temp\\test.txt";
-            File dlFile = new File("C:\\Temp\\saveTest.txt");
-            OutputStream oS = new BufferedOutputStream(new FileOutputStream(dlFile));
+            String remoteFile =  fileName;
+            InputStream is = client.retrieveFileStream(remoteFile);
+            FileOutputStream fos = new FileOutputStream("C:\\Brainiac\\Temp\\" + fileName);
+            IOUtils.copy(is, fos);           
+            fos.flush();
+            fos.close();
+            is.close();
             
-            boolean check = client.retrieveFile(remoteFile, oS);
-            client.retrieveFile(remoteFile, oS);
+            boolean check = client.completePendingCommand();
+            //boolean check = client.retrieveFile(remoteFile, oS);
+            //client.retrieveFile(remoteFile, oS);
             
-            if(check) System.out.println("success downloading");
+            if(check){
+                System.out.println("success downloading");
+                File retFile = new File ("C:\\Brainiac\\Temp\\" + fileName);
+                return retFile;
+            }
             else System.out.println("failure downloading");
+            
+            
         } catch (IOException ex) {
             Logger.getLogger(SaveMasterClient.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        }
+        return null;
+        
     }
     
     public void storeFile(File file){

@@ -32,7 +32,7 @@ public class SaveMasterServer{
         serverFactory.setConnectionConfig(ccf.createConnectionConfig());
         
 
-        serverFactory.setUserManager(addUser("test", "test", "C:\\"));
+        serverFactory.setUserManager(addUser("test", "test", "C:\\Brainiac"));
              
         server = serverFactory.createServer();
     }
@@ -51,6 +51,8 @@ public class SaveMasterServer{
         server.stop();
     }
     
+    
+    //STOLENCODE
     public UserManager addUser(String username, String password, String ftproot){
        {
     PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
@@ -62,7 +64,7 @@ public class SaveMasterServer{
     user.setHomeDirectory(ftproot);
 
     List<Authority> authorities = new ArrayList<Authority>();
-        authorities.add(new WritePermission());        
+        authorities.add(new WritePermission());
     user.setAuthorities(authorities);
 
     try {

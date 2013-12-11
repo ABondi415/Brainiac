@@ -1,6 +1,8 @@
 package Document;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,7 +22,8 @@ public class FileOpener extends JPanel implements ActionListener{
     private String directory = "./documents";
     private JFileChooser fileChooser;
     private DocumentViewer docViewer;
-    private JPanel buttonPanel;
+    private JPanel buttonPanelTop, buttonPanelBot, buttonPanel;
+    private RemotePanel remotePanel;
     private SaveLocal saveLocalBut;
     private SaveMaster saveMasterBut;
     private JButton closeFile;
@@ -38,13 +41,12 @@ public class FileOpener extends JPanel implements ActionListener{
                 fileChooserAction(evt);
             }
         });
-        
-        buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(1, 3, 5, 5));
-        
+
+        //disable cancel button
+        //disableCancelButton(fileChooser);
+        remotePanel = new RemotePanel();   
+            
         saveLocalBut = new SaveLocal();
-        smc = new SaveMasterClient("localhost", 21, "test");
-        saveMasterBut = new SaveMaster(smc);
         closeFile = new JButton();
             closeFile.setText("Close");
         newFile = new JButton();
@@ -61,31 +63,25 @@ public class FileOpener extends JPanel implements ActionListener{
         newFileSelect.add(newFileList);
         
         
+        buttonPanelTop = new JPanel();
+        buttonPanelTop.setLayout(new GridLayout(1, 2, 5, 5));
         
+        buttonPanelTop.add(newFile);
+        buttonPanelTop.add(closeFile);
         
-        buttonPanel.add(newFile);
-        buttonPanel.add(closeFile);
-        buttonPanel.add(saveLocalBut);
-        buttonPanel.add(saveMasterBut);
+        buttonPanelBot = new JPanel(new BorderLayout());
+        buttonPanelBot.add(saveLocalBut);
+        
+        buttonPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        buttonPanel.add(buttonPanelTop);
+        buttonPanel.add(buttonPanelBot);
         
         JTabbedPane fileChooserTabs = new JTabbedPane();
         
         JPanel localPanel = new JPanel(new BorderLayout());
             localPanel.add(fileChooser, BorderLayout.CENTER);
             localPanel.add(buttonPanel, BorderLayout.SOUTH);
-            
-        JPanel remotePanel = new JPanel(new BorderLayout());
-            JTextArea remoteFilePane = new JTextArea();
-            
-            FTPFile[] fileList = smc.getFileList();
-            
-            DefaultListModel<String> files = new DefaultListModel();
-            for(int i = 0; i < fileList.length; i++){
-                files.addElement(fileList[i].getName());
-            }
-            JList remoteList = new JList(files);
-
-            remotePanel.add(remoteList, BorderLayout.CENTER);
+                    
         
         fileChooserTabs.add("Local Files", localPanel);
         fileChooserTabs.add("Remote Files", remotePanel);
@@ -104,6 +100,23 @@ public class FileOpener extends JPanel implements ActionListener{
         
     }
     
+    private void disableCancelButton(Container fileChooser){
+        int len = fileChooser.getComponentCount();
+        for (int i = 0; i < len; i++) {
+        Component comp = fileChooser.getComponent(i);
+        if (comp instanceof JButton) {
+            JButton b = (JButton)comp;
+            if (b != null && b.getText() != null && b.getText().equals("Cancel")){
+                b.setEnabled(false);
+                b.setVisible(false);
+            }
+        }
+        else if (comp instanceof Container) {
+        disableCancelButton((Container)comp);
+        }
+        }
+    }
+    
     public JList getFileList(){
         return newFileList;
     }
@@ -120,14 +133,6 @@ public class FileOpener extends JPanel implements ActionListener{
         return saveLocalBut;
     }
     
-    public SaveMaster getSaveMasterBut(){
-        return saveMasterBut;
-    }
-    
-    public SaveMasterClient getSaveMasterClient(){
-        return smc;
-    }
-    
     public DocumentViewer getDocViewer(){
         return docViewer;
     }
@@ -138,6 +143,10 @@ public class FileOpener extends JPanel implements ActionListener{
     
     public JPopupMenu getPopup(){
         return newFileSelect;
+    }
+    
+    public RemotePanel getRemotePanel(){
+        return remotePanel;
     }
 
     private void fileChooserAction(ActionEvent evt) {
