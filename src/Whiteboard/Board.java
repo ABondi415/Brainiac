@@ -48,7 +48,7 @@ public class Board extends JPanel {
     public void paint(Graphics g) {
 
         super.paint(g);
-       drawPanel.getGraphics().drawImage(bg, 0, 0, null);
+        drawPanel.getGraphics().drawImage(bg, 0, 0, null);
         Graphics2D g2d = (Graphics2D) drawPanel.getGraphics();
 
         for (int i = 0; i < v.size(); i++) {
@@ -57,7 +57,6 @@ public class Board extends JPanel {
             g2d.setStroke(bs);
             s.drawShape(fg.getGraphics(), c, oldX, oldY, newX, newY, filled, bs);
         }
-
     }
     
 

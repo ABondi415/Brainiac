@@ -18,7 +18,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Iterator;
+import java.util.Vector;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -496,7 +500,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         joinSessionMenuItem.setText("Join Session");
         sessionMenu.add(joinSessionMenuItem);
         
-        addBrainstormersMenuItem.setText("Add Brainstormers");
+        addBrainstormersMenuItem.setText("Edit Brainstormers");
+        addBrainstormersMenuItem.setVisible(false);
         sessionMenu.add(addBrainstormersMenuItem);
 
         sessionMenu.setText("Session");
@@ -507,12 +512,94 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         
         //Added for Add Brainstormers JDialog.
         addBrainstormersButton.setText("Add Brainstormer");
+        addBrainstormersButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt){
+                DefaultTableModel editModel = ((DefaultTableModel)editBrainstormersExistingTable.getModel());
+                DefaultTableModel currentModel = ((DefaultTableModel)editBrainstormersCurrentTable.getModel());
+                int selection = editBrainstormersExistingTable.getSelectedRow();
+                if (selection < 0){
+                    JOptionPane.showMessageDialog(editBrainstormersDialog, "Please select a user to add.",
+                        "Edit Brainstormer Warning", JOptionPane.WARNING_MESSAGE);
+                }
+                else {
+                    String userToAdd = (String)editModel.getValueAt(selection, 0);
+                    adapter = DBAdapter.getInstance();
+                    String[] sessionUsers = adapter.getSessionUsers(sessionName);
+                    String sessionHost = adapter.getSessionHost(sessionName);
+                    //We begin from one because the first element of the sessionUsers array 
+                    //  is always "".
+                    boolean validUserToAdd = true;
+                    boolean dialogDisplayed = false;
+                    for (int i = 1; i < sessionUsers.length; i++){
+                        if (userToAdd.equals(sessionUsers[i])){
+                            JOptionPane.showMessageDialog(editBrainstormersDialog, "The user you selected is already in your session!",
+                                "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
+                            validUserToAdd = false;
+                        }
+                        if (userToAdd.equals(sessionHost) && !dialogDisplayed){
+                            JOptionPane.showMessageDialog(editBrainstormersDialog, "The user you selected is the host of your session!",
+                                "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
+                            validUserToAdd = false;
+                            dialogDisplayed = true;
+                        }
+                    }
+                    if (validUserToAdd){
+                        if(adapter.addNewSessionUser(userToAdd, sessionName)){
+                            String [] rowStr = new String[1];
+                            rowStr[0] = userToAdd;
+                            currentModel.addRow(rowStr);
+                            currentModel.fireTableDataChanged();
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(editBrainstormersDialog, "We could not add that user to the session",
+                                "Add Brainstormer Warning", JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                }
+            }
+        });
         editBrainstormersButtonsPanel.add(addBrainstormersButton);
 
         removeBrainstormerButton.setText("Remove Brainstormer");
+        removeBrainstormerButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt){
+                DefaultTableModel editModel = ((DefaultTableModel)editBrainstormersExistingTable.getModel());
+                DefaultTableModel currentModel = ((DefaultTableModel)editBrainstormersCurrentTable.getModel());
+                int selection = editBrainstormersCurrentTable.getSelectedRow();
+                if (selection < 0){
+                    JOptionPane.showMessageDialog(editBrainstormersDialog, "Please select a user to remove.",
+                        "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
+                }
+                else {
+                    String userToRemove = (String)editModel.getValueAt(selection, 0);
+                    adapter = DBAdapter.getInstance();
+                    String[] currentUsers = adapter.getSessionUsers(sessionName);
+                    String host = adapter.getSessionHost(sessionName);
+                    if (userToRemove.matches(host)){
+                        JOptionPane.showMessageDialog(editBrainstormersDialog, "You cannot remove the host from the session!",
+                            "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
+                    }
+                    else {
+                        if (adapter.removeSessionUser(userToRemove, sessionName)){
+                            currentModel.removeRow(selection);
+                            currentModel.fireTableDataChanged();
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(editBrainstormersDialog, "There was an issue removing the selected user.",
+                                "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                }
+            }
+        });
         editBrainstormersButtonsPanel.add(removeBrainstormerButton);
 
-        editBrainstormersCancelButton.setText("Cancel");
+        editBrainstormersCancelButton.setText("Close");
+        editBrainstormersCancelButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt){
+                editBrainstormersDialog.dispose();
+            }
+        });
         editBrainstormersButtonsPanel.add(editBrainstormersCancelButton);
 
         editBrainstormersDialog.add(editBrainstormersButtonsPanel, java.awt.BorderLayout.PAGE_END);
@@ -665,6 +752,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     welcomePanelErrorField.setText("Account created successfully!");
                     createAccountPanel.setVisible(false);
                     welcomePanel.setVisible(true);
+                    newUsernameField.setText("");
+                    newUserPasswordField.setText("");
                 }
                 else{
                     createAccountErrorField.setText("That username is already in use!  Please try a different username.");
@@ -685,6 +774,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
+                    //If you are the host, you can add other brainstormers.
+                    adapter = DBAdapter.getInstance();
+                    if (username.equals(adapter.getSessionHost(sessionName))){
+                        addBrainstormersMenuItem.setVisible(true);
+                    }
                     JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
                     brainstorming = true;
                 }
@@ -716,11 +810,42 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 joinSessionDialog.setVisible(true);
             }
         }
-        if (o == addBrainstormersMenuItem){
-            if (brainstorming){
+        if (o == addBrainstormersMenuItem) {
+            if (brainstorming) {
+                DefaultTableModel editModel = ((DefaultTableModel)editBrainstormersExistingTable.getModel());
+                DefaultTableModel currentModel = ((DefaultTableModel)editBrainstormersCurrentTable.getModel());
                 editBrainstormersDialog.setVisible(true);
-            }
-            else {
+                //Update the table rows with all existing users.  
+                //We only want to do this if we haven't done this before--if the rowcount 
+                //      of the existing users table is zero.  
+                if (editModel.getRowCount() == 0) {
+                    adapter = DBAdapter.getInstance();
+                    Vector users = adapter.getAllUsers();
+                    Iterator iterator = users.iterator();
+                    String[] tmp = new String[1];
+                    while (iterator.hasNext()) {
+                        tmp[0] = iterator.next().toString();
+                        editModel.addRow(tmp);
+                    }
+                    editModel.fireTableDataChanged();
+                }
+                //Update the current brainstormers table with the host and all current users. 
+                //We only want to do this if we haven't done this before--if the rowcount 
+                //      of the current session users table is zero.  
+                if (currentModel.getRowCount() == 0){
+                    adapter = DBAdapter.getInstance();
+                    String[] currentUsers = adapter.getSessionUsers(sessionName);
+                    String currentHost = adapter.getSessionHost(sessionName);
+                    String[] tmp = new String[1];
+                    tmp[0] = currentHost;
+                    currentModel.addRow(tmp);
+                    for(int i = 1; i < currentUsers.length; i++) {
+                        tmp[0] = currentUsers[i];
+                        currentModel.addRow(tmp);
+                    }
+                    currentModel.fireTableDataChanged();
+                }
+            } else {
                 JOptionPane.showMessageDialog(mainPanel, "You cannot add brainstormers without joining a session!",
                         "Add Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
             }
@@ -810,6 +935,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         mainPanel.setVisible(false);
         welcomePanel.setVisible(true);
         sessionMenu.setVisible(false);
+        addBrainstormersMenuItem.setVisible(false);
         username = "";
         sessionName = "";
         usernameField.setText("");
@@ -845,21 +971,39 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanelErrorField.setText("Invalid username or password!");
             return false;
         }
-        if (sessionName.matches("")){
-            welcomePanelErrorField.setText("Invalid session name!  Please enter a valid session or create a new session. ");
-            return false;
-        }
         String stringPassword = "";
         for (int i = 0; i < password.length; i++){
             stringPassword += password[i];
         }
 
         adapter = DBAdapter.getInstance();
-        if(!adapter.checkLogin(username, stringPassword, sessionName)){
-            welcomePanelErrorField.setText("Invalid username or password or Session name!");
+        //If an invalid username or password has been entered, display an error.
+        if(!adapter.checkLogin(username, stringPassword)){
+            welcomePanelErrorField.setText("Invalid username or password!");
             return false;
         }
-        return true;
+        //If an invalid session name has been entered, display an error.
+        if (!adapter.checkSessionName(sessionName)){
+            welcomePanelErrorField.setText("Invalid Session Name!");
+            return false;
+        }
+        String[] validUsers = adapter.getSessionUsers(sessionName);
+        String host = adapter.getSessionHost(sessionName);
+        boolean validUser = false;
+        //If the user is a member of the session users or the session host, we are able to 
+        //  join the session.
+        for(int i = 1; i < validUsers.length; i++){
+            if (validUsers[i].equals(username)){
+                validUser = true;
+            }
+        }
+        if (host.equals(username))
+            validUser = true;
+        
+        if (!validUser){
+            welcomePanelErrorField.setText("Your are not a member of this session!");
+        }
+        return validUser;
     }
     
     

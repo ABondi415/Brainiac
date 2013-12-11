@@ -7,6 +7,7 @@
 package Network;
 
 import java.sql.*;
+import java.util.Vector;
 /**
  *
  * @author ajb481
@@ -46,6 +47,88 @@ public class DBAdapter {
         return false;
     }
     
+    public Vector getAllUsers(){
+        Vector<String> users = new Vector();
+        try {
+            Statement sta = conn.createStatement();
+            ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS");
+            while (rs.next()){
+                users.add(rs.getString("USERNAME"));
+            }
+        } catch (SQLException ex){
+            System.out.println("I could not get all of the valid users!");
+        }
+        return users;
+    }
+    
+    public boolean addNewSessionUser(String username, String sessionName){
+        boolean successfulAdd = false;
+        try {
+            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
+                    ResultSet.CONCUR_UPDATABLE);
+            ResultSet rs = sta.executeQuery("SELECT SESSIONUSERS FROM SESSIONS WHERE SESSIONNAME = '"+sessionName+"'");
+            while (rs.next()){
+                String tempUsers = rs.getString("SESSIONUSERS");
+                rs.updateString("SESSIONUSERS", tempUsers+":"+username);
+                rs.updateRow();
+            }
+            successfulAdd = true;
+        }
+        catch (SQLException ex){
+            System.out.println("I could not add the new user!");
+        }
+        return successfulAdd;
+    }
+    
+    public boolean removeSessionUser(String username, String sessionName){
+        boolean successfulRemove = false;
+        try {
+            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
+                    ResultSet.CONCUR_UPDATABLE);
+            ResultSet rs = sta.executeQuery("SELECT SESSIONUSERS FROM SESSIONS WHERE SESSIONNAME = '"+sessionName+"'");
+            while (rs.next()){
+                String tempUsers = rs.getString("SESSIONUSERS");
+                tempUsers = tempUsers.replace(":"+username, "");
+                rs.updateString("SESSIONUSERS", tempUsers);
+                rs.updateRow();
+            }
+            successfulRemove = true;
+        }
+        catch (SQLException ex){
+            System.out.println("I could not remove the user!");
+        }
+        return successfulRemove;
+    }
+    
+    public String getSessionHost(String sessionName){
+        String sessionHost = null;
+        try {
+            Statement sta = conn.createStatement();
+            ResultSet rs = sta.executeQuery("SELECT SESSIONHOST FROM SESSIONS WHERE SESSIONNAME = '"+sessionName+"'");
+            while (rs.next()){
+                sessionHost = rs.getString("SESSIONHOST");
+            }
+        } catch (SQLException ex){
+            System.out.println("I could not get the session users!");
+        }
+        return sessionHost;
+    }
+    
+    public String[] getSessionUsers(String sessionName){
+        String[] sessionUsers = null;
+        try {
+            Statement sta = conn.createStatement();
+            ResultSet rs = sta.executeQuery("SELECT SESSIONUSERS FROM SESSIONS WHERE SESSIONNAME = '"+sessionName+"'");
+            while (rs.next()){
+                String tempSessionUsers = rs.getString("SESSIONUSERS");
+                sessionUsers = tempSessionUsers.split(":");
+            }
+        } catch (SQLException ex){
+            System.out.println("I could not get the session users!");
+        }
+        return sessionUsers;
+    }
+    
     public boolean createSession(String username, String sessionName){
         try {
             if (!checkSessionName(sessionName)){
@@ -61,7 +144,7 @@ public class DBAdapter {
         return false;
     }
     
-    private boolean checkUsername(String username){
+    public boolean checkUsername(String username){
         boolean nameExists = false;
         try{
             Statement sta = conn.createStatement();
@@ -72,7 +155,7 @@ public class DBAdapter {
         return nameExists;
     }
     
-    private boolean checkSessionName(String sessionname){
+    public boolean checkSessionName(String sessionname){
         boolean nameExists = false;
         try{
             Statement sta = conn.createStatement();
@@ -96,23 +179,23 @@ public class DBAdapter {
         return matchFound;
     }
     
-    public boolean checkLogin(String username, String pass, String sessionname){
-        boolean matchFound = false;
-        try{
-            Statement sta = conn.createStatement();
-            ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '"+username+"' AND USERPASSWORD = '"+pass+"'");
-            boolean loginFound = rs.next();
-            if (loginFound){
-                if (checkSessionName(sessionname)){
-                    matchFound = true;
-                }
-            }
-        }
-        catch (SQLException ex) {
-            System.out.println("I had an issue checking the username! " + ex);
-        }
-        return matchFound;
-    }
+//    public boolean checkLogin(String username, String pass, String sessionname){
+//        boolean matchFound = false;
+//        try{
+//            Statement sta = conn.createStatement();
+//            ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '"+username+"' AND USERPASSWORD = '"+pass+"'");
+//            boolean loginFound = rs.next();
+//            if (loginFound){
+//                if (checkSessionName(sessionname)){
+//                    matchFound = true;
+//                }
+//            }
+//        }
+//        catch (SQLException ex) {
+//            System.out.println("I had an issue checking the username! " + ex);
+//        }
+//        return matchFound;
+//    }
     
     private void createConnection() {
         try {
