@@ -63,12 +63,12 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JFileChooser fileChooser;
     private DocumentViewer docViewer;
     private SaveLocal saveLocal;
-    private SaveMaster saveMaster;
     private SaveMasterServer sms;
-    private JButton closeFileBut, newFileBut;
+    private JButton closeFileBut, newFileBut, openMaster, saveMaster;
     private JPopupMenu fileSelectPopup;
-    private JList fileSelectList;
+    private JList fileSelectList, remoteFileList;
     private JPopupMenu dialog;
+    private RemotePanel remotePanel;
     
     private DBAdapter adapter;
     
@@ -189,15 +189,22 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         fileOpener = new FileOpener();
         fileChooser = fileOpener.getFileChooser();
             fileChooser.addActionListener(this);
+        //remotePanel which handels the open and save master buttons, and remote file list
+        remotePanel = fileOpener.getRemotePanel();
+      
         saveLocal = fileOpener.getSaveLocal();
-            saveLocal.addActionListener(this);
-   
-        saveMaster = fileOpener.getSaveMaster();
-            saveMaster.addActionListener(this);
+            saveLocal.addActionListener(this);   
         closeFileBut = fileOpener.getCloseButton();
             closeFileBut.addActionListener(this);
         newFileBut = fileOpener.getNewButton();
             newFileBut.addActionListener(this);
+        saveMaster = remotePanel.getSaveMasterBut();
+            saveMaster.addActionListener(this);
+        openMaster = remotePanel.getOpenMasterBut();
+            openMaster.addActionListener(this);
+        remoteFileList = remotePanel.getRemoteFileList();
+        
+                
         fileSelectPopup = fileOpener.getPopup();
         fileSelectList = fileOpener.getFileList();
             fileSelectList.addMouseListener(new MouseAdapter() {
@@ -874,9 +881,21 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         if (o == saveMaster){
             Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
             if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
-                //DocumentViewer dv = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
-                //File file = dv.getFile();
-                saveMaster.getFile();
+                DocumentViewer dv = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
+                File file = dv.getFile();
+                remotePanel.saveMasterFile(file);
+            }
+        }
+        
+        if (o == openMaster){
+            String selection = (String)remoteFileList.getSelectedValue();
+            if( selection.contains("*")){
+                File remoteFile = (File) remotePanel.getRemoteFile(selection.substring(0, (selection.length()-1)));
+                fileOpener.readFile(remoteFile);
+                docViewer = fileOpener.getDocViewer();
+                whiteboardDocumentPane.addTab(docViewer.getFileName(),docViewer);
+                whiteboardDocumentPane.setSelectedComponent(docViewer);
+                mainPanel.revalidate();
             }
         }
             
