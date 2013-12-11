@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 /**
  *
@@ -23,7 +24,7 @@ public class LoginPanel extends JPanel {
     private static String userName, password;
     private final JButton login;
     
-    public LoginPanel(final JFrame frame){
+    public LoginPanel(/*final JTabbedPane pane*/){
         userNameTF = new TextField();
         passwordTF = new TextField();
         
@@ -35,7 +36,7 @@ public class LoginPanel extends JPanel {
                 
                 userName = userNameTF.getText();
                 password = passwordTF.getText();
-                frame.setVisible(false);
+                //frame.setVisible(false);
             }
         });
         
@@ -43,6 +44,10 @@ public class LoginPanel extends JPanel {
         this.add(userNameTF);
         this.add(passwordTF);
         this.add(login);
+    }
+    
+    protected JButton getButton(){
+        return login;
     }
     
     public static String[] getUserCredentials() {

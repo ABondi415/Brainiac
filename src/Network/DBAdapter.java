@@ -28,13 +28,13 @@ public class DBAdapter {
         return instance;
     }
 
-    public boolean createUser(String username, String userPass) {
+    public boolean createUser(String username, String userPass, String userIP) {
         try {
             if (!checkUsername(username)) {
                 Statement sta = conn.createStatement();
                 sta.executeUpdate("INSERT INTO USERS"
-                        + " (USERNAME, USERPASSWORD)"
-                        + " VALUES ('" + username + "', '" + userPass + "')");
+                        + " (USERNAME, USERPASSWORD, USERIP)"
+                        + " VALUES ('" + username + "', '" + userPass + "', '" + userIP +"')");
                 return true;
             }
             else {
@@ -59,6 +59,36 @@ public class DBAdapter {
             System.out.println("I could not get all of the valid users!");
         }
         return users;
+    }
+    
+    public void updateUserIP(String username, String userIP){
+        try {
+            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
+                    ResultSet.CONCUR_UPDATABLE);
+            ResultSet rs = sta.executeQuery("SELECT USERIP FROM USERS WHERE USERNAME = '"+username+"'");
+            while (rs.next()){
+                rs.updateString("USERIP", userIP);
+                rs.updateRow();
+            }
+        }
+        catch (SQLException ex){
+            System.out.println("I could not update the user's IP!");
+        }
+    }
+    
+    public void updateHostIP(String hostname, String hostIP){
+        try {
+            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
+                    ResultSet.CONCUR_UPDATABLE);
+            ResultSet rs = sta.executeQuery("SELECT HOSTIP FROM SESSIONS WHERE SESSIONHOST = '"+hostname+"'");
+            while (rs.next()){
+                rs.updateString("HOSTIP", hostIP);
+                rs.updateRow();
+            }
+        }
+        catch (SQLException ex){
+            System.out.println("I could not add the new user!");
+        }
     }
     
     public boolean addNewSessionUser(String username, String sessionName){
@@ -129,13 +159,27 @@ public class DBAdapter {
         return sessionUsers;
     }
     
-    public boolean createSession(String username, String sessionName){
+    public String getHostIP(String sessionName){
+        String hostIP = "";
+        try {
+            Statement sta = conn.createStatement();
+            ResultSet rs = sta.executeQuery("SELECT HOSTIP FROM SESSIONS WHERE SESSIONNAME = '"+sessionName+"'");
+            while (rs.next()){
+                hostIP = rs.getString("HOSTIP");
+            }
+        } catch (SQLException ex){
+            System.out.println("I could not get the session users!");
+        }
+        return hostIP;
+    }
+    
+    public boolean createSession(String username, String sessionName, String userIP){
         try {
             if (!checkSessionName(sessionName)){
                 Statement sta = conn.createStatement();
                 sta.executeUpdate("INSERT INTO SESSIONS"
-                        + " (SESSIONNAME, SESSIONHOST, SESSIONUSERS)"
-                        + " VALUES ('"+sessionName+"', '"+ username +"' ,'"+""+"')");
+                        + " (SESSIONNAME, SESSIONHOST, HOSTIP, SESSIONUSERS)"
+                        + " VALUES ('"+sessionName+"', '"+ username +"' ,'"+userIP+"', '"+""+"')");
                 return true;
             }
         } catch (SQLException ex){
