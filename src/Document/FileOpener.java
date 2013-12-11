@@ -11,6 +11,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import org.apache.commons.net.ftp.FTPFile;
 
 //A ready made jPanel with a jFileChooser, Save local button, Save master button, and logic to send/get files to their Editor/Viewer
 public class FileOpener extends JPanel implements ActionListener{
@@ -24,7 +27,7 @@ public class FileOpener extends JPanel implements ActionListener{
     private JButton newFile;
     private JPopupMenu newFileSelect;
     private JList newFileList;
-
+    private SaveMasterClient smc;
     
     public FileOpener(){
         fileChooser = new JFileChooser();
@@ -40,7 +43,8 @@ public class FileOpener extends JPanel implements ActionListener{
         buttonPanel.setLayout(new GridLayout(1, 3, 5, 5));
         
         saveLocalBut = new SaveLocal();
-        saveMasterBut = new SaveMaster();
+        smc = new SaveMasterClient("localhost", 21, "test");
+        saveMasterBut = new SaveMaster(smc);
         closeFile = new JButton();
             closeFile.setText("Close");
         newFile = new JButton();
@@ -63,10 +67,31 @@ public class FileOpener extends JPanel implements ActionListener{
         buttonPanel.add(closeFile);
         buttonPanel.add(saveLocalBut);
         buttonPanel.add(saveMasterBut);
+        
+        JTabbedPane fileChooserTabs = new JTabbedPane();
+        
+        JPanel localPanel = new JPanel(new BorderLayout());
+            localPanel.add(fileChooser, BorderLayout.CENTER);
+            localPanel.add(buttonPanel, BorderLayout.SOUTH);
             
+        JPanel remotePanel = new JPanel(new BorderLayout());
+            JTextArea test = new JTextArea();
+            
+            FTPFile[] fileList = smc.getFileList();
+            String testStr = "";
+            for(int i = 0; i < fileList.length; i++){
+                testStr = testStr + fileList[i].getName() + "\n";
+            }
+            test.setText(testStr);
+
+            remotePanel.add(test, BorderLayout.CENTER);
+        
+        fileChooserTabs.add("Local Files", localPanel);
+        fileChooserTabs.add("Remote Files", remotePanel);
+        
+        
         this.setLayout(new BorderLayout());
-        this.add(fileChooser, BorderLayout.CENTER);
-        this.add(buttonPanel, BorderLayout.SOUTH);
+        this.add(fileChooserTabs, BorderLayout.CENTER);
         this.setSize(90, 800);
     }
     
@@ -94,8 +119,12 @@ public class FileOpener extends JPanel implements ActionListener{
         return saveLocalBut;
     }
     
-    public SaveMaster getSaveMaster(){
+    public SaveMaster getSaveMasterBut(){
         return saveMasterBut;
+    }
+    
+    public SaveMasterClient getSaveMasterClient(){
+        return smc;
     }
     
     public DocumentViewer getDocViewer(){

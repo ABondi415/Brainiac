@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 
 
 public class SaveMasterClient{
@@ -41,6 +42,17 @@ public class SaveMasterClient{
             Logger.getLogger(SaveMasterClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public FTPFile[] getFileList(){
+        FTPFile[] fileList = null;
+        try {
+            fileList = client.listFiles("\\Python33");
+        } catch (IOException ex) {
+            Logger.getLogger(SaveMasterClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return fileList;
+        
+    } 
     
     public void getFile(){
         try {
