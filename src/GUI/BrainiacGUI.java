@@ -193,8 +193,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         fileOpener = new FileOpener();
         fileChooser = fileOpener.getFileChooser();
             fileChooser.addActionListener(this);
-        //remotePanel which handels the open and save master buttons, and remote file list
-
       
         saveLocal = fileOpener.getSaveLocal();
             saveLocal.addActionListener(this);   
