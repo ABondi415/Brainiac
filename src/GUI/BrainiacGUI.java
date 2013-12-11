@@ -192,8 +192,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         saveLocal = fileOpener.getSaveLocal();
             saveLocal.addActionListener(this);
    
-        saveMaster = fileOpener.getSaveMaster();
-            saveMaster.addActionListener(this);
+        //saveMaster = fileOpener.getSaveMaster();
+        //    saveMaster.addActionListener(this);
         closeFileBut = fileOpener.getCloseButton();
             closeFileBut.addActionListener(this);
         newFileBut = fileOpener.getNewButton();
@@ -529,18 +529,16 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     //We begin from one because the first element of the sessionUsers array 
                     //  is always "".
                     boolean validUserToAdd = true;
-                    boolean dialogDisplayed = false;
-                    for (int i = 1; i < sessionUsers.length; i++){
+                    for (int i = 0; i < sessionUsers.length; i++){
                         if (userToAdd.equals(sessionUsers[i])){
                             JOptionPane.showMessageDialog(editBrainstormersDialog, "The user you selected is already in your session!",
                                 "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
                             validUserToAdd = false;
                         }
-                        if (userToAdd.equals(sessionHost) && !dialogDisplayed){
+                        if (userToAdd.equals(sessionHost)) {
+                            validUserToAdd = false;
                             JOptionPane.showMessageDialog(editBrainstormersDialog, "The user you selected is the host of your session!",
                                 "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
-                            validUserToAdd = false;
-                            dialogDisplayed = true;
                         }
                     }
                     if (validUserToAdd){
