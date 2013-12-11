@@ -16,9 +16,9 @@ import javax.swing.JButton;
 public class SaveMaster extends JButton{
     SaveMasterClient smc; 
     
-    public SaveMaster(){
+    public SaveMaster(SaveMasterClient smc){
         this.setText("Save Master");
-        smc = new SaveMasterClient("localhost", 21, "anonymous");
+        this.smc = smc;
     }
     
     public void writeFile(File file){
@@ -26,7 +26,7 @@ public class SaveMaster extends JButton{
     }
     
     public void getFile(){
-        smc.getFile();
+        //smc.getFile();
+        smc.storeFile(null);
     }
-
 }
