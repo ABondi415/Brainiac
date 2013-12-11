@@ -72,8 +72,16 @@ public class TextEditor extends DocumentViewer{
     }
     
     public File getFile(){
-        File retFile = new File(fileName, textArea.getText());
-        return retFile;
+        try {
+            File retFile = new File("C:\\Brainiac\\Temp\\" + fileName);
+            FileWriter fw = new FileWriter(retFile);
+            textArea.write(fw);
+            fw.close();
+            return retFile;
+        } catch (IOException ex) {
+            Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     
     public String getText(){

@@ -60,8 +60,8 @@ public class RemotePanel extends JPanel{
         return smc.getFile(fileName);
     }
     
-    public void saveMasterFile(File file){
-        smc.storeFile(file);
+    public void saveMasterFile(File file, String fileName){
+        smc.storeFile(file, fileName);
     }
     
     public JButton getOpenMasterBut(){
@@ -74,5 +74,22 @@ public class RemotePanel extends JPanel{
     
     public JList getRemoteFileList(){
         return remoteList;
+    }
+    
+    public void refreshFileList(){
+            //get list
+            FTPFile[] fileList = smc.getFileList();
+            
+            //add list of files and directories
+            DefaultListModel<String> files = new DefaultListModel();
+            for(int i = 0; i < fileList.length; i++){
+                String str = fileList[i].getName();
+                if(fileList[i].isFile()){
+                    str = str + "*";
+                }
+                files.addElement(str);
+            }
+            remoteList = new JList(files);
+            this.revalidate();
     }
 }

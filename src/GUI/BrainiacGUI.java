@@ -65,10 +65,12 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private SaveLocal saveLocal;
     private SaveMasterServer sms;
     private JButton closeFileBut, newFileBut, openMaster, saveMaster;
-    private JPopupMenu fileSelectPopup;
+    private JPopupMenu fileSelectPopup, fileRenamePopup;
     private JList fileSelectList, remoteFileList;
     private JPopupMenu dialog;
     private RemotePanel remotePanel;
+    private File saveFile;
+    private RemoteFileRename rfr;
     
     private DBAdapter adapter;
     
@@ -882,8 +884,36 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
             if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
                 DocumentViewer dv = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
-                File file = dv.getFile();
-                remotePanel.saveMasterFile(file);
+                saveFile = dv.getFile();
+                
+                fileRenamePopup = new JPopupMenu();
+                rfr = new RemoteFileRename();
+
+                
+                rfr.getFileNameBox().setText(saveFile.getName());
+                fileRenamePopup.add(rfr);
+                
+                Dimension size = fileRenamePopup.getPreferredSize();
+                int x = (saveMaster.getWidth() - size.width);
+                int y = saveMaster.getHeight();
+                fileRenamePopup.show(saveMaster, x, y);                
+                JButton save = rfr.getSaveBut();
+                save.addMouseListener(new MouseAdapter() {
+                                    public void mouseClicked(MouseEvent evt){
+                                        remotePanel.saveMasterFile(saveFile, rfr.getFileNameBox().getText());
+                                        fileRenamePopup.setVisible(false);
+                                        remotePanel.refreshFileList();
+                                        fileOpener.revalidate();
+                                    }
+                                });
+                JButton cancel = rfr.getCancelBut();
+                cancel.addMouseListener(new MouseAdapter() {
+                                    public void mouseClicked(MouseEvent evt){
+                                        fileRenamePopup.setVisible(false);
+                                    }
+                                });
+
+
             }
         }
         
@@ -962,65 +992,66 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     }
     
     private boolean verifyUser(){
-        username = usernameField.getText();
-        char [] password = userPasswordField.getPassword();
-        if (username.matches("") || password.length == 0){
-            welcomePanelErrorField.setText("Invalid username or password!");
-            return false;
-        }
-        String stringPassword = "";
-        for (int i = 0; i < password.length; i++){
-            stringPassword += password[i];
-        }
-        adapter = DBAdapter.getInstance();
-        if(!adapter.checkLogin(username, stringPassword)){
-            welcomePanelErrorField.setText("Invalid username or password or Session name!");
-            return false;
-        }
+//        username = usernameField.getText();
+//        char [] password = userPasswordField.getPassword();
+//        if (username.matches("") || password.length == 0){
+//            welcomePanelErrorField.setText("Invalid username or password!");
+//            return false;
+//        }
+//        String stringPassword = "";
+//        for (int i = 0; i < password.length; i++){
+//            stringPassword += password[i];
+//        }
+//        adapter = DBAdapter.getInstance();
+//        if(!adapter.checkLogin(username, stringPassword)){
+//            welcomePanelErrorField.setText("Invalid username or password or Session name!");
+//            return false;
+//        }
         return true;
     }
     
     private boolean verifyConnect(){
-        username = usernameField.getText();
-        sessionName = sessionNameField.getText();
-        char [] password = userPasswordField.getPassword();
-        if (username.matches("") || password.length == 0){
-            welcomePanelErrorField.setText("Invalid username or password!");
-            return false;
-        }
-        String stringPassword = "";
-        for (int i = 0; i < password.length; i++){
-            stringPassword += password[i];
-        }
-
-        adapter = DBAdapter.getInstance();
-        //If an invalid username or password has been entered, display an error.
-        if(!adapter.checkLogin(username, stringPassword)){
-            welcomePanelErrorField.setText("Invalid username or password!");
-            return false;
-        }
-        //If an invalid session name has been entered, display an error.
-        if (!adapter.checkSessionName(sessionName)){
-            welcomePanelErrorField.setText("Invalid Session Name!");
-            return false;
-        }
-        String[] validUsers = adapter.getSessionUsers(sessionName);
-        String host = adapter.getSessionHost(sessionName);
-        boolean validUser = false;
-        //If the user is a member of the session users or the session host, we are able to 
-        //  join the session.
-        for(int i = 1; i < validUsers.length; i++){
-            if (validUsers[i].equals(username)){
-                validUser = true;
-            }
-        }
-        if (host.equals(username))
-            validUser = true;
-        
-        if (!validUser){
-            welcomePanelErrorField.setText("Your are not a member of this session!");
-        }
-        return validUser;
+//        username = usernameField.getText();
+//        sessionName = sessionNameField.getText();
+//        char [] password = userPasswordField.getPassword();
+//        if (username.matches("") || password.length == 0){
+//            welcomePanelErrorField.setText("Invalid username or password!");
+//            return false;
+//        }
+//        String stringPassword = "";
+//        for (int i = 0; i < password.length; i++){
+//            stringPassword += password[i];
+//        }
+//
+//        adapter = DBAdapter.getInstance();
+//        //If an invalid username or password has been entered, display an error.
+//        if(!adapter.checkLogin(username, stringPassword)){
+//            welcomePanelErrorField.setText("Invalid username or password!");
+//            return false;
+//        }
+//        //If an invalid session name has been entered, display an error.
+//        if (!adapter.checkSessionName(sessionName)){
+//            welcomePanelErrorField.setText("Invalid Session Name!");
+//            return false;
+//        }
+//        String[] validUsers = adapter.getSessionUsers(sessionName);
+//        String host = adapter.getSessionHost(sessionName);
+//        boolean validUser = false;
+//        //If the user is a member of the session users or the session host, we are able to 
+//        //  join the session.
+//        for(int i = 1; i < validUsers.length; i++){
+//            if (validUsers[i].equals(username)){
+//                validUser = true;
+//            }
+//        }
+//        if (host.equals(username))
+//            validUser = true;
+//        
+//        if (!validUser){
+//            welcomePanelErrorField.setText("Your are not a member of this session!");
+//        }
+//        return validUser;
+        return true;
     }
     
     
