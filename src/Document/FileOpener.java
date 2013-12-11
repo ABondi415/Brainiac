@@ -25,7 +25,6 @@ public class FileOpener extends JPanel implements ActionListener{
     private JPanel buttonPanelTop, buttonPanelBot, buttonPanel;
     private RemotePanel remotePanel;
     private SaveLocal saveLocalBut;
-    private SaveMaster saveMasterBut;
     private JButton closeFile;
     private JButton newFile;
     private JPopupMenu newFileSelect;

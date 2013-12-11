@@ -85,8 +85,7 @@ public class SaveMasterClient{
     }
     
     public void storeFile(File file){
-        file = new File("C:\\Temp\\test.txt");
-        String remoteFile = "\\Temp\\testSend.txt";
+        String remoteFile = file.getName();
         try {
             InputStream iS = new BufferedInputStream(new FileInputStream(file));
             boolean check = client.storeFile(remoteFile, iS);

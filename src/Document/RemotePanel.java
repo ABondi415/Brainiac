@@ -60,6 +60,10 @@ public class RemotePanel extends JPanel{
         return smc.getFile(fileName);
     }
     
+    public void saveMasterFile(File file){
+        smc.storeFile(file);
+    }
+    
     public JButton getOpenMasterBut(){
         return openMasterBut;
     }
