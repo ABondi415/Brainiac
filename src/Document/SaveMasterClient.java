@@ -56,8 +56,8 @@ public class SaveMasterClient{
     
     public void getFile(){
         try {
-            String remoteFile = "C:\\test.txt";
-            File dlFile = new File("C:\\saveTest.txt");
+            String remoteFile = "\\Temp\\test.txt";
+            File dlFile = new File("C:\\Temp\\saveTest.txt");
             OutputStream oS = new BufferedOutputStream(new FileOutputStream(dlFile));
             
             boolean check = client.retrieveFile(remoteFile, oS);
@@ -70,5 +70,19 @@ public class SaveMasterClient{
         }        
     }
     
+    public void storeFile(File file){
+        file = new File("C:\\Temp\\test.txt");
+        String remoteFile = "\\Temp\\testSend.txt";
+        try {
+            InputStream iS = new BufferedInputStream(new FileInputStream(file));
+            boolean check = client.storeFile(remoteFile, iS);
+            
+            if(check) System.out.println("success storing");
+            else System.out.println("failure storing");
+            
+        } catch (Exception ex) {
+            Logger.getLogger(SaveMasterClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
 

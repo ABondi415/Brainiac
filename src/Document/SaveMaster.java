@@ -26,6 +26,7 @@ public class SaveMaster extends JButton{
     }
     
     public void getFile(){
-        smc.getFile();
+        //smc.getFile();
+        smc.storeFile(null);
     }
 }
