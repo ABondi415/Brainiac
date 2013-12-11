@@ -75,16 +75,17 @@ public class FileOpener extends JPanel implements ActionListener{
             localPanel.add(buttonPanel, BorderLayout.SOUTH);
             
         JPanel remotePanel = new JPanel(new BorderLayout());
-            JTextArea test = new JTextArea();
+            JTextArea remoteFilePane = new JTextArea();
             
             FTPFile[] fileList = smc.getFileList();
-            String testStr = "";
+            
+            DefaultListModel<String> files = new DefaultListModel();
             for(int i = 0; i < fileList.length; i++){
-                testStr = testStr + fileList[i].getName() + "\n";
+                files.addElement(fileList[i].getName());
             }
-            test.setText(testStr);
+            JList remoteList = new JList(files);
 
-            remotePanel.add(test, BorderLayout.CENTER);
+            remotePanel.add(remoteList, BorderLayout.CENTER);
         
         fileChooserTabs.add("Local Files", localPanel);
         fileChooserTabs.add("Remote Files", remotePanel);
