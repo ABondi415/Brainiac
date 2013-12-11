@@ -190,13 +190,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         whiteboardDocumentPanel = new JPanel();
         whiteboardDocumentPane = new JTabbedPane();
         //start file server    
-        sms = new SaveMasterServer();
-            sms.start();
         fileOpener = new FileOpener();
         fileChooser = fileOpener.getFileChooser();
             fileChooser.addActionListener(this);
         //remotePanel which handels the open and save master buttons, and remote file list
-        remotePanel = fileOpener.getRemotePanel();
+
       
         saveLocal = fileOpener.getSaveLocal();
             saveLocal.addActionListener(this);   
@@ -204,11 +202,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             closeFileBut.addActionListener(this);
         newFileBut = fileOpener.getNewButton();
             newFileBut.addActionListener(this);
-        saveMaster = remotePanel.getSaveMasterBut();
-            saveMaster.addActionListener(this);
-        openMaster = remotePanel.getOpenMasterBut();
-            openMaster.addActionListener(this);
-        remoteFileList = remotePanel.getRemoteFileList();
         
                 
         fileSelectPopup = fileOpener.getPopup();
@@ -803,7 +796,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     if (username.equals(adapter.getSessionHost(sessionName))){
                         adapter.updateHostIP(username, userIP);
                         addBrainstormersMenuItem.setVisible(true);
+                        sms = new SaveMasterServer();
+                            sms.start();
                     }
+                    fileOpener.createRemotePanel();
+                    remotePanel = fileOpener.getRemotePanel();
+                    remotePanel.getClient().connect(adapter.getSessionHost(sessionName));
+                    
                     JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
                     brainstorming = true;
                 }

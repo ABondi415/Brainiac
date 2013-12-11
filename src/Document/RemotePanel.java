@@ -31,7 +31,7 @@ public class RemotePanel extends JPanel{
             saveMasterBut = new JButton();
                 saveMasterBut.setText("Save Master");
                 
-            smc = new SaveMasterClient("localhost", 21, "test");
+            smc = new SaveMasterClient(21, "test");
             
             JPanel remoteButtonPanel = new JPanel(new GridLayout(2, 1, 5, 5));            
             remoteButtonPanel.add(openMasterBut);
@@ -74,6 +74,10 @@ public class RemotePanel extends JPanel{
     
     public JList getRemoteFileList(){
         return remoteList;
+    }
+    
+    public SaveMasterClient getClient(){
+        return smc;
     }
     
     public void refreshFileList(){

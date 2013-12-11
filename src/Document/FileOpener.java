@@ -28,6 +28,7 @@ public class FileOpener extends JPanel implements ActionListener{
     private JButton closeFile;
     private JButton newFile;
     private JPopupMenu newFileSelect;
+    private JTabbedPane fileChooserTabs;
     private JList newFileList;
     private SaveMasterClient smc;
     
@@ -43,7 +44,6 @@ public class FileOpener extends JPanel implements ActionListener{
 
         //disable cancel button
         //disableCancelButton(fileChooser);
-        remotePanel = new RemotePanel();   
             
         saveLocalBut = new SaveLocal();
         closeFile = new JButton();
@@ -75,7 +75,7 @@ public class FileOpener extends JPanel implements ActionListener{
         buttonPanel.add(buttonPanelTop);
         buttonPanel.add(buttonPanelBot);
         
-        JTabbedPane fileChooserTabs = new JTabbedPane();
+        fileChooserTabs = new JTabbedPane();
         
         JPanel localPanel = new JPanel(new BorderLayout());
             localPanel.add(fileChooser, BorderLayout.CENTER);
@@ -83,7 +83,7 @@ public class FileOpener extends JPanel implements ActionListener{
                     
         
         fileChooserTabs.add("Local Files", localPanel);
-        fileChooserTabs.add("Remote Files", remotePanel);
+
         
         
         this.setLayout(new BorderLayout());
@@ -114,6 +114,11 @@ public class FileOpener extends JPanel implements ActionListener{
         disableCancelButton((Container)comp);
         }
         }
+    }
+    
+    public void createRemotePanel(){
+        remotePanel = new RemotePanel();   
+        fileChooserTabs.add("Remote Files", remotePanel);
     }
     
     public JList getFileList(){

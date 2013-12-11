@@ -17,19 +17,16 @@ import org.apache.commons.net.ftp.FTPFile;
 
 
 public class SaveMasterClient{
-    String host;
     int port;
     String username;
     FTPClient client;
     
-    public SaveMasterClient(String host, int port, String username){
-        this.host = host;
+    public SaveMasterClient(int port, String username){
         this.port = port;
         this.username = username;
-        setupClient();
     }
     
-    private void setupClient(){
+    public void connect(String host){
         try {
             client = new FTPClient();
                 
