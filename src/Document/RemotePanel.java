@@ -5,12 +5,14 @@
 package Document;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.io.File;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
 import org.apache.commons.net.ftp.FTPFile;
 
 /**
@@ -33,7 +35,8 @@ public class RemotePanel extends JPanel{
                 
             smc = new SaveMasterClient(21, "test");
             
-            JPanel remoteButtonPanel = new JPanel(new GridLayout(2, 1, 5, 5));            
+            JPanel remoteButtonPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+            remoteButtonPanel.setBorder(new LineBorder(Color.DARK_GRAY));
             remoteButtonPanel.add(openMasterBut);
             remoteButtonPanel.add(saveMasterBut);
             

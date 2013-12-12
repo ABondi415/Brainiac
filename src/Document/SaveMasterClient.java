@@ -18,7 +18,7 @@ import org.apache.commons.net.ftp.FTPFile;
 
 public class SaveMasterClient{
     int port;
-    String username;
+    String username, host;
     FTPClient client;
     
     public SaveMasterClient(int port, String username){
@@ -28,6 +28,7 @@ public class SaveMasterClient{
     
     public void connect(String host){
         try {
+            this.host = host;
             client = new FTPClient();
               
             //client.connect("localhost", 21);
