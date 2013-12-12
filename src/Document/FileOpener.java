@@ -30,7 +30,6 @@ public class FileOpener extends JPanel implements ActionListener{
     private JPopupMenu newFileSelect;
     private JTabbedPane fileChooserTabs;
     private JList newFileList;
-    private SaveMasterClient smc;
     
     public FileOpener(){
         fileChooser = new JFileChooser();

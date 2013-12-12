@@ -29,9 +29,11 @@ public class SaveMasterClient{
     public void connect(String host){
         try {
             client = new FTPClient();
-                
-            client.connect(host, port);
-            client.login(username, "test");
+              
+            client.connect("localhost", 21);
+            //client.connect(host, port);
+            //client.login(username, "test");
+            client.login("test", "test");
                 
                 
             client.enterLocalPassiveMode();

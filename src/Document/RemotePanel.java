@@ -38,20 +38,20 @@ public class RemotePanel extends JPanel{
             remoteButtonPanel.add(saveMasterBut);
             
             //get list
-            FTPFile[] fileList = smc.getFileList();
+//            FTPFile[] fileList = smc.getFileList();
             
             //add list of files and directories
-            DefaultListModel<String> files = new DefaultListModel();
-            for(int i = 0; i < fileList.length; i++){
-                String str = fileList[i].getName();
-                if(fileList[i].isFile()){
-                    str = str + "*";
-                }
-                files.addElement(str);
-            }
-            remoteList = new JList(files);
-
-            //add file list and buttons to main panel
+//            DefaultListModel<String> files = new DefaultListModel();
+//            for(int i = 0; i < fileList.length; i++){
+//                String str = fileList[i].getName();
+//                if(fileList[i].isFile()){
+//                    str = str + "*";
+//                }
+//                files.addElement(str);
+//            }
+            remoteList = new JList();
+//
+//            //add file list and buttons to main panel
             this.add(remoteList, BorderLayout.CENTER);
             this.add(remoteButtonPanel, BorderLayout.SOUTH);
     }
@@ -83,6 +83,8 @@ public class RemotePanel extends JPanel{
     public void refreshFileList(){
             //get list
             FTPFile[] fileList = smc.getFileList();
+            this.remove(remoteList);
+            remoteList.removeAll();
             
             //add list of files and directories
             DefaultListModel<String> files = new DefaultListModel();
@@ -93,7 +95,8 @@ public class RemotePanel extends JPanel{
                 }
                 files.addElement(str);
             }
+
             remoteList = new JList(files);
-            this.revalidate();
+            this.add(remoteList, BorderLayout.CENTER);
     }
 }
