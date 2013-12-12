@@ -722,13 +722,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 newSessionErrorField.setText("Invalid Session name! ");
             }
             else {
-                adapter = DBAdapter.getInstance();
+                //adapter = DBAdapter.getInstance();
                 try{
                     userIP = InetAddress.getLocalHost().getHostAddress();
                 }
                 catch (UnknownHostException ex){}
-                if(adapter.createSession(username, sessionName, userIP)){
-                //if(true){
+                //if(adapter.createSession(username, sessionName, userIP)){
+                if(true){
                     //welcomePanelErrorField.setForeground(Color.green);
                     //welcomePanelErrorField.setText("Session created successfully!");
                     sms = new SaveMasterServer();
@@ -736,8 +736,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
                     SaveMasterClient client = remotePanel.getClient();
-                    client.connect(adapter.getSessionHost(sessionName));
-                    //client.connect("test");
+                    //client.connect(adapter.getSessionHost(sessionName));
+                    client.connect("test");
                     remotePanel.refreshFileList();
                     openMaster = remotePanel.getOpenMasterBut();
                         openMaster.addActionListener(this);

@@ -47,8 +47,8 @@ public class DocEditor extends DocumentViewer{
     private String fileName = "";
     private File inputFile;
     FileInputStream iS;
-    //private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
-    private String OpenOfficePath = "E:\\OpenOffice.org 3";
+    private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
+    //private String OpenOfficePath = "E:\\OpenOffice.org 3";
     final JFrame editorFrame = new JFrame(); 
     private IDocument document;
     
@@ -105,6 +105,7 @@ public class DocEditor extends DocumentViewer{
             ILayoutManager layoutManager = officeFrame.getLayoutManager();
             layoutManager.hideElement(layoutManager.URL_MENUBAR);
             
+            editorFrame.setSize(500, 300);
             officeFrame.disableDispatch(GlobalCommands.CLOSE_DOCUMENT);
             officeFrame.disableDispatch(GlobalCommands.QUIT_APPLICATION);
             officeFrame.updateDispatches();
