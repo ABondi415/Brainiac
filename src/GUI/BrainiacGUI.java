@@ -728,8 +728,21 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 }
                 catch (UnknownHostException ex){}
                 if(adapter.createSession(username, sessionName, userIP)){
+                //if(true){
                     //welcomePanelErrorField.setForeground(Color.green);
                     //welcomePanelErrorField.setText("Session created successfully!");
+                    sms = new SaveMasterServer();
+                        sms.start();
+                    fileOpener.createRemotePanel();
+                    remotePanel = fileOpener.getRemotePanel();
+                    SaveMasterClient client = remotePanel.getClient();
+                    client.connect(adapter.getSessionHost(sessionName));
+                    //client.connect("test");
+                    remotePanel.refreshFileList();
+                    openMaster = remotePanel.getOpenMasterBut();
+                        openMaster.addActionListener(this);
+                    saveMaster = remotePanel.getSaveMasterBut();
+                        saveMaster.addActionListener(this);
                     createSessionPanel.setVisible(false);
                     mainPanel.setVisible(true);
                     JOptionPane.showMessageDialog(mainPanel, "Session created successfully! You are now in the "+sessionName+" session!");
@@ -797,9 +810,19 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                         sms = new SaveMasterServer();
                             sms.start();
                     }
+            
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
-                    remotePanel.getClient().connect(adapter.getSessionHost(sessionName));
+                    SaveMasterClient client = remotePanel.getClient();
+                    client.connect(adapter.getSessionHost(sessionName));
+                    //client.connect("test");
+                    remotePanel.refreshFileList();  
+                        openMaster = remotePanel.getOpenMasterBut();
+                            openMaster.addActionListener(this);
+                        saveMaster = remotePanel.getSaveMasterBut();
+                            saveMaster.addActionListener(this);
+
+            
                     
                     JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
                     brainstorming = true;
@@ -939,6 +962,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         }
         
         if (o == openMaster){
+            remoteFileList = remotePanel.getRemoteFileList();
             String selection = (String)remoteFileList.getSelectedValue();
             if( selection.contains("*")){
                 File remoteFile = (File) remotePanel.getRemoteFile(selection.substring(0, (selection.length()-1)));
@@ -1013,65 +1037,66 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     }
     
     private boolean verifyUser(){
-        username = usernameField.getText();
-        char [] password = userPasswordField.getPassword();
-        if (username.matches("") || password.length == 0){
-            welcomePanelErrorField.setText("Invalid username or password!");
-            return false;
-        }
-        String stringPassword = "";
-        for (int i = 0; i < password.length; i++){
-            stringPassword += password[i];
-        }
-        adapter = DBAdapter.getInstance();
-        if(!adapter.checkLogin(username, stringPassword)){
-            welcomePanelErrorField.setText("Invalid username or password or Session name!");
-            return false;
-        }
+//        username = usernameField.getText();
+//        char [] password = userPasswordField.getPassword();
+//        if (username.matches("") || password.length == 0){
+//            welcomePanelErrorField.setText("Invalid username or password!");
+//            return false;
+//        }
+//        String stringPassword = "";
+//        for (int i = 0; i < password.length; i++){
+//            stringPassword += password[i];
+//        }
+//        adapter = DBAdapter.getInstance();
+//        if(!adapter.checkLogin(username, stringPassword)){
+//            welcomePanelErrorField.setText("Invalid username or password or Session name!");
+//            return false;
+//        }
         return true;
     }
     
     private boolean verifyConnect(){
-        username = usernameField.getText();
-        sessionName = sessionNameField.getText();
-        char [] password = userPasswordField.getPassword();
-        if (username.matches("") || password.length == 0){
-            welcomePanelErrorField.setText("Invalid username or password!");
-            return false;
-        }
-        String stringPassword = "";
-        for (int i = 0; i < password.length; i++){
-            stringPassword += password[i];
-        }
-
-        adapter = DBAdapter.getInstance();
-        //If an invalid username or password has been entered, display an error.
-        if(!adapter.checkLogin(username, stringPassword)){
-            welcomePanelErrorField.setText("Invalid username or password!");
-            return false;
-        }
-        //If an invalid session name has been entered, display an error.
-        if (!adapter.checkSessionName(sessionName)){
-            welcomePanelErrorField.setText("Invalid Session Name!");
-            return false;
-        }
-        String[] validUsers = adapter.getSessionUsers(sessionName);
-        String host = adapter.getSessionHost(sessionName);
-        boolean validUser = false;
-        //If the user is a member of the session users or the session host, we are able to 
-        //  join the session.
-        for(int i = 1; i < validUsers.length; i++){
-            if (validUsers[i].equals(username)){
-                validUser = true;
-            }
-        }
-        if (host.equals(username))
-            validUser = true;
-        
-        if (!validUser){
-            welcomePanelErrorField.setText("Your are not a member of this session!");
-        }
-        return validUser;
+//        username = usernameField.getText();
+//        sessionName = sessionNameField.getText();
+//        char [] password = userPasswordField.getPassword();
+//        if (username.matches("") || password.length == 0){
+//            welcomePanelErrorField.setText("Invalid username or password!");
+//            return false;
+//        }
+//        String stringPassword = "";
+//        for (int i = 0; i < password.length; i++){
+//            stringPassword += password[i];
+//        }
+//
+//        adapter = DBAdapter.getInstance();
+//        //If an invalid username or password has been entered, display an error.
+//        if(!adapter.checkLogin(username, stringPassword)){
+//            welcomePanelErrorField.setText("Invalid username or password!");
+//            return false;
+//        }
+//        //If an invalid session name has been entered, display an error.
+//        if (!adapter.checkSessionName(sessionName)){
+//            welcomePanelErrorField.setText("Invalid Session Name!");
+//            return false;
+//        }
+//        String[] validUsers = adapter.getSessionUsers(sessionName);
+//        String host = adapter.getSessionHost(sessionName);
+//        boolean validUser = false;
+//        //If the user is a member of the session users or the session host, we are able to 
+//        //  join the session.
+//        for(int i = 1; i < validUsers.length; i++){
+//            if (validUsers[i].equals(username)){
+//                validUser = true;
+//            }
+//        }
+//        if (host.equals(username))
+//            validUser = true;
+//        
+//        if (!validUser){
+//            welcomePanelErrorField.setText("Your are not a member of this session!");
+//        }
+//        return validUser;
+        return true;
     }
     
     
