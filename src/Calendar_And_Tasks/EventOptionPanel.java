@@ -48,14 +48,14 @@ public class EventOptionPanel extends JPanel {
     private static JTextField eventLocationTF;
     private static JComboBox calendarSelector;
     private static JButton sendDataButton;
-    private static String name, date, description, startTime, endTime, location,
-            calendar;
+    private static String name, date, description, startTime, endTime, location;
     private static String user;
     private static String password;
     private static CalendarEntry chosenCal;
     private static CalendarService myService;
+    private static Date eventDate;
 
-    EventOptionPanel() throws IOException, MalformedURLException, ServiceException {
+    EventOptionPanel(Date chosenDate) throws IOException, MalformedURLException, ServiceException {
 
         myService = LoginPanel.getService(); 
 
@@ -66,9 +66,11 @@ public class EventOptionPanel extends JPanel {
         eventStartTimeTF = new JTextField();
         eventEndTimeTF = new JTextField();
         eventLocationTF = new JTextField();
-
         calendarSelector = new JComboBox();
 
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/YYYY");
+        eventDateTF.setText(sdf.format(chosenDate));
+        
         final CalendarFeed cf = getCalendars();
 
         if (LoginPanel.isValidCred()) {
@@ -89,6 +91,7 @@ public class EventOptionPanel extends JPanel {
                 startTime = eventStartTimeTF.getText();
                 endTime = eventEndTimeTF.getText();
                 location = eventLocationTF.getText();
+                
                 if (LoginPanel.isValidCred()) {
                     List<CalendarEntry> entries = cf.getEntries();
                     for (int i = 0; i < entries.size(); i++) {
@@ -97,18 +100,16 @@ public class EventOptionPanel extends JPanel {
                         }
 
                     }
-                    if (!chosenCal.getTitle().getPlainText().equals(calendarSelector.getItemAt(calendarSelector.getSelectedIndex()).toString())) {
-                        parseInfoAndSend(chosenCal);
-                    }
+                    
                 }
-                gCalendarPane.eventFrame.setVisible(false);
+                parseInfoAndSend(chosenCal);
+                gCalendarPane.createEventFrame.setVisible(false);
             }
         });
 
         eventNameTF.setText("Event Name");
         eventNameTF.setToolTipText("Event Name");
-        eventDateTF.setText("MM/DD/YYYY");
-        eventDateTF.setToolTipText("Event Date");
+        
         eventDescriptionTF.setText("Description");
         eventDescriptionTF.setToolTipText("A brief description of the event");
         eventStartTimeTF.setText("HH:MM XX");
@@ -118,7 +119,10 @@ public class EventOptionPanel extends JPanel {
         eventLocationTF.setText("Locale");
         eventLocationTF.setToolTipText("Where will this event be?");
         calendarSelector.setToolTipText("Select the calendar you'd like to add an event to.");
-
+        
+        eventDateTF.setToolTipText("Event Date");
+        eventDate = new Date();
+        
         this.setLayout(new GridLayout(7, 1));
         this.add(eventNameTF);
         this.add(eventDateTF);
@@ -132,7 +136,7 @@ public class EventOptionPanel extends JPanel {
     }
 
     public void parseInfoAndSend(CalendarEntry cal) {
-        Date eventDate = new Date();
+        
         Date evtStartTime = new Date();
         Date evtEndTime = new Date();
 
@@ -185,8 +189,12 @@ public class EventOptionPanel extends JPanel {
         evtTimes.setStartTime(sTime);
         evtTimes.setEndTime(eTime);
         myEntry.addTime(evtTimes);
-
-        if (LoginPanel.isValidCred()) {
+        
+        gCTPane.pushEvent(myEntry);
+        
+        int x = 0;
+        if (LoginPanel.isValidCred() &&
+                !chosenCal.getTitle().getPlainText().equals(calendarSelector.getItemAt(calendarSelector.getSelectedIndex()).toString())){
             sendData(cal, myEntry);
         }
     }
@@ -225,4 +233,5 @@ public class EventOptionPanel extends JPanel {
         System.out.println("Successfully deleted entry from calendar.\n");
 
     }
+
 }

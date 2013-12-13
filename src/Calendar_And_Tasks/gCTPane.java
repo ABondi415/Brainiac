@@ -5,10 +5,9 @@
  */
 package Calendar_And_Tasks;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import com.google.gdata.data.calendar.CalendarEventEntry;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.JTabbedPane;
 
 /**
@@ -20,8 +19,10 @@ public class gCTPane extends JTabbedPane{
     private static gTaskPane gTP ;
     private static gCTPane gCTP;
     protected static LoginPanel lp;
+    private static ArrayList<CalendarEventEntry> ceeArrayList;
     
     private gCTPane(){
+        ceeArrayList = new ArrayList();
         gCP = new gCalendarPane();
         gTP = new gTaskPane();
         lp = LoginPanel.instanceOf();
@@ -41,5 +42,33 @@ public class gCTPane extends JTabbedPane{
     
     protected static gCTPane getPane(){
         return gCTP;
+    }
+    
+    public static ArrayList<CalendarEventEntry> getArrayList(){
+        return ceeArrayList;        
+    }
+    
+    public static void pushEvent(CalendarEventEntry myEntry){    
+        ceeArrayList.add(myEntry);
+    }
+    
+    public static ArrayList<CalendarEventEntry> getSubList(Date date){
+        ArrayList<CalendarEventEntry> ceeList = new ArrayList();
+        CalendarEventEntry cee = new CalendarEventEntry();
+        for(int i = 0; i < ceeList.size(); i++){
+            if(ceeArrayList.get(i).getTimes().get(0).getStartTime().equals(date.getTime()))
+                cee = ceeArrayList.get(i);
+            ceeList.add(cee);
+        }     
+        
+        return ceeList;
+    }
+    
+    public static CalendarEventEntry popEvent(CalendarEventEntry myEntry){
+        CalendarEventEntry cee;
+        cee = (CalendarEventEntry)ceeArrayList.toArray()[ceeArrayList.size()];
+        ceeArrayList.remove(myEntry);
+        
+        return cee;
     }
 }

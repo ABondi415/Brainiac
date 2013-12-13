@@ -31,28 +31,41 @@ public class gCalendarPane extends JPanel {
 
     private static String user, password;
     private static JCalendar aCalendar;
-    private static JButton addEventButton;
-    protected static JFrame eventFrame;
+    private static JButton addEventButton, viewEventsButton;
+    protected static JFrame createEventFrame, viewEventsFrame;
     private static EventOptionPanel eop;
     private static LoginPanel lp;
     private static JFrame aFrame;
     private static JDateChooser dateChooser;
     private static Date chosenDate;
 
-    gCalendarPane() {
+//    /**
+//     * @return the chosenDate
+//     */
+//    public Date getChosenDate() {
+//        return chosenDate;
+//    }
+//
+//    /**
+//     * @param aChosenDate the chosenDate to set
+//     */
+//    public void setChosenDate(Date aChosenDate) {
+//        chosenDate = aChosenDate;
+//    }
+
+    public gCalendarPane() {
 
         aCalendar = new JCalendar();
         aCalendar.setVisible(true);
-        dateChooser = new JDateChooser();
 
-        dateChooser.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                chosenDate = dateChooser.getDate();
-
-            }
-        });
+//        dateChooser.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
+//
+//            @Override
+//            public void propertyChange(PropertyChangeEvent evt) {
+//                setChosenDate(dateChooser.getDate());
+//
+//            }
+//        });
 
         addEventButton = new JButton("Add Event");
         addEventButton.addActionListener(new ActionListener() {
@@ -60,17 +73,27 @@ public class gCalendarPane extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                eventFrame = new JFrame("Add Event");
+                createEventFrame = new JFrame("Add Event");
                 try {
-                    eop = new EventOptionPanel();
+                    eop = new EventOptionPanel(getChosenDate());
                 } catch (IOException | ServiceException ex) {
                     Logger.getLogger(gCalendarPane.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                eventFrame.add(eop);
-                eventFrame.setSize(200, 400);
-                eventFrame.setVisible(true);
+                createEventFrame.add(eop);
+                createEventFrame.setSize(200, 400);
+                createEventFrame.setVisible(true);
             }
         });
+        
+        viewEventsButton = new JButton("View Events");
+        viewEventsButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewEventsFrame = new ViewEventsFrame(gCTPane.getSubList(chosenDate));
+            }
+        });
+        
         this.setBorder(BorderFactory.createTitledBorder("Calendar"));
         this.add(aCalendar);
         this.setVisible(true);
@@ -81,6 +104,9 @@ public class gCalendarPane extends JPanel {
 
     }
 
-
+    public Date getChosenDate(){
+        chosenDate = aCalendar.getDate();
+        return chosenDate;
+    }
 
 }

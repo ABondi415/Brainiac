@@ -15,7 +15,8 @@ import javax.swing.JPanel;
  */
 public class gTaskPane extends JPanel{
     private static JButton addTask;
-    gTaskPane(){
+    
+    public gTaskPane(){
         addTask = new JButton("Add Task");
         this.add(addTask);
         this.setBorder(BorderFactory.createTitledBorder("Tasks"));
