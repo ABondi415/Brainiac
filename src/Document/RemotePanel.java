@@ -20,7 +20,7 @@ import org.apache.commons.net.ftp.FTPFile;
  * @author Marcus
  */
 public class RemotePanel extends JPanel{
-   private JButton openMasterBut, saveMasterBut;
+   private JButton openMasterBut, saveMasterBut, uploadMasterBut;
    private JList remoteList;
    private SaveMasterClient smc;
     
@@ -32,28 +32,19 @@ public class RemotePanel extends JPanel{
                 openMasterBut.setText("Open Master");
             saveMasterBut = new JButton();
                 saveMasterBut.setText("Save Master");
+            uploadMasterBut = new JButton();
+                uploadMasterBut.setText("Upload File");
                 
             smc = new SaveMasterClient(21, "test");
             
-            JPanel remoteButtonPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+            JPanel remoteButtonPanel = new JPanel(new GridLayout(3, 1, 5, 5));
             remoteButtonPanel.setBorder(new LineBorder(Color.DARK_GRAY));
             remoteButtonPanel.add(openMasterBut);
             remoteButtonPanel.add(saveMasterBut);
+            remoteButtonPanel.add(uploadMasterBut);
             
-            //get list
-//            FTPFile[] fileList = smc.getFileList();
-            
-            //add list of files and directories
-//            DefaultListModel<String> files = new DefaultListModel();
-//            for(int i = 0; i < fileList.length; i++){
-//                String str = fileList[i].getName();
-//                if(fileList[i].isFile()){
-//                    str = str + "*";
-//                }
-//                files.addElement(str);
-//            }
             remoteList = new JList();
-//
+            
 //            //add file list and buttons to main panel
             this.add(remoteList, BorderLayout.CENTER);
             this.add(remoteButtonPanel, BorderLayout.SOUTH);
@@ -69,6 +60,10 @@ public class RemotePanel extends JPanel{
     
     public JButton getOpenMasterBut(){
         return openMasterBut;
+    }
+    
+    public JButton getUploadBut(){
+        return uploadMasterBut;
     }
     
     public JButton getSaveMasterBut(){

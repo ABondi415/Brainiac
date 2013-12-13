@@ -9,8 +9,11 @@ import ag.ion.bion.officelayer.application.*;
 import ag.ion.bion.officelayer.desktop.GlobalCommands;
 import ag.ion.bion.officelayer.desktop.IFrame;
 import ag.ion.bion.officelayer.document.DocumentDescriptor;
+import ag.ion.bion.officelayer.document.DocumentException;
 import ag.ion.bion.officelayer.document.IDocument;
+import ag.ion.bion.officelayer.filter.IFilter;
 import ag.ion.bion.officelayer.internal.application.ApplicationAssistant;
+import ag.ion.bion.officelayer.internal.document.DocumentExporter;
 import ag.ion.bion.officelayer.internal.document.DocumentWriter;
 import ag.ion.bion.officelayer.spreadsheet.ISpreadsheetDocument;
 import ag.ion.bion.officelayer.text.ITextDocument;
@@ -29,7 +32,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,8 +53,8 @@ public class DocEditor extends DocumentViewer{
     private String fileName = "";
     private File inputFile;
     FileInputStream iS;
-    private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
-    //private String OpenOfficePath = "E:\\OpenOffice.org 3";
+    //private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
+    private String OpenOfficePath = "E:\\OpenOffice.org 3";
     final JFrame editorFrame = new JFrame(); 
     private IDocument document;
     
@@ -66,9 +72,6 @@ public class DocEditor extends DocumentViewer{
 
         this.add(new JLabel("Please see new Open Office frame for editing"), BorderLayout.CENTER);
 
-
-        //this.add(editorF.getLayeredPane(), BorderLayout.CENTER);
-        //this.add(editorPanel);
     }
     private void createDocPanel() {
       
@@ -83,32 +86,30 @@ public class DocEditor extends DocumentViewer{
 
             editor.activate();
             
+            
             //final JFrame editorFrame = new JFrame(); 
             editorFrame.setVisible(true);
             editorFrame.setSize(this.getWidth(), this.getHeight());
-            editorFrame.validate();
+            //editorFrame.validate();
             final JPanel editorPanel = new JPanel(new BorderLayout());
             editorFrame.add(editorPanel);
             editorPanel.setVisible(true);
 
             IFrame officeFrame = editor.getDesktopService().constructNewOfficeFrame(editorPanel);
             if (fileName.equals("Untitled.doc")){ 
-                editor.getDocumentService().constructNewDocument(officeFrame, IDocument.WRITER, DocumentDescriptor.DEFAULT);
+            editor.getDocumentService().constructNewDocument(officeFrame, IDocument.WRITER, DocumentDescriptor.DEFAULT);
             }
             else{
-                editor.getDocumentService().loadDocument(officeFrame, iS, null);
+            editor.getDocumentService().loadDocument(officeFrame, iS, null);
             }
-            IDocument docs[] = editor.getDocumentService().getCurrentDocuments();
-            document = (IDocument)docs[0];
             editorFrame.validate();
             
-            ILayoutManager layoutManager = officeFrame.getLayoutManager();
-            layoutManager.hideElement(layoutManager.URL_MENUBAR);
             
             editorFrame.setSize(500, 300);
             officeFrame.disableDispatch(GlobalCommands.CLOSE_DOCUMENT);
             officeFrame.disableDispatch(GlobalCommands.QUIT_APPLICATION);
             officeFrame.updateDispatches();
+            
             
             //if (fileName == null)
             //    editor.getDocumentService().constructNewDocument(officeFrame, IDocument.WRITER, DocumentDescriptor.DEFAULT);
@@ -124,6 +125,8 @@ public class DocEditor extends DocumentViewer{
     public String getFileName(){return fileName;}
     
     public File getFile(){
+        //document.update();
+        
         //File file = new File(fileName, document);
         File file = new File("fixMe");
         return file;
@@ -135,12 +138,6 @@ public class DocEditor extends DocumentViewer{
     }
     
     public void saveLocal(File saveFile){
-        try {
-            DocumentWriter dw = new DocumentWriter();
-            dw.storeDocument(document, saveFile.getPath());
-        } catch (Exception ex) {
-            Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     @Override
