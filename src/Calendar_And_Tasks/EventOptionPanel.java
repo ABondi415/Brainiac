@@ -12,6 +12,7 @@ import com.google.gdata.data.calendar.CalendarEntry;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.calendar.CalendarFeed;
 import com.google.gdata.data.extensions.When;
+import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -56,23 +57,7 @@ public class EventOptionPanel extends JPanel {
 
     EventOptionPanel() throws IOException, MalformedURLException, ServiceException {
 
-        myService = LoginPanel.getService(); //= new CalendarService("sweng411Co-brainiacApp-1");
-//        try {
-//            user = LoginPanel.getUserCredentials()[0];
-//            password = LoginPanel.getUserCredentials()[1];
-//            myService.setUserCredentials(gCalendarPane.getUser(), gCalendarPane.getPass());
-//            
-//        } catch (AuthenticationException ex) {
-//            System.out.println("Credentials do not match credentials on file at Google.");
-////            JFrame aFrame = new JFrame("Login");
-////            LoginPanel lp = new LoginPanel(aFrame);
-////            aFrame.add(lp);
-////            aFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-////            aFrame.setSize(200, 200);
-////            aFrame.setVisible(true);
-//            user = LoginPanel.getUserCredentials()[0];
-//            password = LoginPanel.getUserCredentials()[1];
-//        }
+        myService = LoginPanel.getService(); 
 
         chosenCal = new CalendarEntry();
         eventNameTF = new JTextField();
@@ -235,9 +220,9 @@ public class EventOptionPanel extends JPanel {
         }
     }
 
-//    public void sendCalendarEventData() throws AuthenticationException, MalformedURLException, IOException, ServiceException {
-//        insertedEntry.delete();
-//        System.out.println("Successfully deleted entry from calendar.\n");
-//
-//    }
+    public void removeCalendarEntry(CalendarEventEntry insertedEntry) throws AuthenticationException, MalformedURLException, IOException, ServiceException {
+        insertedEntry.delete();
+        System.out.println("Successfully deleted entry from calendar.\n");
+
+    }
 }

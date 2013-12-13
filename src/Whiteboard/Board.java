@@ -167,7 +167,7 @@ public class Board extends JPanel {
         });
         clearButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-
+                //WHY THE FUCK ARE WE GETTING A NULL PTR EXCEPTION HERE!!??!?!?!?!?!?!    
                 Graphics bgg = bg.getGraphics();
                 Graphics fgg = drawPanel.getGraphics();
                 bgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the background

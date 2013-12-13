@@ -31,21 +31,7 @@ public class gCTPane extends JTabbedPane{
     public static gCTPane instanceOf(){
         if (gCTP == null) gCTP = new gCTPane();
         
-        gCTP.addTab("Google Login", lp);
-//        if ("".equals(LoginPanel.getUserCredentials()[0]) || 
-//                "".equals(LoginPanel.getUserCredentials()[1])){
-//            lp.getButton().addActionListener(new ActionListener() {
-//
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                   if(LoginPanel.isValidCred()){
-//                       gCTP.remove(lp);
-//                   }
-//                }
-//            });
-//            
-//        }
-        
+        gCTP.addTab("Google Login", lp);        
         gCTP.addTab("Calendar", gCP);
         gCTP.addTab("Tasks", gTP);
         gCTP.setVisible(true);
