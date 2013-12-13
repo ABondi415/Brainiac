@@ -66,7 +66,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private DocumentViewer docViewer;
     private SaveLocal saveLocal;
     private SaveMasterServer sms;
-    private JButton closeFileBut, newFileBut, openMaster, saveMaster;
+    private JButton closeFileBut, newFileBut, openMaster, saveMaster, uploadMaster;
     private JPopupMenu fileSelectPopup, fileRenamePopup;
     private JList fileSelectList, remoteFileList;
     private JPopupMenu dialog;
@@ -744,6 +744,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                         openMaster.addActionListener(this);
                     saveMaster = remotePanel.getSaveMasterBut();
                         saveMaster.addActionListener(this);
+                    uploadMaster = remotePanel.getUploadBut();
+                        uploadMaster.addActionListener(this);
                     createSessionPanel.setVisible(false);
                     mainPanel.setVisible(true);
                     addBrainstormersMenuItem.setVisible(true);
@@ -975,6 +977,17 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 whiteboardDocumentPane.setSelectedComponent(docViewer);
                 mainPanel.revalidate();
             }
+        }
+        
+        if (o == uploadMaster){
+            JFileChooser uploadChooser = new JFileChooser();
+            int returnVal = uploadChooser.showDialog(this, "upload");
+            
+            if ( returnVal == JFileChooser.APPROVE_OPTION ){
+               remotePanel.saveMasterFile(uploadChooser.getSelectedFile(), uploadChooser.getSelectedFile().getName());
+            }
+            remotePanel.refreshFileList();
+            fileOpener.revalidate();
         }
             
         if (o == closeFileBut){
