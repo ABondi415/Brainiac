@@ -23,11 +23,7 @@ public class DBCreator {
     private final String DB_NAME = "BRAINIACDB"; 
     private static Connection conn;
     
-    public DBCreator(){
-        createDB();
-    }
-    
-    private void createDB(){
+    public void createDB(){
         String connectionURL = "jdbc:mysql://localhost:3306/";
         String createString = "";
         try{

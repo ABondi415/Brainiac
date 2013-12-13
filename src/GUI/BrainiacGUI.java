@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.Vector;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 
 /**
  *
@@ -77,6 +76,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private DBAdapter adapter;
     private String userIP;
     private DBCreator dbCreator;
+    private BrainiacClient client;
     
     
     private BrainiacGUI(){
@@ -169,7 +169,10 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         editBrainstormersExistingTable = new JTable();
         editBrainstormersCurrentPane = new JScrollPane();
         editBrainstormersCurrentTable = new JTable();
-        dbCreator = new DBCreator();    //Create the database.  
+        dbCreator = new DBCreator();        //Create the database.  
+        client = new BrainiacClient();
+        dbCreator = new DBCreator();
+        dbCreator.createDB();               //Create a new MySQL database if one doesn't already exist.  
        
         sessionName = "";
         brainstorming = false;
@@ -731,8 +734,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 }
                 catch (UnknownHostException ex){}
                 if(adapter.createSession(username, sessionName, userIP)){
-                    //welcomePanelErrorField.setForeground(Color.green);
-                    //welcomePanelErrorField.setText("Session created successfully!");
                     sms = new SaveMasterServer();
                         sms.start();
                     fileOpener.createRemotePanel();
@@ -797,50 +798,48 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanelErrorField.setForeground(Color.red);
             // Don't uncomment this unless you wish to test a username and password. 
             if (sessionNameField.getText().length() > 0) {
-                if (true/*verifyConnect()*/) {
-//                    adapter = DBAdapter.getInstance();
-//                    try{
-//                        userIP = InetAddress.getLocalHost().getHostAddress();
-//                    }
-//                    catch (UnknownHostException ex){}
-//                    adapter.updateUserIP(username, userIP);
-//                    loadSession();
+                if (verifyConnect()) {
+                    adapter = DBAdapter.getInstance();
+                    try{
+                        userIP = InetAddress.getLocalHost().getHostAddress();
+                    }
+                    catch (UnknownHostException ex){}
+                    adapter.updateUserIP(username, userIP);
+                    loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
                     //If you are the host, you can add other brainstormers.
-//                    if (username.equals(adapter.getSessionHost(sessionName))){
-//                        adapter.updateHostIP(username, userIP);
-//                        addBrainstormersMenuItem.setVisible(true);
-//                        sms = new SaveMasterServer();
-//                            sms.start();
-//                    }
-//            
-//                    fileOpener.createRemotePanel();
-//                    remotePanel = fileOpener.getRemotePanel();
-//                    SaveMasterClient client = remotePanel.getClient();
-//                    client.connect(adapter.getSessionHost(sessionName));
-//                    //client.connect("test");
-//                    remotePanel.refreshFileList();  
-//                        openMaster = remotePanel.getOpenMasterBut();
-//                            openMaster.addActionListener(this);
-//                        saveMaster = remotePanel.getSaveMasterBut();
-//                            saveMaster.addActionListener(this);
-//
-//            
-//                    
-//                    JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
-//                    brainstorming = true;
+                    if (username.equals(adapter.getSessionHost(sessionName))){
+                        adapter.updateHostIP(username, userIP);
+                        addBrainstormersMenuItem.setVisible(true);
+                        sms = new SaveMasterServer();
+                            sms.start();
+                    }
+            
+                    fileOpener.createRemotePanel();
+                    remotePanel = fileOpener.getRemotePanel();
+                    SaveMasterClient client = remotePanel.getClient();
+                    client.connect(adapter.getSessionHost(sessionName));
+                    //client.connect("test");
+                    remotePanel.refreshFileList();  
+                        openMaster = remotePanel.getOpenMasterBut();
+                            openMaster.addActionListener(this);
+                        saveMaster = remotePanel.getSaveMasterBut();
+                            saveMaster.addActionListener(this);
+
+                    JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
+                    brainstorming = true;
                 }
             } else {
-                if (true/*verifyUser()*/) {
-//                    adapter = DBAdapter.getInstance();
-//                    try{
-//                        userIP = InetAddress.getLocalHost().getHostAddress();
-//                    }
-//                    catch (UnknownHostException ex){}
-//                    adapter.updateUserIP(username, userIP);
-//                    loadSession();
+                if (verifyUser()) {
+                    adapter = DBAdapter.getInstance();
+                    try{
+                        userIP = InetAddress.getLocalHost().getHostAddress();
+                    }
+                    catch (UnknownHostException ex){}
+                    adapter.updateUserIP(username, userIP);
+                    loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
