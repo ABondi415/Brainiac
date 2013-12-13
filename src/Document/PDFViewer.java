@@ -6,6 +6,7 @@
 
 package Document;
 
+import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PagePanel;
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
@@ -18,8 +19,9 @@ import java.io.File;
  */
 public class PDFViewer extends DocumentViewer implements KeyListener{
     PagePanel newPage;
+    PDFFile file;
     
-    public PDFViewer(){
+    public PDFViewer(File inputFile){
         newPage = new PagePanel();
         newPage.addKeyListener(this);
         
