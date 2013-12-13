@@ -33,7 +33,6 @@ public class DBAdapter {
             if (!checkUsername(username)) {
                 Statement sta = conn.createStatement();
                 sta.executeUpdate("INSERT INTO USERS"
-                        + " (USERNAME, USERPASSWORD, USERIP)"
                         + " VALUES ('" + username + "', '" + userPass + "', '" + userIP +"')");
                 return true;
             }
@@ -63,13 +62,8 @@ public class DBAdapter {
     
     public void updateUserIP(String username, String userIP){
         try {
-            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
-                    ResultSet.CONCUR_UPDATABLE);
-            ResultSet rs = sta.executeQuery("SELECT USERIP FROM USERS WHERE USERNAME = '"+username+"'");
-            while (rs.next()){
-                rs.updateString("USERIP", userIP);
-                rs.updateRow();
-            }
+            Statement sta = conn.createStatement();
+            sta.executeUpdate("UPDATE USERS SET USERIP = '"+userIP+"' WHERE USERNAME = '"+username+"'");
         }
         catch (SQLException ex){
             System.out.println("I could not update the user's IP!");
@@ -78,30 +72,24 @@ public class DBAdapter {
     
     public void updateHostIP(String hostname, String hostIP){
         try {
-            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
-                    ResultSet.CONCUR_UPDATABLE);
-            ResultSet rs = sta.executeQuery("SELECT HOSTIP FROM SESSIONS WHERE SESSIONHOST = '"+hostname+"'");
-            while (rs.next()){
-                rs.updateString("HOSTIP", hostIP);
-                rs.updateRow();
-            }
+            Statement sta = conn.createStatement();
+            sta.executeUpdate("UPDATE SESSIONS SET HOSTIP = '"+hostIP+"' WHERE USERNAME = '"+hostname+"'");
         }
         catch (SQLException ex){
-            System.out.println("I could not add the new user!");
+            System.out.println("I could not update the hostIP!");
         }
     }
     
     public boolean addNewSessionUser(String username, String sessionName){
         boolean successfulAdd = false;
         try {
-            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
-                    ResultSet.CONCUR_UPDATABLE);
+            Statement sta = conn.createStatement();
             ResultSet rs = sta.executeQuery("SELECT SESSIONUSERS FROM SESSIONS WHERE SESSIONNAME = '"+sessionName+"'");
+            String tempUsers = "";
             while (rs.next()){
-                String tempUsers = rs.getString("SESSIONUSERS");
-                rs.updateString("SESSIONUSERS", tempUsers+":"+username);
-                rs.updateRow();
+                tempUsers = rs.getString("SESSIONUSERS");
             }
+            sta.executeUpdate("UPDATE SESSIONS SET SESSIONUSERS = '"+tempUsers+":"+username+"' WHERE SESSIONNAME = '"+sessionName+"'");
             successfulAdd = true;
         }
         catch (SQLException ex){
@@ -113,15 +101,14 @@ public class DBAdapter {
     public boolean removeSessionUser(String username, String sessionName){
         boolean successfulRemove = false;
         try {
-            Statement sta = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 
-                    ResultSet.CONCUR_UPDATABLE);
+            Statement sta = conn.createStatement();
             ResultSet rs = sta.executeQuery("SELECT SESSIONUSERS FROM SESSIONS WHERE SESSIONNAME = '"+sessionName+"'");
+            String tempUsers = "";
             while (rs.next()){
-                String tempUsers = rs.getString("SESSIONUSERS");
+                tempUsers = rs.getString("SESSIONUSERS");
                 tempUsers = tempUsers.replace(":"+username, "");
-                rs.updateString("SESSIONUSERS", tempUsers);
-                rs.updateRow();
             }
+            sta.executeUpdate("UPDATE SESSIONS SET SESSIONUSERS = '"+tempUsers+"' WHERE SESSIONNAME = '"+sessionName+"'");
             successfulRemove = true;
         }
         catch (SQLException ex){
@@ -178,7 +165,6 @@ public class DBAdapter {
             if (!checkSessionName(sessionName)){
                 Statement sta = conn.createStatement();
                 sta.executeUpdate("INSERT INTO SESSIONS"
-                        + " (SESSIONNAME, SESSIONHOST, HOSTIP, SESSIONUSERS)"
                         + " VALUES ('"+sessionName+"', '"+ username +"' ,'"+userIP+"', '"+""+"')");
                 return true;
             }
@@ -195,7 +181,9 @@ public class DBAdapter {
             ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '"+username+"'");
             nameExists = rs.next();
         }
-        catch (SQLException ex) {}
+        catch (SQLException ex) {
+            System.out.println(ex);
+        }
         return nameExists;
     }
     
@@ -243,7 +231,7 @@ public class DBAdapter {
     
     private void createConnection() {
         try {
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/BrainiacDB", "root", "password");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/brainiacdb", "root", "");
         } catch (SQLException ex) {
             System.out.println("I could not create a database connection! " + ex);
         }
