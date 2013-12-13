@@ -12,6 +12,7 @@ import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.nio.ByteBuffer;
 
 /**
  *
@@ -22,6 +23,7 @@ public class PDFViewer extends DocumentViewer implements KeyListener{
     PDFFile file;
     
     public PDFViewer(File inputFile){
+        //ByteBuffer buf = new ByteBuffer(inputFile);
         newPage = new PagePanel();
         newPage.addKeyListener(this);
         
