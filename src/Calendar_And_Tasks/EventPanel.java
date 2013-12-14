@@ -9,6 +9,7 @@ package Calendar_And_Tasks;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.extensions.When;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class EventPanel extends javax.swing.JPanel {
 
     /**
      * Creates new form EventPanel
+     * @param myEntry
      */
     public EventPanel(CalendarEventEntry myEntry) {
         initComponents();
@@ -27,15 +29,17 @@ public class EventPanel extends javax.swing.JPanel {
         jLabel2.setText(myEntry.getLocations().get(0).getValueString());
         jLabel3.setText(myEntry.getSummary().getPlainText());
         
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/YYYY");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("h:mm a");
         List<When> times = myEntry.getTimes();
         Time t = new Time(times.get(0).getStartTime().getValue());
-        jLabel4.setText(t.toString());
+        jLabel4.setText(sdf1.format(t));
         
         t = new Time(times.get(0).getEndTime().getValue());
-        jLabel5.setText(t.toString());
+        jLabel5.setText(sdf1.format(t));
         
         Date date = new Date(t.getTime());
-        jLabel6.setText(date.toString());
+        jLabel6.setText(sdf.format(date));
     }
 
     /**

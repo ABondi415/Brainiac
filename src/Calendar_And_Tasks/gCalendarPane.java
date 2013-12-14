@@ -7,6 +7,7 @@
  */
 package Calendar_And_Tasks;
 
+import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.util.ServiceException;
 import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
@@ -15,12 +16,14 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -90,7 +93,13 @@ public class gCalendarPane extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                viewEventsFrame = new ViewEventsFrame(gCTPane.getSubList(chosenDate));
+                ArrayList<CalendarEventEntry> ceeArray = new ArrayList();
+                ceeArray = gCTPane.getSubList(chosenDate);
+                if(!ceeArray.isEmpty()){ 
+                    viewEventsFrame = new ViewEventsFrame(gCTPane.getSubList(chosenDate));
+                }
+                else 
+                    JOptionPane.showMessageDialog(new JFrame(), "No events to show!");
             }
         });
         
@@ -98,6 +107,7 @@ public class gCalendarPane extends JPanel {
         this.add(aCalendar);
         this.setVisible(true);
         this.add(addEventButton);
+        this.add(viewEventsButton);
         this.add(aCalendar);
         this.setSize(400, 300);
         this.setVisible(true);

@@ -7,6 +7,7 @@
 package Calendar_And_Tasks;
 
 import com.google.gdata.data.calendar.CalendarEventEntry;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,24 +32,31 @@ public class ViewEventsFrame extends JFrame {
     public ViewEventsFrame(ArrayList<CalendarEventEntry> ceeArrayList) {
         super("Event Descriptions");
         initComponents();
+        close = new JButton("Close");
+        aPanel = new JPanel();
         aPanel.setLayout(new GridLayout(ceeArrayList.size()+1,1));
         
         close.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                ViewEventsFrame.this.setVisible(false);
+                setVisible(false);
             }
         });
-        close = new JButton("Close");
-        aPanel.add(close);
+        
         
         for (int i = 0; i < ceeArrayList.size(); i++){
             EventPanel ep = new EventPanel(ceeArrayList.get(i));
             aPanel.add(ep);
         }
         
+        close = new JButton("Close");
+        aPanel.add(close);
+        
+        aPanel.setSize(aPanel.getPreferredSize());
+        
         this.add(aPanel);
+        this.setSize(500,100);
         this.setVisible(true);
     }
 

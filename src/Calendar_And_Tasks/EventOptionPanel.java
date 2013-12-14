@@ -12,6 +12,7 @@ import com.google.gdata.data.calendar.CalendarEntry;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.calendar.CalendarFeed;
 import com.google.gdata.data.extensions.When;
+import com.google.gdata.data.extensions.Where;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import java.awt.GridLayout;
@@ -141,9 +142,14 @@ public class EventOptionPanel extends JPanel {
         Date evtEndTime = new Date();
 
         CalendarEventEntry myEntry = new CalendarEventEntry();
+        
         myEntry.setTitle(new PlainTextConstruct(name));
         myEntry.setSummary(new PlainTextConstruct(description));
         myEntry.setContent(new PlainTextConstruct(description));
+        
+        Where where = new Where();
+        where.setValueString(location);
+        myEntry.addLocation(where);
 
         //Parses date from style: MM/DD/YY 
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
@@ -166,14 +172,14 @@ public class EventOptionPanel extends JPanel {
         }
 
         Date formattedDateStart = evtStartTime;
-        formattedDateStart.setMonth(eventDate.getMonth());
-        formattedDateStart.setDate(eventDate.getDate());
-        formattedDateStart.setYear(eventDate.getYear());
+        formattedDateStart.setMonth(eventDate.getMonth()+2);
+        //formattedDateStart.setDate(eventDate.getDate()+2);
+        formattedDateStart.setYear(eventDate.getYear()-1);
 
         Date formattedDateEnd = evtEndTime;
-        formattedDateEnd.setMonth(eventDate.getMonth());
-        formattedDateEnd.setDate(eventDate.getDate());
-        formattedDateEnd.setYear(eventDate.getYear());
+        formattedDateEnd.setMonth(eventDate.getMonth()+2);
+        //formattedDateEnd.setDate(eventDate.getDate());
+        formattedDateEnd.setYear(eventDate.getYear()-1);
 
         DateTime sTime = new DateTime();
         sTime.setTzShift(-5);
@@ -192,7 +198,7 @@ public class EventOptionPanel extends JPanel {
         
         gCTPane.pushEvent(myEntry);
         
-        int x = 0;
+        
         if (LoginPanel.isValidCred() &&
                 !chosenCal.getTitle().getPlainText().equals(calendarSelector.getItemAt(calendarSelector.getSelectedIndex()).toString())){
             sendData(cal, myEntry);

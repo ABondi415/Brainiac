@@ -6,6 +6,7 @@
 package Calendar_And_Tasks;
 
 import com.google.gdata.data.calendar.CalendarEventEntry;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.JTabbedPane;
@@ -55,9 +56,9 @@ public class gCTPane extends JTabbedPane{
     public static ArrayList<CalendarEventEntry> getSubList(Date date){
         ArrayList<CalendarEventEntry> ceeList = new ArrayList();
         CalendarEventEntry cee = new CalendarEventEntry();
-        for(int i = 0; i < ceeList.size(); i++){
-            if(ceeArrayList.get(i).getTimes().get(0).getStartTime().equals(date.getTime()))
-                cee = ceeArrayList.get(i);
+        for(int i = 0; i < ceeArrayList.size(); i++){
+            Date compareDate = new Date(ceeArrayList.get(i).getTimes().get(0).getStartTime().getValue());
+            if(sameDay(date, compareDate)) cee = ceeArrayList.get(i);
             ceeList.add(cee);
         }     
         
@@ -70,5 +71,11 @@ public class gCTPane extends JTabbedPane{
         ceeArrayList.remove(myEntry);
         
         return cee;
+    }
+    
+    public static boolean sameDay(Date day1, Date day2){
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/YYYY");
+        
+        return (sdf.format(day1).equals(sdf.format(day2)));
     }
 }
