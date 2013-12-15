@@ -466,7 +466,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         //temporaryLabel1.setHorizontalAlignment(SwingConstants.CENTER);
         //temporaryLabel1.setText("Whiteboard");
         //whiteboardPanel.add(temporaryLabel1, BorderLayout.CENTER);
-        
+        //whiteboardDocumentPanel.setBackground(Color.white);
         whiteboardDocumentPane.addTab("Whiteboard", whiteboardPanel);
         whiteboardDocumentPane.addTab("Browser", browserPanel);
         whiteboardDocumentPanel.add(whiteboardDocumentPane, BorderLayout.CENTER);
@@ -734,7 +734,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
                     SaveMasterClient saveClient = remotePanel.getClient();
-                    saveClient.connect(client.sendRequest("getSessionHost,"+sessionName));
+                    saveClient.connect(client.sendRequest("getHostIP,"+sessionName));
                     remotePanel.refreshFileList();
                     openMaster = remotePanel.getOpenMasterBut();
                         openMaster.addActionListener(this);
@@ -804,7 +804,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
                     //If you are the host, you can add other brainstormers.
-                    if (username.equals(client.sendRequest("getSessionHost,"+sessionName))){
+                    if (username.equals(client.sendRequest("getHostIP,"+sessionName))){
                         client.sendRequest("updateHostIP,"+username+","+userIP);
                         addBrainstormersMenuItem.setVisible(true);
                         sms = new SaveMasterServer();
@@ -814,13 +814,15 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
                     SaveMasterClient saveClient = remotePanel.getClient();
-                    saveClient.connect(client.sendRequest("getSessionHost,"+sessionName));
+                    saveClient.connect(client.sendRequest("getHostIP,"+sessionName));
                     //client.connect("test");
                     remotePanel.refreshFileList();  
                         openMaster = remotePanel.getOpenMasterBut();
                             openMaster.addActionListener(this);
                         saveMaster = remotePanel.getSaveMasterBut();
                             saveMaster.addActionListener(this);
+                    uploadMaster = remotePanel.getUploadBut();
+                        uploadMaster.addActionListener(this);
 
                     JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
                     brainstorming = true;
@@ -1114,8 +1116,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         Thread chatServerThread = new Thread(chatServer);
         chatServerThread.start();
         //Start the chatGUI
-        chatGUI = new ChatClientGUI("localhost", 1500, chatPanel);
-        chatGUI.login(username, 1500, "localhost");
+        chatGUI = new ChatClientGUI(client.sendRequest("getHostIP,"+sessionName), 1500, chatPanel);
+        chatGUI.login(username, 1500, client.sendRequest("getHostIP,"+sessionName));
         
         //Start the Browser
         browser = new Browser(browserPanel);
