@@ -89,6 +89,12 @@ public final class BrainiacServer {
                         response += ":" + usersResponse;
                     }
                     break;
+                case "getAllSessions":
+                    String[] getSessionsResponse = adapter.getAllSessions();
+                    for (String sessionsResponse : getSessionsResponse) {
+                        response += ":" + sessionsResponse;
+                    }
+                    break;
                 case "updateUserIP":
                     adapter.updateUserIP(requestArgs[1], requestArgs[2]);
                     break;

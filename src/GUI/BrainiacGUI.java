@@ -59,6 +59,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private JButton editBrainstormersCancelButton, addBrainstormersButton, removeBrainstormerButton;
     private JScrollPane editBrainstormersExistingPane, editBrainstormersCurrentPane;
     private JTable editBrainstormersCurrentTable, editBrainstormersExistingTable;
+    //Added for the joinSessionDialog
+    private JPanel joinSessionButtonsPanel, joinSessionDialogTablePanel;
+    private JButton joinSessionDialogJoinButton, joinSessionDialogExitButton;
+    private JTable joinSessionDialogTable;
+    private JScrollPane joinSessionDialogTablePane;
 
     private FileOpener fileOpener;
     private JFileChooser fileChooser;
@@ -167,6 +172,14 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         editBrainstormersExistingTable = new JTable();
         editBrainstormersCurrentPane = new JScrollPane();
         editBrainstormersCurrentTable = new JTable();
+        
+        joinSessionButtonsPanel = new JPanel();
+        joinSessionDialogJoinButton = new JButton();
+        joinSessionDialogExitButton = new JButton();
+        joinSessionDialogTablePanel = new JPanel();
+        joinSessionDialogTablePane = new JScrollPane();
+        joinSessionDialogTable = new JTable();
+        
         client = new BrainiacClient();
        
         sessionName = "";
@@ -674,7 +687,109 @@ public class BrainiacGUI extends JFrame implements ActionListener{
 
         addBrainstormersTablePanel.add(editBrainstormersCurrentPane);
 
-        editBrainstormersDialog.add(addBrainstormersTablePanel, java.awt.BorderLayout.CENTER);
+        editBrainstormersDialog.add(addBrainstormersTablePanel, BorderLayout.CENTER);
+        
+        joinSessionDialogJoinButton.setText("Join");
+        joinSessionDialogJoinButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt){
+                DefaultTableModel sessionsModel = ((DefaultTableModel)joinSessionDialogTable.getModel());
+                int selection = joinSessionDialogTable.getSelectedRow();
+                if (selection < 0){
+                    JOptionPane.showMessageDialog(joinSessionDialog, "Please select a session to join!",
+                        "Join Session Warning", JOptionPane.WARNING_MESSAGE);
+                }
+                else {
+                    String sessionToJoin = (String) sessionsModel.getValueAt(selection, 0);
+                    String stringUsers = client.sendRequest("getSessionUsers," + sessionToJoin);
+                    String[] currentUsers = stringUsers.split(":");
+                    boolean validJoin = false;
+                    for (String user : currentUsers) {
+                        if (user.matches(username)) {
+                            validJoin = true;
+                        }
+                    }
+                    if (validJoin) {
+                        sessionName = sessionToJoin;
+                        try {
+                            userIP = InetAddress.getLocalHost().getHostAddress();
+                        } catch (UnknownHostException ex) {
+                        }
+                        client.sendRequest("updateUserIP," + username + "," + userIP);
+                        loadSession();
+                        if (username.equals(client.sendRequest("getSessionHost," + sessionName))) {
+                            client.sendRequest("updateHostIP," + username + "," + userIP);
+                            addBrainstormersMenuItem.setVisible(true);
+                            sms = new SaveMasterServer();
+                            sms.start();
+                        }
+
+                        fileOpener.createRemotePanel();
+                        remotePanel = fileOpener.getRemotePanel();
+                        SaveMasterClient saveClient = remotePanel.getClient();
+                        saveClient.connect(client.sendRequest("getHostIP," + sessionName));
+                        //client.connect("test");
+                        remotePanel.refreshFileList();
+                        openMaster = remotePanel.getOpenMasterBut();
+                        saveMaster = remotePanel.getSaveMasterBut();
+                        addMasterActionListeners();
+                        joinSessionDialog.dispose();
+                        JOptionPane.showMessageDialog(mainPanel, "You have joined the " + sessionName + " session!");
+                        brainstorming = true;
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(joinSessionDialog, "You are not a member of that brainstorming session!",
+                            "Join Session Warning", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            }
+        });
+        joinSessionButtonsPanel.add(joinSessionDialogJoinButton);
+
+        joinSessionDialogExitButton.setText("Exit");
+        joinSessionDialogExitButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt){
+                joinSessionDialog.dispose();
+            }
+        });
+        joinSessionButtonsPanel.add(joinSessionDialogExitButton);
+
+        joinSessionDialog.add(joinSessionButtonsPanel, BorderLayout.PAGE_END);
+
+        joinSessionDialogTablePanel.setLayout(new BorderLayout());
+
+        joinSessionDialogTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+            },
+            new String [] {
+                "Sessions"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        joinSessionDialogTable.setColumnSelectionAllowed(true);
+        joinSessionDialogTable.getTableHeader().setReorderingAllowed(false);
+        joinSessionDialogTablePane.setViewportView(joinSessionDialogTable);
+        joinSessionDialogTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (joinSessionDialogTable.getColumnModel().getColumnCount() > 0) {
+            joinSessionDialogTable.getColumnModel().getColumn(0).setResizable(false);
+        }
+
+        joinSessionDialogTablePanel.add(joinSessionDialogTablePane, BorderLayout.CENTER);
+
+        joinSessionDialog.add(joinSessionDialogTablePanel, BorderLayout.CENTER);
         
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1000, 800);
@@ -734,7 +849,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
                     SaveMasterClient saveClient = remotePanel.getClient();
-                    saveClient.connect(client.sendRequest("getSessionHost,"+sessionName));
+                    saveClient.connect(client.sendRequest("getHostIP,"+sessionName));
                     remotePanel.refreshFileList();
                     openMaster = remotePanel.getOpenMasterBut();
                         openMaster.addActionListener(this);
@@ -814,7 +929,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
                     SaveMasterClient saveClient = remotePanel.getClient();
-                    saveClient.connect(client.sendRequest("getSessionHost,"+sessionName));
+                    saveClient.connect(client.sendRequest("getHostIP,"+sessionName));
                     //client.connect("test");
                     remotePanel.refreshFileList();  
                         openMaster = remotePanel.getOpenMasterBut();
@@ -832,7 +947,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     }
                     catch (UnknownHostException ex){}
                     client.sendRequest("updateUserIP,"+username+","+userIP);
-                    loadSession();
+                    loadSessionless();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
@@ -855,7 +970,20 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                         "Join Session Warning", JOptionPane.WARNING_MESSAGE);
             }
             else{
+                DefaultTableModel sessionsModel = ((DefaultTableModel)joinSessionDialogTable.getModel());
                 joinSessionDialog.setVisible(true);
+                if (sessionsModel.getRowCount() == 0){
+                    String stringUsers = client.sendRequest("getAllSessions");
+                    String[] currentSessions = stringUsers.split(":");
+                    String[] sessionRow = new String[1];
+                    for (String session : currentSessions){
+                        if (!session.matches("")){
+                            sessionRow[0] = session;
+                            sessionsModel.addRow(sessionRow);
+                        }
+                    }
+                    sessionsModel.fireTableDataChanged();
+                }
             }
         }
         if (o == addBrainstormersMenuItem) {
@@ -1114,11 +1242,17 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         Thread chatServerThread = new Thread(chatServer);
         chatServerThread.start();
         //Start the chatGUI
-        chatGUI = new ChatClientGUI("localhost", 1500, chatPanel);
-        chatGUI.login(username, 1500, "localhost");
-        
+        chatGUI = new ChatClientGUI(client.sendRequest("getHostIP,"+sessionName), 1500, chatPanel);
+        chatGUI.login(username, 1500, client.sendRequest("getHostIP,"+sessionName));
         //Start the Browser
+    }
+    
+    private void loadSessionless(){
         browser = new Browser(browserPanel);
-
+    }
+    
+    private void addMasterActionListeners(){
+        openMaster.addActionListener(this);
+        saveMaster.addActionListener(this);
     }
 }

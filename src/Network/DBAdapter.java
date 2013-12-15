@@ -61,6 +61,22 @@ public class DBAdapter {
         userArray = users.toArray(userArray);
         return userArray;
     }
+    
+    public String[] getAllSessions(){
+        Vector<String> sessions = new Vector();
+        try {
+            Statement sta = conn.createStatement();
+            ResultSet rs = sta.executeQuery("SELECT SESSIONNAME FROM SESSIONS");
+            while (rs.next()){
+                sessions.add(rs.getString("SESSIONNAME"));
+            }
+        } catch (SQLException ex){
+            System.out.println("I could not get all of the sessions!");
+        }
+        String [] sessionsArray = new String[sessions.size()];
+        sessionsArray = sessions.toArray(sessionsArray);
+        return sessionsArray;
+    }
     //Modified for server
     public void updateUserIP(String username, String userIP){
         try {
