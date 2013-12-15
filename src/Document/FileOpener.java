@@ -95,7 +95,7 @@ public class FileOpener extends JPanel implements ActionListener{
         String fileStr = selectedFile.toString();
         if (fileStr.endsWith(".txt")) {docViewer = new TextEditor(selectedFile);}
         if (fileStr.endsWith(".doc") || fileStr.endsWith(".docx")) {docViewer = new DocEditor(selectedFile);}
-        
+        if (fileStr.endsWith(".pdf")) {docViewer = new PDFViewer(selectedFile);}
     }
     
     private void disableCancelButton(Container fileChooser){
