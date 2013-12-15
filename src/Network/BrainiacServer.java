@@ -22,9 +22,15 @@ public final class BrainiacServer {
     // entered into each client's BrainiacClient.java SERVER_ENDPOINT field.
     private final static int SERVER_PORT_NUMBER = 7000;
     private final static String CRLF = "\r\n";
+    //We only need one instance, so DBCreator can be static.
+    private static DBCreator dbCreator;
 
     public static void main(String[] args) {
         try {
+            //Create a new MySQL database if one doesn't exist as soon as we
+            //  start the server.  
+            dbCreator = new DBCreator();
+            dbCreator.createDB();        
             System.out.println("Starting Brainiac Server.  Listening on port 7000");
             ServerSocket socket = new ServerSocket(SERVER_PORT_NUMBER);
             while (true) {          
@@ -40,9 +46,11 @@ public final class BrainiacServer {
 
     private static class Request implements Runnable {
         private Socket socket;
+        private DBAdapter adapter;
 
         private Request(Socket socket) {
             this.socket = socket;
+            adapter = DBAdapter.getInstance();
         }
 
         @Override
@@ -61,12 +69,68 @@ public final class BrainiacServer {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String request = "";
             String temp;
+            String response = "";
+            boolean boolAdapterResult;
             while ((temp = br.readLine()).length() != 0){
                 request += temp;
             }
-            System.out.println("Request from the client: " + request);
-            
-            String response = "I received your request!";
+            String [] requestArgs = request.split(",");
+            //These switch cases correspond to the methods in DBAdapter.
+            //  They convert client requests into method calls and return the 
+            //  results back to the client.  
+            switch(requestArgs[0]){
+                case "createUser":
+                    boolAdapterResult = adapter.createUser(requestArgs[1], requestArgs[2], requestArgs[3]);
+                    response = Boolean.toString(boolAdapterResult);
+                    break;
+                case "getAllUsers":
+                    String[] getUsersResponse = adapter.getAllUsers();
+                    for (String usersResponse : getUsersResponse) {
+                        response += ":" + usersResponse;
+                    }
+                    break;
+                case "updateUserIP":
+                    adapter.updateUserIP(requestArgs[1], requestArgs[2]);
+                    break;
+                case "updateHostIP":
+                    adapter.updateHostIP(requestArgs[1], requestArgs[2]);
+                    break;
+                case "addNewSessionUser":
+                    boolAdapterResult = adapter.addNewSessionUser(requestArgs[1], requestArgs[2]);
+                    response = Boolean.toString(boolAdapterResult);
+                    break;
+                case "removeSessionUser":
+                    boolAdapterResult = adapter.removeSessionUser(requestArgs[1], requestArgs[2]);
+                    response = Boolean.toString(boolAdapterResult);
+                    break;
+                case "getSessionHost":
+                    response = adapter.getSessionHost(requestArgs[1]);
+                    break;
+                case "getSessionUsers":
+                    String [] users = adapter.getSessionUsers(requestArgs[1]);
+                    for (String user : users){
+                        if (!user.matches(""))
+                            response += ":"+user;
+                    }
+                    break;
+                case "getHostIP":
+                    response = adapter.getHostIP(requestArgs[1]);
+                    break;
+                case "createSession":
+                    boolAdapterResult = adapter.createSession(requestArgs[1], requestArgs[2], requestArgs[3]);
+                    response = Boolean.toString(boolAdapterResult);
+                    break;
+                case "checkSessionName":
+                    boolAdapterResult = adapter.checkSessionName(requestArgs[1]);
+                    response = Boolean.toString(boolAdapterResult);
+                    break;
+                case "checkLogin":
+                    boolAdapterResult = adapter.checkLogin(requestArgs[1], requestArgs[2]);
+                    response = Boolean.toString(boolAdapterResult);
+                    break;
+                default:
+                    response = "null";
+            }
             os.writeBytes(response + CRLF);
             os.writeBytes(CRLF);
             os.close();

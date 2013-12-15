@@ -72,10 +72,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private RemotePanel remotePanel;
     private File saveFile;
     private RemoteFileRename rfr;
-    
-    private DBAdapter adapter;
+
     private String userIP;
-    private DBCreator dbCreator;
     private BrainiacClient client;
     
     
@@ -169,10 +167,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         editBrainstormersExistingTable = new JTable();
         editBrainstormersCurrentPane = new JScrollPane();
         editBrainstormersCurrentTable = new JTable();
-        dbCreator = new DBCreator();        //Create the database.  
         client = new BrainiacClient();
-        dbCreator = new DBCreator();
-        dbCreator.createDB();               //Create a new MySQL database if one doesn't already exist.  
        
         sessionName = "";
         brainstorming = false;
@@ -532,11 +527,9 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 }
                 else {
                     String userToAdd = (String)editModel.getValueAt(selection, 0);
-                    adapter = DBAdapter.getInstance();
-                    String[] sessionUsers = adapter.getSessionUsers(sessionName);
-                    String sessionHost = adapter.getSessionHost(sessionName);
-                    //We begin from one because the first element of the sessionUsers array 
-                    //  is always "".
+                    String stringUsers = client.sendRequest("getSessionUsers,"+sessionName);
+                    String[] sessionUsers = stringUsers.split(":");
+                    String sessionHost = client.sendRequest("getSessionHost,"+sessionName);
                     boolean validUserToAdd = true;
                     for (int i = 0; i < sessionUsers.length; i++){
                         if (userToAdd.equals(sessionUsers[i])){
@@ -551,7 +544,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                         }
                     }
                     if (validUserToAdd){
-                        if(adapter.addNewSessionUser(userToAdd, sessionName)){
+                        String response = client.sendRequest("addNewSessionUser,"+userToAdd+","+sessionName);
+                        if(response.matches("true")){
                             String [] rowStr = new String[1];
                             rowStr[0] = userToAdd;
                             currentModel.addRow(rowStr);
@@ -579,15 +573,16 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 }
                 else {
                     String userToRemove = (String)editModel.getValueAt(selection, 0);
-                    adapter = DBAdapter.getInstance();
-                    String[] currentUsers = adapter.getSessionUsers(sessionName);
-                    String host = adapter.getSessionHost(sessionName);
+                    //String stringUsers = client.sendRequest("getSessionUsers,"+sessionName);
+                    //String[] currentUsers = stringUsers.split(":");
+                    String host = client.sendRequest("getSessionHost,"+sessionName);
                     if (userToRemove.matches(host)){
                         JOptionPane.showMessageDialog(editBrainstormersDialog, "You cannot remove the host from the session!",
                             "Edit Brainstormers Warning", JOptionPane.WARNING_MESSAGE);
                     }
                     else {
-                        if (adapter.removeSessionUser(userToRemove, sessionName)){
+                        String result = client.sendRequest("removeSessionUser,"+userToRemove+","+sessionName);
+                        if (result.matches("true")){
                             currentModel.removeRow(selection);
                             currentModel.fireTableDataChanged();
                         }
@@ -728,18 +723,18 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 newSessionErrorField.setText("Invalid Session name! ");
             }
             else {
-                adapter = DBAdapter.getInstance();
                 try{
                     userIP = InetAddress.getLocalHost().getHostAddress();
                 }
                 catch (UnknownHostException ex){}
-                if(adapter.createSession(username, sessionName, userIP)){
+                String result = client.sendRequest("createSession,"+username+","+sessionName+","+userIP);
+                if(result.matches("true")){
                     sms = new SaveMasterServer();
                         sms.start();
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
-                    SaveMasterClient client = remotePanel.getClient();
-                    client.connect(adapter.getSessionHost(sessionName));
+                    SaveMasterClient saveClient = remotePanel.getClient();
+                    saveClient.connect(client.sendRequest("getSessionHost,"+sessionName));
                     remotePanel.refreshFileList();
                     openMaster = remotePanel.getOpenMasterBut();
                         openMaster.addActionListener(this);
@@ -767,7 +762,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 createAccountErrorField.setText("Invalid Username or User Password!");
             }
             else {
-                adapter = DBAdapter.getInstance();
                 String stringPassword = "";
                 for (int i = 0; i < newPass.length; i++) {
                     stringPassword += newPass[i];
@@ -776,7 +770,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     userIP = InetAddress.getLocalHost().getHostAddress();
                 }
                 catch (UnknownHostException ex){}
-                if (adapter.createUser(username, stringPassword, userIP)){
+                String response = client.sendRequest("createUser,"+username+","+stringPassword+","+userIP);
+                if (response.matches("true")){
                     welcomePanelErrorField.setForeground(Color.green);
                     welcomePanelErrorField.setText("Account created successfully!");
                     createAccountPanel.setVisible(false);
@@ -799,19 +794,18 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             // Don't uncomment this unless you wish to test a username and password. 
             if (sessionNameField.getText().length() > 0) {
                 if (verifyConnect()) {
-                    adapter = DBAdapter.getInstance();
                     try{
                         userIP = InetAddress.getLocalHost().getHostAddress();
                     }
                     catch (UnknownHostException ex){}
-                    adapter.updateUserIP(username, userIP);
+                    client.sendRequest("updateUserIP,"+username+","+userIP);
                     loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
                     //If you are the host, you can add other brainstormers.
-                    if (username.equals(adapter.getSessionHost(sessionName))){
-                        adapter.updateHostIP(username, userIP);
+                    if (username.equals(client.sendRequest("getSessionHost,"+sessionName))){
+                        client.sendRequest("updateHostIP,"+username+","+userIP);
                         addBrainstormersMenuItem.setVisible(true);
                         sms = new SaveMasterServer();
                             sms.start();
@@ -819,8 +813,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             
                     fileOpener.createRemotePanel();
                     remotePanel = fileOpener.getRemotePanel();
-                    SaveMasterClient client = remotePanel.getClient();
-                    client.connect(adapter.getSessionHost(sessionName));
+                    SaveMasterClient saveClient = remotePanel.getClient();
+                    saveClient.connect(client.sendRequest("getSessionHost,"+sessionName));
                     //client.connect("test");
                     remotePanel.refreshFileList();  
                         openMaster = remotePanel.getOpenMasterBut();
@@ -833,12 +827,11 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 }
             } else {
                 if (verifyUser()) {
-                    adapter = DBAdapter.getInstance();
                     try{
                         userIP = InetAddress.getLocalHost().getHostAddress();
                     }
                     catch (UnknownHostException ex){}
-                    adapter.updateUserIP(username, userIP);
+                    client.sendRequest("updateUserIP,"+username+","+userIP);
                     loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
@@ -874,13 +867,14 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 //We only want to do this if we haven't done this before--if the rowcount 
                 //      of the existing users table is zero.  
                 if (editModel.getRowCount() == 0) {
-                    adapter = DBAdapter.getInstance();
-                    Vector users = adapter.getAllUsers();
-                    Iterator iterator = users.iterator();
-                    String[] tmp = new String[1];
-                    while (iterator.hasNext()) {
-                        tmp[0] = iterator.next().toString();
-                        editModel.addRow(tmp);
+                    String users = client.sendRequest("getAllUsers");
+                    String[] userArray = users.split(":");
+                    String[] userRow = new String[1];
+                    for (String user : userArray){
+                        if (!user.matches("")){
+                            userRow[0] = user;
+                            editModel.addRow(userRow);
+                        }
                     }
                     editModel.fireTableDataChanged();
                 }
@@ -888,9 +882,9 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 //We only want to do this if we haven't done this before--if the rowcount 
                 //      of the current session users table is zero.  
                 if (currentModel.getRowCount() == 0){
-                    adapter = DBAdapter.getInstance();
-                    String[] currentUsers = adapter.getSessionUsers(sessionName);
-                    String currentHost = adapter.getSessionHost(sessionName);
+                    String stringUsers = client.sendRequest("getSessionUsers,"+sessionName);
+                    String[] currentUsers = stringUsers.split(":");
+                    String currentHost = client.sendRequest("getSessionHost,"+sessionName);
                     String[] tmp = new String[1];
                     tmp[0] = currentHost;
                     currentModel.addRow(tmp);
@@ -960,8 +954,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                                         fileRenamePopup.setVisible(false);
                                     }
                                 });
-
-
             }
         }
         
@@ -1062,8 +1054,8 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         for (int i = 0; i < password.length; i++){
             stringPassword += password[i];
         }
-        adapter = DBAdapter.getInstance();
-        if(!adapter.checkLogin(username, stringPassword)){
+        String result = client.sendRequest("checkLogin,"+username+","+stringPassword);
+        if(result.matches("false")){
             welcomePanelErrorField.setText("Invalid username or password!");
             return false;
         }
@@ -1083,19 +1075,21 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             stringPassword += password[i];
         }
 
-        adapter = DBAdapter.getInstance();
+        String result = client.sendRequest("checkLogin,"+username+","+stringPassword);
         //If an invalid username or password has been entered, display an error.
-        if(!adapter.checkLogin(username, stringPassword)){
+        if(result.matches("false")){
             welcomePanelErrorField.setText("Invalid username or password!");
             return false;
         }
         //If an invalid session name has been entered, display an error.
-        if (!adapter.checkSessionName(sessionName)){
+        String response = client.sendRequest("checkSessionName,"+sessionName);
+        if (response.matches("false")){
             welcomePanelErrorField.setText("Invalid Session Name!");
             return false;
         }
-        String[] validUsers = adapter.getSessionUsers(sessionName);
-        String host = adapter.getSessionHost(sessionName);
+        String stringUsers = client.sendRequest("getSessionUsers,"+sessionName);
+        String[] validUsers = stringUsers.split(":");
+        String host = client.sendRequest("getSessionHost,"+sessionName);
         boolean validUser = false;
         //If the user is a member of the session users or the session host, we are able to 
         //  join the session.
@@ -1112,7 +1106,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         }
         return validUser;
     }
-    
     
     private void loadSession(){
         //Load all session related information here.

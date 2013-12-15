@@ -37,8 +37,6 @@ public class BrainiacClient {
             while ((temp = in.readLine()).length() != 0){
                     response += temp;
             }
-            System.out.println("Response from the server: " + response);
-            
             in.close();
             out.close();
             clientSocket.close();  

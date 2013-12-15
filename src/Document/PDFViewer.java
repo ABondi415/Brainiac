@@ -5,7 +5,7 @@
  */
 
 package Document;
-
+/*
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PagePanel;
 import java.awt.BorderLayout;
@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
  *
  * @author mzt5106
  */
+/*
 public class PDFViewer extends DocumentViewer implements KeyListener{
     PagePanel newPage;
     PDFFile file;
@@ -72,3 +73,4 @@ public class PDFViewer extends DocumentViewer implements KeyListener{
     }
     
 }
+*/

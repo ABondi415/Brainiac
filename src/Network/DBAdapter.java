@@ -27,7 +27,7 @@ public class DBAdapter {
         }
         return instance;
     }
-
+    //Modified for server
     public boolean createUser(String username, String userPass, String userIP) {
         try {
             if (!checkUsername(username)) {
@@ -45,8 +45,8 @@ public class DBAdapter {
         }
         return false;
     }
-    
-    public Vector getAllUsers(){
+    //Modified for server
+    public String[] getAllUsers(){
         Vector<String> users = new Vector();
         try {
             Statement sta = conn.createStatement();
@@ -57,9 +57,11 @@ public class DBAdapter {
         } catch (SQLException ex){
             System.out.println("I could not get all of the valid users!");
         }
-        return users;
+        String [] userArray = new String[users.size()];
+        userArray = users.toArray(userArray);
+        return userArray;
     }
-    
+    //Modified for server
     public void updateUserIP(String username, String userIP){
         try {
             Statement sta = conn.createStatement();
@@ -69,17 +71,17 @@ public class DBAdapter {
             System.out.println("I could not update the user's IP!");
         }
     }
-    
+    //Modified for server
     public void updateHostIP(String hostname, String hostIP){
         try {
             Statement sta = conn.createStatement();
-            sta.executeUpdate("UPDATE SESSIONS SET HOSTIP = '"+hostIP+"' WHERE USERNAME = '"+hostname+"'");
+            sta.executeUpdate("UPDATE SESSIONS SET HOSTIP = '"+hostIP+"' WHERE SESSIONHOST = '"+hostname+"'");
         }
         catch (SQLException ex){
             System.out.println("I could not update the hostIP!");
         }
     }
-    
+    //Modified for server
     public boolean addNewSessionUser(String username, String sessionName){
         boolean successfulAdd = false;
         try {
@@ -97,7 +99,7 @@ public class DBAdapter {
         }
         return successfulAdd;
     }
-    
+    //Modified for server
     public boolean removeSessionUser(String username, String sessionName){
         boolean successfulRemove = false;
         try {
@@ -116,7 +118,7 @@ public class DBAdapter {
         }
         return successfulRemove;
     }
-    
+    //Modified for server
     public String getSessionHost(String sessionName){
         String sessionHost = null;
         try {
@@ -130,7 +132,7 @@ public class DBAdapter {
         }
         return sessionHost;
     }
-    
+    //Modified for server
     public String[] getSessionUsers(String sessionName){
         String[] sessionUsers = null;
         try {
@@ -145,7 +147,7 @@ public class DBAdapter {
         }
         return sessionUsers;
     }
-    
+    //Modified for server
     public String getHostIP(String sessionName){
         String hostIP = "";
         try {
@@ -159,7 +161,7 @@ public class DBAdapter {
         }
         return hostIP;
     }
-    
+    //Modified for server
     public boolean createSession(String username, String sessionName, String userIP){
         try {
             if (!checkSessionName(sessionName)){
@@ -186,7 +188,7 @@ public class DBAdapter {
         }
         return nameExists;
     }
-    
+    //Modified for server
     public boolean checkSessionName(String sessionname){
         boolean nameExists = false;
         try{
@@ -197,7 +199,7 @@ public class DBAdapter {
         catch (SQLException ex){}
         return nameExists;
     }
-    
+    //Modified for server
     public boolean checkLogin(String username, String pass){
         boolean matchFound = false;
         try{
@@ -210,24 +212,6 @@ public class DBAdapter {
         }
         return matchFound;
     }
-    
-//    public boolean checkLogin(String username, String pass, String sessionname){
-//        boolean matchFound = false;
-//        try{
-//            Statement sta = conn.createStatement();
-//            ResultSet rs = sta.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '"+username+"' AND USERPASSWORD = '"+pass+"'");
-//            boolean loginFound = rs.next();
-//            if (loginFound){
-//                if (checkSessionName(sessionname)){
-//                    matchFound = true;
-//                }
-//            }
-//        }
-//        catch (SQLException ex) {
-//            System.out.println("I had an issue checking the username! " + ex);
-//        }
-//        return matchFound;
-//    }
     
     private void createConnection() {
         try {
