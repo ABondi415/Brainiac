@@ -954,12 +954,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
-                    System.out.println("Board is visible? " + board.isVisible());
-                    System.out.println("Board is showing? " + board.isShowing());
-                    System.out.println("Board is displayable? " + board.isDisplayable());
-                    System.out.println("Board is focusable? " + board.isFocusable());
-                    System.out.println("Board is enabled? " + board.isEnabled());
-                    System.out.println("Board is opaque? " + board.isOpaque());
                     
                 }
             }

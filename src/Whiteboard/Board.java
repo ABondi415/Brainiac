@@ -4,284 +4,198 @@
  */
 package Whiteboard;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Canvas;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Vector;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class Board extends JPanel {
 
-    private Color c = new Color(0, 0, 0);
-    private int oldX, oldY, newX, newY;
+public class Board extends JPanel implements ActionListener {
+    
+    //Panel components
+    private JPanel menuBar;
+    private JButton ovalBut, rectBut, lineBut, freehandBut, eraserBut, clearBut;
+    private JSlider sizeSlider;
+    
+    private Canvas drawCanvas;
+
+    //Graphics
     private Image bg, fg;
-    private String text;
-    private Shapes s;
-    private boolean filled = false;
-    private BasicStroke bs;
-    private Vector<Shapes> v = new Vector<Shapes>();
-
-    private Canvas drawPanel;
-    private JToggleButton eraserButton;
-    private JToggleButton freeDrawButton;
-    private JButton shapesButton;
-    private JToggleButton textButton;
-    private JToolBar toolBar;
-    private JSlider widthSlider;
-    private JButton linebutton;
-    private JButton ovalbutton;
-    private JButton rectbutton;
-    private JPopupMenu shapeMenu;
-    private JPanel shapeMenuPanel;
-    private JButton clearButton;
-    private JButton colorButton;
-
-    @Override
-    public void paint(Graphics g) {
+    private int oldx, oldy;
+    private int strokeSize;
+    
+    
+    public Board() {
+        this.setLayout(new BorderLayout());
+        this.addMouseListener(new MouseAdapter(){
+            public void mousePressed(MouseEvent evt){
+                this.mousePressed(evt);
+            }
+            public void mouseReleased(MouseEvent evt){
+                this.mouseReleased(evt);
+            }
+        });
+        this.addMouseMotionListener(new MouseAdapter(){
+           public void mouseDragged(MouseEvent evt){
+               this.mouseDragged(evt);
+           }
+           
+           public void componentResized(MouseEvent evt){
+               this.componentResized(evt);
+           }
+        });
+        
+        //creates menu and draw canvas
+        initComponents();
+        
+        this.add(menuBar, BorderLayout.NORTH);
+        this.add(drawCanvas, BorderLayout.CENTER);
+    }
+    
+    public void paint(Graphics g){
         super.paint(g);
-        drawPanel.getGraphics().drawImage(bg, 0, 0, null);
-        Graphics2D g2d = (Graphics2D) drawPanel.getGraphics();
+        Graphics pg = drawCanvas.getGraphics();
+        bg = drawCanvas.createImage(drawCanvas.getWidth(), drawCanvas.getHeight());
+        fg = drawCanvas.createImage(drawCanvas.getWidth(), drawCanvas.getHeight());
+        
+        Graphics fgg = fg.getGraphics();
+        Graphics2D f2d = (Graphics2D) fgg;
+        
+        pg.drawImage(fg, 0, 0, null);
+        Graphics bgg = bg.getGraphics();
+        bgg.drawImage(fg, 0, 0, null);
+    }
+    
+    private void mousePressed(MouseEvent evt){
+        Object o = evt.getSource();
+        
+        if (o == drawCanvas){
+            oldx = evt.getX();
+            oldy = evt.getY();
+            
+            if (bg == null){
+                bg = drawCanvas.createImage(drawCanvas.getWidth(), drawCanvas.getHeight());
+                fg = drawCanvas.createImage(drawCanvas.getWidth(), drawCanvas.getHeight());
+            }
+        }
+        
+    }
 
-        for (int i = 0; i < v.size(); i++) {
-            Shapes s = v.elementAt(i);
-            BasicStroke bs = new BasicStroke(widthSlider.getValue());
-            g2d.setStroke(bs);
-            s.drawShape(fg.getGraphics(), c, oldX, oldY, newX, newY, filled, bs);
+    private void mouseReleased(MouseEvent evt){
+        Object o = evt.getSource();
+        
+        if (o == drawCanvas){
+            Graphics bgg = bg.getGraphics();
+            bgg.drawImage(fg, 0, 0, null);
         }
     }
-
-    public Board() {
-        drawPanel = new Canvas();
-        toolBar = new JToolBar();
-        freeDrawButton = new JToggleButton();
-        shapesButton = new JButton();
-        textButton = new JToggleButton();
-        eraserButton = new JToggleButton();
-        clearButton = new JButton();
-        widthSlider = new JSlider();
-        colorButton = new JButton();
-        linebutton = new JButton();
-        ovalbutton = new JButton();
-        rectbutton = new JButton();
-        linebutton.setText("Line");
-        ovalbutton.setText("Oval");
-        rectbutton.setText("Rectangle");
-        shapeMenu = new JPopupMenu();
-        shapeMenuPanel = new JPanel();
-        shapeMenuPanel.setLayout(new GridLayout());
-        shapeMenuPanel.add(linebutton);
-        shapeMenuPanel.add(ovalbutton);
-        shapeMenuPanel.add(rectbutton);
-        shapeMenu.add(shapeMenuPanel);
-        shapeMenu.pack();
-
-        //this.setBackground(new java.awt.Color(255, 255, 255));
-        this.setLayout(new BorderLayout());
-
-        drawPanel.setBackground(new java.awt.Color(255, 255, 255));
-
-        colorButton.setBackground(c);
-
-        freeDrawButton.setText("Draw");
-        shapesButton.setText("Shapes");
-        textButton.setText("Text");
-        eraserButton.setText("Eraser");
-        clearButton.setText("Clear");
+    
+    private void compResized(MouseEvent evt){
+        repaint();
+    }
+    
+    private void mouseDragged(MouseEvent evt){
+        Object o = evt.getSource();
         
-
-        toolBar.setLayout(new GridLayout());
-        toolBar.add(freeDrawButton);
-        toolBar.add(shapesButton);
-        toolBar.add(textButton);
-        toolBar.add(eraserButton);
-        toolBar.add(clearButton);
-        toolBar.add(getSlider());
-        toolBar.add(colorButton);
+        if (o == drawCanvas){ 
+            //draw background on foreground
+            Graphics fgg = fg.getGraphics();
+            fgg.drawImage(bg, 0, 0, null);
+            
+            //draw our stuff to foreground
+            Graphics2D f2d = (Graphics2D) fgg;
+            
+            //for freedraw only
         
-        this.add(toolBar, BorderLayout.NORTH);
-        this.add(drawPanel, BorderLayout.CENTER);
-        
-        textButton.addMouseListener(new MouseAdapter(){
-            public void mouseClicked(MouseEvent evt){
-                if (textButton.isSelected()){
-                    freeDrawButton.setSelected(false);
-                    eraserButton.setSelected(false);
-                }
-            }
-        });
-
-        eraserButton.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                if (eraserButton.isSelected()) {
-                    freeDrawButton.setSelected(false);
-                    textButton.setSelected(false);
-                    s = new Freedraw();
-                }
-            }
-        });
-
-        shapesButton.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                Dimension size = shapeMenu.getPreferredSize();
-                int x = 40;
-                int y = 5;
-                shapeMenu.show(drawPanel, x, y);
-            }
-        });
-        linebutton.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                freeDrawButton.setSelected(false);
-                eraserButton.setSelected(false);
-                textButton.setSelected(false);
-                s = new Line();
-                shapeMenu.setVisible(false);
-                repaint();
-            }
-        });
-        ovalbutton.addMouseListener(new MouseAdapter() {
-           public void mouseClicked(MouseEvent evt) {
-               freeDrawButton.setSelected(false);
-               eraserButton.setSelected(false);
-               textButton.setSelected(false);
-               s = new Oval();
-               shapeMenu.setVisible(false);
-            }
-        });
-        rectbutton.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                freeDrawButton.setSelected(false);
-                eraserButton.setSelected(false);
-                textButton.setSelected(false);
-                s = new Rectangle();
-                shapeMenu.setVisible(false);
-            }
-        });
-        
-        colorButton.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                JColorChooser jcc = new JColorChooser();
-                c = JColorChooser.showDialog(jcc, "Color Selector", null);
-                colorButton.setBackground(c);
-
-            }
-        });
-        clearButton.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                //WHY THE FUCK ARE WE GETTING A NULL PTR EXCEPTION HERE!!??!?!?!?!?!?!   
-                freeDrawButton.setSelected(false);
-                eraserButton.setSelected(false);
-                textButton.setSelected(false);
+                //OLDCODE b.draw(f2d, oldx, oldy, evt.getX(), evt.getY(), dashed, filled, strokeSize, text);
+            
+                //draw our newly edited foreground to the background
                 Graphics bgg = bg.getGraphics();
-                Graphics fgg = drawPanel.getGraphics();
-                bgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the background
-                fgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the foreground
-            }
-        });
-
-        freeDrawButton.addMouseListener(new MouseAdapter() {
-           public void mouseClicked(MouseEvent evt) {
-               eraserButton.setSelected(false);
-               textButton.setSelected(false);
-               s = new Freedraw();
-            }
-        });
-
-        drawPanel.addMouseMotionListener(new java.awt.event.MouseMotionListener() {
-            public void mouseDragged(MouseEvent e) {
-
-                Graphics fgg = fg.getGraphics();
-                fgg.drawImage(bg, 0, 0, null);
-
-                BasicStroke bs = new BasicStroke(widthSlider.getValue() / 4);
-
-                newX = e.getX();
-                newY = e.getY();
-
-                if (s instanceof Freedraw && !eraserButton.isSelected()) {
-                    freeDrawButton.setSelected(true);
-                    s.drawShape(fgg, c, newX, newY, newX, newY, filled, bs);
-                    Graphics bgg = bg.getGraphics();
-                    bgg.setColor(c);
-                    bgg.drawImage(fg, 0, 0, null);
-                }
-                else if (s instanceof Freedraw && eraserButton.isSelected()) {
-                    s.drawShape(fgg, Color.WHITE, newX, newY, newX, newY, filled, bs);
-                    Graphics bgg = bg.getGraphics();
-                    bgg.setColor(c);
-                    bgg.drawImage(fg, 0, 0, null);
-                } else {
-                    s.drawShape(fgg, c, oldX, oldY, newX, newY, filled, bs);
-                }
-                v.add(s);
-                Graphics g = drawPanel.getGraphics();
-                g.drawImage(fg, 0, 0, null);
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {}
-        });
-
-        drawPanel.addMouseListener(new java.awt.event.MouseListener() {
-            public void mousePressed(MouseEvent e) {
-                if (bg == null) {
-                    bg = drawPanel.createImage(drawPanel.getWidth(), drawPanel.getHeight());
-                    fg = drawPanel.createImage(drawPanel.getWidth(), drawPanel.getHeight());
-                    filled = false;
-                    v = new Vector<Shapes>();
-                    if (s == null) {
-                        s = new Freedraw();
-                    }
-                }
-                oldX = e.getX();
-                oldY = e.getY();
-            }
-
-            public void mouseReleased(MouseEvent e) {
-                if (bg != null){
-                    Graphics bgg = bg.getGraphics();
-                    bgg.setColor(c);
-                    bgg.drawImage(fg, 0, 0, null);
-                }
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                System.out.println("Mouse clicked!");
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-        });
-
+                bgg.drawImage(fg, 0, 0, null);
+                oldx = evt.getX();
+                oldy = evt.getY();
+            //end for freedraw only
+                
+            Graphics g = drawCanvas.getGraphics();
+            g.drawImage(fg, 0, 0, null);
+        }   
+    }
+    
+    private void sliderMoved(ChangeEvent ev) {
+        strokeSize = (2* sizeSlider.getValue());
     }
 
-    private JSlider getSlider() {
-        if (this.widthSlider == null) {
-            this.widthSlider = new JSlider();
-            this.widthSlider.setMaximum(255);
-            this.widthSlider.setPaintTicks(true);
-            this.widthSlider.setMajorTickSpacing(50);
-            this.widthSlider.setPaintLabels(true);
-            this.widthSlider.setBackground(new Color(238, 0, 0));
-            this.widthSlider.setValue(0);
-            this.widthSlider.setMinorTickSpacing(10);
-            this.widthSlider.addChangeListener(new ChangeListener() {
-                public void stateChanged(ChangeEvent e) {
-                    Board.this.repaint();
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        
+        if (o == clearBut){
+            Graphics bgg = bg.getGraphics();
+            bgg.clearRect(0, 0, drawCanvas.getWidth(), drawCanvas.getHeight());
+            repaint();
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    private void initComponents(){        
+        //Create MenuBar
+        //ovalBut = new OvalBut();
+        //  ovalBut.addActionListener(this);
+        //rectBut = new RectBut();
+        //  rectBut.addActionListener(this);
+        //lineBut = new LineBut();
+        //  lineBut.addActionListener(this);
+        freehandBut = new JButton();
+            freehandBut.setText("Free Hand");
+            freehandBut.addActionListener(this);
+        eraserBut = new JButton();
+            eraserBut.setText("Eraser");
+            eraserBut.addActionListener(this);
+        clearBut = new JButton();
+            clearBut.setText("Clear Board");
+            clearBut.addActionListener(this);
+        sizeSlider = new JSlider(); 
+            sizeSlider.setValue(1);
+                strokeSize = (2*sizeSlider.getValue());
+            sizeSlider.setMaximum(10);
+            sizeSlider.setMajorTickSpacing(1);
+            sizeSlider.setMaximum(10);
+            sizeSlider.setPaintTicks(true);
+            sizeSlider.addChangeListener(new ChangeListener(){
+                public void stateChanged(ChangeEvent ev){
+                    //sizeSlider.getRootPane().sliderMoved(ev);
                 }
             });
-        }
-        return this.widthSlider;
+        menuBar = new JPanel();
+            menuBar.setPreferredSize(new Dimension(this.getWidth(), 30));
+            menuBar.setLayout(new GridLayout(8, 1, 5, 5));
+            menuBar.add(freehandBut);
+            //menuBar.add(ovalBut);
+            //menuBar.add(rectBut);
+            //menuBar.add(lineBut);
+            menuBar.add(eraserBut);
+            menuBar.add(clearBut);
+            menuBar.add(sizeSlider);
+//
+//            menuBar.add(ADD COLOR THINGY);
+//       
+        
+        drawCanvas = new Canvas();   
     }
-
 }
