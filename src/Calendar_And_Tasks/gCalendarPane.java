@@ -80,7 +80,7 @@ public class gCalendarPane extends JPanel {
                 try {
                     eop = new EventOptionPanel(getChosenDate());
                 } catch (IOException | ServiceException ex) {
-                    Logger.getLogger(gCalendarPane.class.getName()).log(Level.SEVERE, null, ex);
+                    //Logger.getLogger(gCalendarPane.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 createEventFrame.add(eop);
                 createEventFrame.setSize(200, 400);

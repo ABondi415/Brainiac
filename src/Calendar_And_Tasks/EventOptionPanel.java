@@ -218,7 +218,7 @@ public class EventOptionPanel extends JPanel {
 
         } catch (IOException | ServiceException ex) {
 
-            Logger.getLogger(EventOptionPanel.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(EventOptionPanel.class.getName()).log(Level.SEVERE, null, ex);
 
         }
     }

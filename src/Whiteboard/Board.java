@@ -5,12 +5,8 @@
 package Whiteboard;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -27,8 +23,7 @@ public class Board extends JPanel {
     private BasicStroke bs;
     private Vector<Shapes> v = new Vector<Shapes>();
 
-    private JPanel masterPanel;
-    private JPanel drawPanel;
+    private Canvas drawPanel;
     private JToggleButton eraserButton;
     private JToggleButton freeDrawButton;
     private JButton shapesButton;
@@ -42,11 +37,9 @@ public class Board extends JPanel {
     private JPanel shapeMenuPanel;
     private JButton clearButton;
     private JButton colorButton;
-    
-    
+
     @Override
     public void paint(Graphics g) {
-
         super.paint(g);
         drawPanel.getGraphics().drawImage(bg, 0, 0, null);
         Graphics2D g2d = (Graphics2D) drawPanel.getGraphics();
@@ -58,13 +51,9 @@ public class Board extends JPanel {
             s.drawShape(fg.getGraphics(), c, oldX, oldY, newX, newY, filled, bs);
         }
     }
-    
-
 
     public Board() {
-        final JPanel myself = this;
-        masterPanel = new JPanel();
-        drawPanel = new JPanel();
+        drawPanel = new Canvas();
         toolBar = new JToolBar();
         freeDrawButton = new JToggleButton();
         shapesButton = new JButton();
@@ -88,12 +77,11 @@ public class Board extends JPanel {
         shapeMenu.add(shapeMenuPanel);
         shapeMenu.pack();
 
-        masterPanel.setBackground(new java.awt.Color(255, 255, 255));
-        masterPanel.setLayout(new BorderLayout());
+        //this.setBackground(new java.awt.Color(255, 255, 255));
+        this.setLayout(new BorderLayout());
 
-       drawPanel.setBackground(new java.awt.Color(255, 255, 255));
-        drawPanel.setLayout(new BorderLayout());
-        
+        drawPanel.setBackground(new java.awt.Color(255, 255, 255));
+
         colorButton.setBackground(c);
 
         freeDrawButton.setText("Draw");
@@ -102,7 +90,7 @@ public class Board extends JPanel {
         eraserButton.setText("Eraser");
         clearButton.setText("Clear");
         
-        
+
         toolBar.setLayout(new GridLayout());
         toolBar.add(freeDrawButton);
         toolBar.add(shapesButton);
@@ -111,74 +99,92 @@ public class Board extends JPanel {
         toolBar.add(clearButton);
         toolBar.add(getSlider());
         toolBar.add(colorButton);
-       
+        
+        this.add(toolBar, BorderLayout.NORTH);
+        this.add(drawPanel, BorderLayout.CENTER);
+        
+        textButton.addMouseListener(new MouseAdapter(){
+            public void mouseClicked(MouseEvent evt){
+                if (textButton.isSelected()){
+                    freeDrawButton.setSelected(false);
+                    eraserButton.setSelected(false);
+                }
+            }
+        });
 
-        //drawPanel.add(toolBar, BorderLayout.NORTH);
-        masterPanel.add(toolBar, BorderLayout.NORTH);
-        masterPanel.add(drawPanel, BorderLayout.CENTER);
-               
-        shapesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        eraserButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                if (eraserButton.isSelected()) {
+                    freeDrawButton.setSelected(false);
+                    textButton.setSelected(false);
+                    s = new Freedraw();
+                }
+            }
+        });
 
+        shapesButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 Dimension size = shapeMenu.getPreferredSize();
-                int x = 5;
+                int x = 40;
                 int y = 5;
                 shapeMenu.show(drawPanel, x, y);
-                
             }
         });
-        linebutton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
+        linebutton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                freeDrawButton.setSelected(false);
+                eraserButton.setSelected(false);
+                textButton.setSelected(false);
                 s = new Line();
+                shapeMenu.setVisible(false);
+                repaint();
+            }
+        });
+        ovalbutton.addMouseListener(new MouseAdapter() {
+           public void mouseClicked(MouseEvent evt) {
+               freeDrawButton.setSelected(false);
+               eraserButton.setSelected(false);
+               textButton.setSelected(false);
+               s = new Oval();
+               shapeMenu.setVisible(false);
+            }
+        });
+        rectbutton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 freeDrawButton.setSelected(false);
-                shapeMenu.setVisible(false);
-       
-            }
-        });
-        ovalbutton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-                s = new Oval();
-                freeDrawButton.setSelected(false); 
-                shapeMenu.setVisible(false);
-  
-                
-            }
-        });
-        rectbutton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
+                eraserButton.setSelected(false);
+                textButton.setSelected(false);
                 s = new Rectangle();
-                freeDrawButton.setSelected(false);
                 shapeMenu.setVisible(false);
-
             }
         });
-        colorButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
+        
+        colorButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 JColorChooser jcc = new JColorChooser();
                 c = JColorChooser.showDialog(jcc, "Color Selector", null);
                 colorButton.setBackground(c);
-                
-                
-            }       
+
+            }
         });
-        clearButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                //WHY THE FUCK ARE WE GETTING A NULL PTR EXCEPTION HERE!!??!?!?!?!?!?!    
+        clearButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                //WHY THE FUCK ARE WE GETTING A NULL PTR EXCEPTION HERE!!??!?!?!?!?!?!   
+                freeDrawButton.setSelected(false);
+                eraserButton.setSelected(false);
+                textButton.setSelected(false);
                 Graphics bgg = bg.getGraphics();
                 Graphics fgg = drawPanel.getGraphics();
                 bgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the background
                 fgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the foreground
-
             }
         });
 
-        freeDrawButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                s = new Freedraw();
+        freeDrawButton.addMouseListener(new MouseAdapter() {
+           public void mouseClicked(MouseEvent evt) {
+               eraserButton.setSelected(false);
+               textButton.setSelected(false);
+               s = new Freedraw();
             }
         });
 
@@ -188,63 +194,61 @@ public class Board extends JPanel {
                 Graphics fgg = fg.getGraphics();
                 fgg.drawImage(bg, 0, 0, null);
 
-                BasicStroke bs = new BasicStroke(widthSlider.getValue());
+                BasicStroke bs = new BasicStroke(widthSlider.getValue() / 4);
 
                 newX = e.getX();
                 newY = e.getY();
 
-                if (s instanceof Freedraw) {
+                if (s instanceof Freedraw && !eraserButton.isSelected()) {
+                    freeDrawButton.setSelected(true);
                     s.drawShape(fgg, c, newX, newY, newX, newY, filled, bs);
-                   
                     Graphics bgg = bg.getGraphics();
                     bgg.setColor(c);
                     bgg.drawImage(fg, 0, 0, null);
                 }
-                else
-                s.drawShape(fgg, c, oldX, oldY, newX, newY, filled, bs);
-
+                else if (s instanceof Freedraw && eraserButton.isSelected()) {
+                    s.drawShape(fgg, Color.WHITE, newX, newY, newX, newY, filled, bs);
+                    Graphics bgg = bg.getGraphics();
+                    bgg.setColor(c);
+                    bgg.drawImage(fg, 0, 0, null);
+                } else {
+                    s.drawShape(fgg, c, oldX, oldY, newX, newY, filled, bs);
+                }
                 v.add(s);
                 Graphics g = drawPanel.getGraphics();
                 g.drawImage(fg, 0, 0, null);
-
             }
 
             @Override
-            public void mouseMoved(MouseEvent e) {
-                //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+            public void mouseMoved(MouseEvent e) {}
         });
 
-        this.setLayout(new BorderLayout());
-       // this.add(drawPanel, BorderLayout.CENTER);
-            this.add(masterPanel, BorderLayout.CENTER);
-        
         drawPanel.addMouseListener(new java.awt.event.MouseListener() {
             public void mousePressed(MouseEvent e) {
-
                 if (bg == null) {
                     bg = drawPanel.createImage(drawPanel.getWidth(), drawPanel.getHeight());
                     fg = drawPanel.createImage(drawPanel.getWidth(), drawPanel.getHeight());
                     filled = false;
                     v = new Vector<Shapes>();
-                    if(s == null)
-                    {
-                    s = new Freedraw();
-                    }                 
+                    if (s == null) {
+                        s = new Freedraw();
+                    }
                 }
                 oldX = e.getX();
                 oldY = e.getY();
             }
 
             public void mouseReleased(MouseEvent e) {
-                Graphics bgg = bg.getGraphics();
-                bgg.setColor(c);
-                bgg.drawImage(fg, 0, 0, null);
+                if (bg != null){
+                    Graphics bgg = bg.getGraphics();
+                    bgg.setColor(c);
+                    bgg.drawImage(fg, 0, 0, null);
+                }
             }
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                System.out.println("Mouse clicked!");
             }
 
             @Override
@@ -259,30 +263,25 @@ public class Board extends JPanel {
 
         });
 
-       
-
     }
 
-    private JSlider getSlider()
-  {
-    if (this.widthSlider == null) {
-      this.widthSlider = new JSlider();
-      this.widthSlider.setMaximum(255);
-      this.widthSlider.setPaintTicks(true);
-      this.widthSlider.setMajorTickSpacing(50);
-      this.widthSlider.setPaintLabels(true);
-      this.widthSlider.setBackground(new Color(238, 0, 0));
-      this.widthSlider.setValue(0);
-      this.widthSlider.setMinorTickSpacing(10);
-      this.widthSlider.addChangeListener(new ChangeListener() {
-        public void stateChanged(ChangeEvent e) {
-          Board.this.repaint();
+    private JSlider getSlider() {
+        if (this.widthSlider == null) {
+            this.widthSlider = new JSlider();
+            this.widthSlider.setMaximum(255);
+            this.widthSlider.setPaintTicks(true);
+            this.widthSlider.setMajorTickSpacing(50);
+            this.widthSlider.setPaintLabels(true);
+            this.widthSlider.setBackground(new Color(238, 0, 0));
+            this.widthSlider.setValue(0);
+            this.widthSlider.setMinorTickSpacing(10);
+            this.widthSlider.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                    Board.this.repaint();
+                }
+            });
         }
-      });
+        return this.widthSlider;
     }
-    return this.widthSlider;
-  }
-    
- 
-    
+
 }

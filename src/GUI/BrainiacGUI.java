@@ -32,7 +32,8 @@ import javax.swing.table.DefaultTableModel;
 public class BrainiacGUI extends JFrame implements ActionListener{
     private static gCTPane gctp;
     private JTabbedPane browserChatPane, whiteboardDocumentPane;
-    private JPanel mainPanel, chatCalendarPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardPanel, whiteboardDocumentPanel;
+    private JPanel mainPanel, chatCalendarPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardDocumentPanel;
+    //private JPanel whiteboardPanel;
     private JPanel welcomeButtonsPanel, welcomeFieldsPanel, welcomeLabelsPanel, welcomePanel;
     private JPanel createAccountPanel, createAccountButtonsPanel, createAccountFieldsPanel, createAccountLabelsPanel;
     private JPanel createSessionPanel, createSessionButtonsPanel, createSessionFieldsPanel, createSessionLabelsPanel;
@@ -78,6 +79,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private File saveFile;
     private RemoteFileRename rfr;
 
+    private Board board;
     private String userIP;
     private BrainiacClient client;
     
@@ -185,7 +187,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         sessionName = "";
         brainstorming = false;
         
-        whiteboardPanel = new Board();
+        board = new Board();
         
         temporaryLabel1 = new JLabel();
         menuBar = new JMenuBar();
@@ -480,7 +482,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         //temporaryLabel1.setText("Whiteboard");
         //whiteboardPanel.add(temporaryLabel1, BorderLayout.CENTER);
         //whiteboardDocumentPanel.setBackground(Color.white);
-        whiteboardDocumentPane.addTab("Whiteboard", whiteboardPanel);
+        whiteboardDocumentPane.addTab("Whiteboard", board);
         whiteboardDocumentPane.addTab("Browser", browserPanel);
         whiteboardDocumentPanel.add(whiteboardDocumentPane, BorderLayout.CENTER);
 
@@ -651,7 +653,6 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         if (editBrainstormersExistingTable.getColumnModel().getColumnCount() > 0) {
             editBrainstormersExistingTable.getColumnModel().getColumn(0).setResizable(false);
         }
-
         addBrainstormersTablePanel.add(editBrainstormersExistingPane);
 
         editBrainstormersCurrentTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -953,6 +954,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
+                    System.out.println("Board is visible? " + board.isVisible());
+                    System.out.println("Board is showing? " + board.isShowing());
+                    System.out.println("Board is displayable? " + board.isDisplayable());
+                    System.out.println("Board is focusable? " + board.isFocusable());
+                    System.out.println("Board is enabled? " + board.isEnabled());
+                    System.out.println("Board is opaque? " + board.isOpaque());
+                    
                 }
             }
         }
@@ -1048,13 +1056,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         if (o == saveLocal){
                 //gets the selected tab saves the file
             Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
-            if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
+            if (selectedComp != board && selectedComp != browserPanel){
                 saveLocal.writeFile((DocumentViewer) whiteboardDocumentPane.getSelectedComponent());
             }
         } 
         if (o == saveMaster){
             Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
-            if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
+            if (selectedComp != board && selectedComp != browserPanel){
                 DocumentViewer dv = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
                 saveFile = dv.getFile();
                 
@@ -1113,7 +1121,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             
         if (o == closeFileBut){
             Component selectedComp = whiteboardDocumentPane.getSelectedComponent();
-            if (selectedComp != whiteboardPanel && selectedComp != browserPanel){
+            if (selectedComp != board && selectedComp != browserPanel){
                 //gets the selected tab closes the file and removes the tab
                 docViewer = (DocumentViewer) whiteboardDocumentPane.getSelectedComponent();
                 if (docViewer.isEdited()){
