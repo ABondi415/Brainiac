@@ -15,6 +15,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -29,7 +31,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author A9712
  */
-public class BrainiacGUI extends JFrame implements ActionListener{
+public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
     private static gCTPane gctp;
     private JTabbedPane browserChatPane, whiteboardDocumentPane;
     private JPanel mainPanel, chatCalendarPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardDocumentPanel;
@@ -1048,8 +1050,10 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 //if (f.toString().endsWith(".txt")){ docViewer = fileOpener.getTextEditor(); }
                 //if (f.toString().endsWith(".doc")){}
                 docViewer = fileOpener.getDocViewer();
+                    docViewer.addKeyListener(this);
                 whiteboardDocumentPane.addTab(docViewer.getFileName(),docViewer);
                 whiteboardDocumentPane.setSelectedComponent(docViewer);
+                    docViewer.requestFocusInWindow();
                 mainPanel.revalidate();
             }
         }
@@ -1102,8 +1106,10 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 File remoteFile = (File) remotePanel.getRemoteFile(selection.substring(0, (selection.length()-1)));
                 fileOpener.readFile(remoteFile);
                 docViewer = fileOpener.getDocViewer();
+                    docViewer.addKeyListener(this);
                 whiteboardDocumentPane.addTab(docViewer.getFileName(),docViewer);
                 whiteboardDocumentPane.setSelectedComponent(docViewer);
+                    docViewer.requestFocusInWindow();
                 mainPanel.revalidate();
             }
         }
@@ -1147,6 +1153,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                                         public void mouseClicked(MouseEvent evt){
                                                 dialog.setVisible(false);
                                                 whiteboardDocumentPane.setSelectedComponent(docViewer);
+                                                docViewer.requestFocusInWindow();
                                                 mainPanel.revalidate();
                                         }
                                         });
@@ -1264,5 +1271,23 @@ public class BrainiacGUI extends JFrame implements ActionListener{
     private void addMasterActionListeners(){
         openMaster.addActionListener(this);
         saveMaster.addActionListener(this);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (docViewer instanceof PDFViewer){
+            PDFViewer pdf = (PDFViewer) docViewer;
+            if (e.getKeyChar() == '+') pdf.zoomOut();
+            else if (e.getKeyChar() == '_') pdf.zoomIn();
+            else if (e.getKeyChar() == '0') pdf.zoomReset();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
     }
 }

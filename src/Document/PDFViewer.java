@@ -8,15 +8,12 @@ package Document;
 
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
-import static java.awt.event.KeyEvent.VK_MINUS;
-import static java.awt.event.KeyEvent.VK_PLUS;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JScrollPane;
 import org.jpedal.PdfDecoder;
-import org.jpedal.exception.PdfException;
 import org.jpedal.fonts.FontMappings;
 
 
@@ -27,7 +24,7 @@ import org.jpedal.fonts.FontMappings;
  */
 
 public class PDFViewer extends DocumentViewer{
-    private float[] scales = {0.01f, 0.1f, 0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 4.0f, 7.5f, 10.0f};
+    private float[] scales = {0.01f, 0.1f, 0.25f, 0.4f, 0.5f, 0.6f, 0.75f, .9f, 1.0f, 1.1f, 1.25f, 1.4f, 1.5f, 1.7f, 2.0f, 4.0f, 7.5f, 10.0f};
     private int scaleSelect;
     private String fileName;
     private PdfDecoder decoder;
@@ -36,21 +33,23 @@ public class PDFViewer extends DocumentViewer{
     
     public PDFViewer(File inputFile){
         this.setLayout(new BorderLayout());
-        scaleSelect = 5;
+        scaleSelect = (scales.length/2);
         
         fileName = inputFile.getName();
         
         decoder = new PdfDecoder(true);
-        FontMappings.setFontReplacements();
+            FontMappings.setFontReplacements();
         
         try {
             decoder.openPdfFile(inputFile.getPath());
-            decoder.decodePage(curPage);
-            decoder.setPageParameters(1,curPage); //values scaling (1=100%). page number
-            decoder.setScrollInterval(40);        
+            decoder.decodePage(curPage);     
         } catch (Exception ex) {
             Logger.getLogger(PDFViewer.class.getName()).log(Level.SEVERE, null, ex);
         }
+            
+            decoder.setPageParameters(1,curPage); //values scaling (1=100%). page number
+            decoder.setScrollInterval(10); 
+            
         JScrollPane sp = new JScrollPane();
         sp.setViewportView(decoder);
         this.add(sp, BorderLayout.CENTER);
@@ -66,6 +65,12 @@ public class PDFViewer extends DocumentViewer{
     public void zoomOut(){
          if (scaleSelect > 0)
              scaleSelect -= 1;
+             decoder.setPageParameters(scales[scaleSelect], curPage);
+             decoder.updateUI();
+    }
+    
+    public void zoomReset(){
+             scaleSelect = (scales.length/2);
              decoder.setPageParameters(scales[scaleSelect], curPage);
              decoder.updateUI();
     }
@@ -95,3 +100,4 @@ public class PDFViewer extends DocumentViewer{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
+
