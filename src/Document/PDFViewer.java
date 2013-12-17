@@ -6,110 +6,69 @@
 
 package Document;
 
-import com.sun.pdfview.Flag;
-import com.sun.pdfview.PDFFile;
-import com.sun.pdfview.PDFPage;
-import static com.sun.pdfview.PDFViewer.TITLE;
-import com.sun.pdfview.PagePanel;
-import com.sun.pdfview.ThumbPanel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.KeyEvent;
+import static java.awt.event.KeyEvent.VK_MINUS;
+import static java.awt.event.KeyEvent.VK_PLUS;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.net.MalformedURLException;
-import java.net.URLConnection;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JDialog;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
+import org.jpedal.PdfDecoder;
+import org.jpedal.exception.PdfException;
+import org.jpedal.fonts.FontMappings;
+
+
 
 /**
  *
  * @author mzt5106
  */
 
-public class PDFViewer extends DocumentViewer implements KeyListener{
-    private PagePanel newPage;
-    private PDFFile file;
+public class PDFViewer extends DocumentViewer{
+    private float[] scales = {0.01f, 0.1f, 0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 4.0f, 7.5f, 10.0f};
+    private int scaleSelect;
     private String fileName;
+    private PdfDecoder decoder;
+    private int curPage = 1;
     
-    private int currentPage;
-    
-    Flag docWaiter;
-    //PagePreparer pagePrep;
     
     public PDFViewer(File inputFile){
-        //ByteBuffer buf = new ByteBuffer(inputFile);
-        newPage = new PagePanel();
-        newPage.addKeyListener(this);
-              
         this.setLayout(new BorderLayout());
-        this.add(newPage, BorderLayout.CENTER);
+        scaleSelect = 5;
         
-        try{
-        // first open the file for random access
-        RandomAccessFile raf = new RandomAccessFile(inputFile, "r");
-
-        // extract a file channel
-        FileChannel channel = raf.getChannel();
-
-        // now memory-map a byte-buffer
-        ByteBuffer buf =
-                channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-        openPDFByteBuffer(buf, inputFile.getPath(), inputFile.getName());
-            
-            
+        fileName = inputFile.getName();
+        
+        decoder = new PdfDecoder(true);
+        FontMappings.setFontReplacements();
+        
+        try {
+            decoder.openPdfFile(inputFile.getPath());
+            decoder.decodePage(curPage);
+            decoder.setPageParameters(1,curPage); //values scaling (1=100%). page number
+            decoder.setScrollInterval(40);        
         } catch (Exception ex) {
             Logger.getLogger(PDFViewer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        JScrollPane sp = new JScrollPane();
+        sp.setViewportView(decoder);
+        this.add(sp, BorderLayout.CENTER);
     }
     
-    private void openPDFByteBuffer(ByteBuffer buf, String path, String name) {
-
-        // create a PDFFile from the data
-        PDFFile newfile = null;
-        try {
-            newfile = new PDFFile(buf);
-        } catch (IOException ioe) {
-            Logger.getLogger(PDFViewer.class.getName()).log(Level.SEVERE, null, ioe);
-        }
-
-
-        // set up our document
-        this.file = newfile;
-        fileName = name;
-
-        // display page 1.
-        forceGotoPage(0);
-
-        // if the PDF has an outline, display it.
-        
+    public void zoomIn(){
+         if (scaleSelect < scales.length)
+             scaleSelect += 1;
+             decoder.setPageParameters(scales[scaleSelect], curPage);
+             decoder.updateUI();
     }
     
-    public void forceGotoPage(int pagenum) {
-        if (pagenum <= 0) {
-            pagenum = 0;
-        } else if (pagenum >= file.getNumPages()) {
-            pagenum = file.getNumPages() - 1;
-        }
-//        System.out.println("Going to page " + pagenum);
-        currentPage = pagenum;
-
-
-        // fetch the page and show it in the appropriate place
-        PDFPage pg = file.getPage(pagenum + 1);
-
-            newPage.showPage(pg);
-            newPage.requestFocus();
+    public void zoomOut(){
+         if (scaleSelect > 0)
+             scaleSelect -= 1;
+             decoder.setPageParameters(scales[scaleSelect], curPage);
+             decoder.updateUI();
     }
-    
     
     public Boolean isEdited() {
         return false;
@@ -122,32 +81,17 @@ public class PDFViewer extends DocumentViewer implements KeyListener{
 
     @Override
     public File getFile() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    //       return file;
+        return null;
     }
 
     @Override
     public void closeFile() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            this.removeAll();
     }
 
     @Override
     public void saveLocal(File saveFile) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }
