@@ -41,9 +41,9 @@ import javax.swing.JTextField;
  */
 public class EventOptionPanel extends JPanel {
 
-    private static JTextField eventNameTF;
+    static JTextField eventNameTF;
     private static JTextField eventDateTF;
-    private static JTextField eventDescriptionTF;
+    static JTextField eventDescriptionTF;
     private static JTextField eventStartTimeTF;
     private static JTextField eventEndTimeTF;
     private static JTextField eventLocationTF;
@@ -57,7 +57,7 @@ public class EventOptionPanel extends JPanel {
     private static Date eventDate;
 
     EventOptionPanel(Date chosenDate) throws IOException, MalformedURLException, ServiceException {
-
+        setLayout(new GridLayout(4,2));
         myService = LoginPanel.getService(); 
 
         chosenCal = new CalendarEntry();
@@ -110,7 +110,6 @@ public class EventOptionPanel extends JPanel {
 
         eventNameTF.setText("Event Name");
         eventNameTF.setToolTipText("Event Name");
-        
         eventDescriptionTF.setText("Description");
         eventDescriptionTF.setToolTipText("A brief description of the event");
         eventStartTimeTF.setText("HH:MM XX");
@@ -234,7 +233,7 @@ public class EventOptionPanel extends JPanel {
         }
     }
 
-    public void removeCalendarEntry(CalendarEventEntry insertedEntry) throws AuthenticationException, MalformedURLException, IOException, ServiceException {
+    public static void removeCalendarEntry(CalendarEventEntry insertedEntry) throws AuthenticationException, MalformedURLException, IOException, ServiceException {
         insertedEntry.delete();
         System.out.println("Successfully deleted entry from calendar.\n");
 

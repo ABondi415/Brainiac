@@ -33,11 +33,12 @@ public class gCalendarPane extends JPanel {
     private static JButton addEventButton, viewEventsButton;
     protected static JFrame createEventFrame, viewEventsFrame;
     private static EventOptionPanel eop;
+    private static ViewEventsPanel vep;
     private static LoginPanel lp;
     private static JFrame aFrame;
     private static JDateChooser dateChooser;
     private static Date chosenDate;
-
+    ArrayList<CalendarEventEntry> ceeArray;
 //    /**
 //     * @return the chosenDate
 //     */
@@ -54,17 +55,9 @@ public class gCalendarPane extends JPanel {
 
     public gCalendarPane() {
 
+        ceeArray = new ArrayList();
         aCalendar = new JCalendar();
         aCalendar.setVisible(true);
-
-//        dateChooser.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
-//
-//            @Override
-//            public void propertyChange(PropertyChangeEvent evt) {
-//                setChosenDate(dateChooser.getDate());
-//
-//            }
-//        });
 
         addEventButton = new JButton("Add Event");
         addEventButton.addActionListener(new ActionListener() {
@@ -79,7 +72,7 @@ public class gCalendarPane extends JPanel {
                     //Logger.getLogger(gCalendarPane.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 createEventFrame.add(eop);
-                createEventFrame.setSize(200, 400);
+                createEventFrame.setSize(200, 300);
                 createEventFrame.setVisible(true);
             }
         });
@@ -89,13 +82,17 @@ public class gCalendarPane extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<CalendarEventEntry> ceeArray = new ArrayList();
                 ceeArray = gCTPane.getSubList(getChosenDate());
-                if(!ceeArray.isEmpty()){ 
-                    viewEventsFrame = new ViewEventsFrame(gCTPane.getSubList(getChosenDate()));
+                
+                if(ceeArray == null || ceeArray.isEmpty())
+                    JOptionPane.showMessageDialog(new JFrame(), "No events to show!"); 
+                else {
+                    viewEventsFrame = new JFrame();
+                    vep = new ViewEventsPanel(ceeArray);
+                    viewEventsFrame.add(vep);
+                    viewEventsFrame.setSize(700, 50 * ceeArray.size() + 50);
+                    viewEventsFrame.setVisible(true);
                 }
-                else 
-                    JOptionPane.showMessageDialog(new JFrame(), "No events to show!");
             }
         });
         
@@ -110,7 +107,7 @@ public class gCalendarPane extends JPanel {
 
     }
 
-    public Date getChosenDate(){
+    public static Date getChosenDate(){
         chosenDate = aCalendar.getDate();
         return chosenDate;
     }

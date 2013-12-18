@@ -53,24 +53,36 @@ public class gCTPane extends JTabbedPane{
         ceeArrayList.add(myEntry);
     }
     
+    public static boolean isPresent(CalendarEventEntry myEntry){
+        int i = 0;
+        while(i < ceeArrayList.size()){
+            if (ceeArrayList.get(i) == myEntry) return true;
+            i++;
+        }
+        return false;
+    }
+    
     public static ArrayList<CalendarEventEntry> getSubList(Date date){
         ArrayList<CalendarEventEntry> ceeList = new ArrayList();
-        CalendarEventEntry cee = new CalendarEventEntry();
+        CalendarEventEntry cee;
         for(int i = 0; i < ceeArrayList.size(); i++){
             Date compareDate = new Date(ceeArrayList.get(i).getTimes().get(0).getStartTime().getValue());
-            if(sameDay(date, compareDate)) cee = ceeArrayList.get(i);
-            ceeList.add(cee);
+            if(sameDay(date, compareDate)){ 
+                cee = ceeArrayList.get(i);
+                ceeList.add(cee);
+            }
         }     
+        if (ceeList.isEmpty()) return null;
         
         return ceeList;
     }
     
-    public static CalendarEventEntry popEvent(CalendarEventEntry myEntry){
-        CalendarEventEntry cee;
-        cee = (CalendarEventEntry)ceeArrayList.toArray()[ceeArrayList.size()];
+    public static void popEvent(CalendarEventEntry myEntry){
         ceeArrayList.remove(myEntry);
-        
-        return cee;
+    } 
+    
+    public static void clear(){
+        ceeArrayList.clear();
     }
     
     public static boolean sameDay(Date day1, Date day2){

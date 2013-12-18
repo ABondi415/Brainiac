@@ -6,12 +6,20 @@
 
 package Calendar_And_Tasks;
 
+import static Calendar_And_Tasks.gCalendarPane.createEventFrame;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.extensions.When;
+import com.google.gdata.util.ServiceException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
 
 /**
  *
@@ -19,11 +27,12 @@ import java.util.List;
  */
 public class EventPanel extends javax.swing.JPanel {
 
+    private EventOptionPanel eop;
     /**
      * Creates new form EventPanel
      * @param myEntry
      */
-    public EventPanel(CalendarEventEntry myEntry) {
+    public EventPanel(final CalendarEventEntry myEntry) {
         initComponents();
         jLabel1.setText(myEntry.getTitle().getPlainText());
         jLabel2.setText(myEntry.getLocations().get(0).getValueString());
@@ -40,6 +49,41 @@ public class EventPanel extends javax.swing.JPanel {
         
         Date date = new Date(t.getTime());
         jLabel6.setText(sdf.format(date));
+        
+        jButton1.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createEventFrame = new JFrame("Edit Event");
+                try {
+                    eop = new EventOptionPanel(gCalendarPane.getChosenDate());
+                    if(gCTPane.isPresent(myEntry)){
+                        EventOptionPanel.eventNameTF.setText(myEntry.getTitle().getPlainText());
+                        EventOptionPanel.eventDescriptionTF.setText(myEntry.getSummary().getPlainText());
+                    }
+                } catch (IOException | ServiceException ex) {
+                    //Logger.getLogger(gCalendarPane.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                createEventFrame.add(eop);
+                createEventFrame.setSize(200, 400);
+                createEventFrame.setVisible(true);
+            }
+        });
+        
+        jButton2.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gCTPane.popEvent(myEntry);
+                if(LoginPanel.isValidCred())try {
+                    EventOptionPanel.removeCalendarEntry(myEntry);
+                    
+                } catch (        IOException | ServiceException ex) {
+                    Logger.getLogger(EventPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                gCalendarPane.viewEventsFrame.setVisible(false);
+            }
+        });
     }
 
     /**
