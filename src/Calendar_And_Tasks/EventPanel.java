@@ -36,7 +36,8 @@ public class EventPanel extends javax.swing.JPanel {
         initComponents();
         jLabel1.setText(myEntry.getTitle().getPlainText());
         jLabel2.setText(myEntry.getLocations().get(0).getValueString());
-        jLabel3.setText(myEntry.getSummary().getPlainText());
+        
+        if(myEntry.getSummary() != null) jLabel3.setText(myEntry.getSummary().getPlainText());
         
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/YYYY");
         SimpleDateFormat sdf1 = new SimpleDateFormat("h:mm a");

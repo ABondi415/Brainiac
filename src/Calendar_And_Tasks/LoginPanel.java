@@ -24,7 +24,7 @@ public class LoginPanel extends JPanel {
     private static LoginPanel instance;
     private JTextField userNameTF;
     private JPasswordField passwordTF;
-    private JLabel usernameLabel, passwordLabel;
+    private final JLabel usernameLabel, passwordLabel;
     private static String userName, password;
     private final JButton login;
 //    private static GridBagConstraints gbc;

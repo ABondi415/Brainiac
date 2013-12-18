@@ -26,8 +26,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -199,7 +197,7 @@ public class EventOptionPanel extends JPanel {
         
         
         if (LoginPanel.isValidCred() &&
-                !chosenCal.getTitle().getPlainText().equals(calendarSelector.getItemAt(calendarSelector.getSelectedIndex()).toString())){
+                chosenCal.getTitle().getPlainText().equals(calendarSelector.getItemAt(calendarSelector.getSelectedIndex()).toString())){
             sendData(cal, myEntry);
         }
     }
@@ -234,8 +232,9 @@ public class EventOptionPanel extends JPanel {
     }
 
     public static void removeCalendarEntry(CalendarEventEntry insertedEntry) throws AuthenticationException, MalformedURLException, IOException, ServiceException {
+        
         insertedEntry.delete();
-        System.out.println("Successfully deleted entry from calendar.\n");
+//        System.out.println("Successfully deleted entry from calendar.\n");
 
     }
 

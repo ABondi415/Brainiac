@@ -10,12 +10,13 @@ package Calendar_And_Tasks;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.util.ServiceException;
 import com.toedter.calendar.JCalendar;
-import com.toedter.calendar.JDateChooser;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,30 +29,13 @@ import javax.swing.JPanel;
  */
 public class gCalendarPane extends JPanel {
 
-    private static String user, password;
     private static JCalendar aCalendar;
     private static JButton addEventButton, viewEventsButton;
     protected static JFrame createEventFrame, viewEventsFrame;
     private static EventOptionPanel eop;
     private static ViewEventsPanel vep;
-    private static LoginPanel lp;
-    private static JFrame aFrame;
-    private static JDateChooser dateChooser;
     private static Date chosenDate;
     ArrayList<CalendarEventEntry> ceeArray;
-//    /**
-//     * @return the chosenDate
-//     */
-//    public Date getChosenDate() {
-//        return chosenDate;
-//    }
-//
-//    /**
-//     * @param aChosenDate the chosenDate to set
-//     */
-//    public void setChosenDate(Date aChosenDate) {
-//        chosenDate = aChosenDate;
-//    }
 
     public gCalendarPane() {
 
@@ -82,7 +66,11 @@ public class gCalendarPane extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                ceeArray = gCTPane.getSubList(getChosenDate());
+                try {
+                    ceeArray = gCTPane.getSubList(getChosenDate());
+                } catch (        IOException | ServiceException ex) {
+                    Logger.getLogger(gCalendarPane.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 
                 if(ceeArray == null || ceeArray.isEmpty())
                     JOptionPane.showMessageDialog(new JFrame(), "No events to show!"); 
