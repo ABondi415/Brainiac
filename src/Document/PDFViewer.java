@@ -12,13 +12,22 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
 import org.jpedal.PdfDecoder;
 import org.jpedal.fonts.FontMappings;
 
@@ -36,10 +45,12 @@ public class PDFViewer extends DocumentViewer{
     private PdfDecoder decoder;
     private int curPage = 1;
     private JPanel infoBar;
-    private JLabel numPageIndicator;
-    private JTextField curPageIndicator;
+    private JLabel numPageIndicator, curPageIndicator;
+    //private JTextField curPageIndicator;
+    private File file;
     
     public PDFViewer(File inputFile){
+        file = inputFile;
         this.setLayout(new BorderLayout());
         scaleSelect = (scales.length/2);
         
@@ -67,8 +78,11 @@ public class PDFViewer extends DocumentViewer{
         infoBar = new JPanel();
             infoBar.setBackground(new Color(235, 235, 235));
             infoBar.setPreferredSize(new Dimension(this.getWidth(), 30));
-            curPageIndicator = new JTextField();
-                curPageIndicator.setText(" " +curPage + " ");
+            curPageIndicator = new JLabel();
+                curPageIndicator.setPreferredSize(new Dimension(50, 25));
+                curPageIndicator.setText(curPage + "");
+                curPageIndicator.setBackground(Color.white);
+                curPageIndicator.setBorder(new LineBorder(Color.gray));
             numPageIndicator = new JLabel();
                 numPageIndicator.setText(decoder.getPageCount() + "");
             JLabel curPageLabel = new JLabel("Current Page ");
@@ -154,18 +168,17 @@ public class PDFViewer extends DocumentViewer{
 
     @Override
     public File getFile() {
-    //       return file;
-        return null;
+        return file;
     }
 
     @Override
     public void closeFile() {
             this.removeAll();
+            decoder.closePdfFile();
     }
 
     @Override
     public void saveLocal(File saveFile) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
 
