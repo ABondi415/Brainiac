@@ -7,12 +7,18 @@
 package Document;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import org.jpedal.PdfDecoder;
 import org.jpedal.fonts.FontMappings;
 
@@ -29,7 +35,9 @@ public class PDFViewer extends DocumentViewer{
     private String fileName;
     private PdfDecoder decoder;
     private int curPage = 1;
-    
+    private JPanel infoBar;
+    private JLabel numPageIndicator;
+    private JTextField curPageIndicator;
     
     public PDFViewer(File inputFile){
         this.setLayout(new BorderLayout());
@@ -49,10 +57,28 @@ public class PDFViewer extends DocumentViewer{
             
             decoder.setPageParameters(1,curPage); //values scaling (1=100%). page number
             decoder.setScrollInterval(10); 
+            decoder.setBackground(Color.white);
             
         JScrollPane sp = new JScrollPane();
-        sp.setViewportView(decoder);
+            sp.getVerticalScrollBar().setUnitIncrement(30);
+            sp.setViewportView(decoder);
         this.add(sp, BorderLayout.CENTER);
+        
+        infoBar = new JPanel();
+            infoBar.setBackground(new Color(235, 235, 235));
+            infoBar.setPreferredSize(new Dimension(this.getWidth(), 30));
+            curPageIndicator = new JTextField();
+                curPageIndicator.setText(" " +curPage + " ");
+            numPageIndicator = new JLabel();
+                numPageIndicator.setText(decoder.getPageCount() + "");
+            JLabel curPageLabel = new JLabel("Current Page ");
+            JLabel colonLabel = new JLabel("  :  ");
+            infoBar.add(curPageLabel);
+            infoBar.add(curPageIndicator);
+            infoBar.add(colonLabel);
+            infoBar.add(numPageIndicator);
+        this.add(infoBar, BorderLayout.NORTH);
+                
     }
     
     public void zoomIn(){
@@ -73,6 +99,48 @@ public class PDFViewer extends DocumentViewer{
              scaleSelect = (scales.length/2);
              decoder.setPageParameters(scales[scaleSelect], curPage);
              decoder.updateUI();
+    }
+    
+    public void nextPage(){
+        if (curPage < decoder.getPageCount()){
+            curPage += 1;
+        try {
+      decoder.setPageParameters(scales[scaleSelect], curPage);
+      decoder.decodePage(curPage);
+
+      //wait to ensure decoded
+      decoder.waitForDecodingToFinish();
+
+      decoder.invalidate();
+      decoder.updateUI();
+      decoder.validate();
+      curPageIndicator.setText(" " +curPage + " ");
+        } catch (Exception ex) {
+            Logger.getLogger(PDFViewer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            decoder.updateUI();
+        }
+    }
+    
+    public void prevPage(){
+        if (curPage > 1){ //first page starts at 1 not 0
+            curPage -= 1;
+        try {
+      decoder.setPageParameters(scales[scaleSelect], curPage);
+      decoder.decodePage(curPage);
+
+      //wait to ensure decoded
+      decoder.waitForDecodingToFinish();
+
+      decoder.invalidate();
+      decoder.updateUI();
+      decoder.validate();
+      curPageIndicator.setText(" " +curPage + " ");
+        } catch (Exception ex) {
+            Logger.getLogger(PDFViewer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            decoder.updateUI();
+        }
     }
     
     public Boolean isEdited() {

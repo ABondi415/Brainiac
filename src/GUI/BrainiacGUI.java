@@ -25,6 +25,8 @@ import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Vector;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -1281,9 +1283,11 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
     public void keyPressed(KeyEvent e) {
         if (docViewer instanceof PDFViewer){
             PDFViewer pdf = (PDFViewer) docViewer;
-            if (e.getKeyChar() == '+') pdf.zoomOut();
-            else if (e.getKeyChar() == '_') pdf.zoomIn();
-            else if (e.getKeyChar() == '0') pdf.zoomReset();
+            if (e.getKeyChar() == '_') pdf.zoomOut();
+            else if (e.getKeyChar() == '+') pdf.zoomIn();
+            else if (e.getKeyChar() == ')') pdf.zoomReset();
+            else if (e.getKeyChar() == '[') pdf.prevPage();
+            else if (e.getKeyChar() == ']') pdf.nextPage();
         }
     }
 

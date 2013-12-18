@@ -264,6 +264,10 @@ public class Board extends JPanel {
         });
 
     }
+    
+    public Canvas getDrawCanvas(){
+        return drawPanel;
+    }
 
     private JSlider getSlider() {
         if (this.widthSlider == null) {
