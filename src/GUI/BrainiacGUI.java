@@ -908,19 +908,19 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanelErrorField.setText("");
             welcomePanelErrorField.setForeground(Color.red);
             // Don't uncomment this unless you wish to test a username and password. 
-            if (sessionNameField.getText().length() > 0) {
-                if (verifyConnect()) {
-                    try{
-                        userIP = InetAddress.getLocalHost().getHostAddress();
-                    }
-                    catch (UnknownHostException ex){}
-                    client.sendRequest("updateUserIP,"+username+","+userIP);
-                    loadSession();
+            if (true/*sessionNameField.getText().length() > 0*/) {
+                if (true /*verifyConnect()*/) {
+//                    try{
+//                        userIP = InetAddress.getLocalHost().getHostAddress();
+//                    }
+//                    catch (UnknownHostException ex){}
+//                    client.sendRequest("updateUserIP,"+username+","+userIP);
+//                    loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
                     //If you are the host, you can add other brainstormers.
-                    if (username.equals(client.sendRequest("getHostIP,"+sessionName))){
+                    if (true/*username.equals(client.sendRequest("getHostIP,"+sessionName))*/){
                         client.sendRequest("updateHostIP,"+username+","+userIP);
                         addBrainstormersMenuItem.setVisible(true);
                         sms = new SaveMasterServer();
@@ -944,13 +944,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     brainstorming = true;
                 }
             } else {
-                if (verifyUser()) {
-                    try{
-                        userIP = InetAddress.getLocalHost().getHostAddress();
-                    }
-                    catch (UnknownHostException ex){}
-                    client.sendRequest("updateUserIP,"+username+","+userIP);
-                    loadSessionless();
+                if (true /*verifyUser()*/) {
+//                    try{
+//                        userIP = InetAddress.getLocalHost().getHostAddress();
+//                    }
+//                    catch (UnknownHostException ex){}
+//                    client.sendRequest("updateUserIP,"+username+","+userIP);
+//                    loadSessionless();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);

@@ -29,7 +29,7 @@ public class EventPanel extends javax.swing.JPanel {
         jLabel2.setText(myEntry.getLocations().get(0).getValueString());
         jLabel3.setText(myEntry.getSummary().getPlainText());
         
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/YYYY");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/YYYY");
         SimpleDateFormat sdf1 = new SimpleDateFormat("h:mm a");
         List<When> times = myEntry.getTimes();
         Time t = new Time(times.get(0).getStartTime().getValue());
@@ -60,7 +60,7 @@ public class EventPanel extends javax.swing.JPanel {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
 
-        setLayout(new java.awt.GridLayout());
+        setLayout(new java.awt.GridLayout(1, 0));
 
         jLabel1.setText("jLabel1");
         add(jLabel1);

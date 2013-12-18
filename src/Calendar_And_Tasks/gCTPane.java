@@ -74,7 +74,7 @@ public class gCTPane extends JTabbedPane{
     }
     
     public static boolean sameDay(Date day1, Date day2){
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/YYYY");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/YYYY");
         
         return (sdf.format(day1).equals(sdf.format(day2)));
     }

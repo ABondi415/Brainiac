@@ -13,13 +13,9 @@ import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -94,9 +90,9 @@ public class gCalendarPane extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ArrayList<CalendarEventEntry> ceeArray = new ArrayList();
-                ceeArray = gCTPane.getSubList(chosenDate);
+                ceeArray = gCTPane.getSubList(getChosenDate());
                 if(!ceeArray.isEmpty()){ 
-                    viewEventsFrame = new ViewEventsFrame(gCTPane.getSubList(chosenDate));
+                    viewEventsFrame = new ViewEventsFrame(gCTPane.getSubList(getChosenDate()));
                 }
                 else 
                     JOptionPane.showMessageDialog(new JFrame(), "No events to show!");

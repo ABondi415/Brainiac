@@ -69,7 +69,7 @@ public class EventOptionPanel extends JPanel {
         eventLocationTF = new JTextField();
         calendarSelector = new JComboBox();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/YYYY");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/YYYY");
         eventDateTF.setText(sdf.format(chosenDate));
         
         final CalendarFeed cf = getCalendars();
@@ -138,8 +138,8 @@ public class EventOptionPanel extends JPanel {
 
     public void parseInfoAndSend(CalendarEntry cal) {
         
-        Date evtStartTime = new Date();
-        Date evtEndTime = new Date();
+        Date evtStartTime;
+        Date evtEndTime;
 
         CalendarEventEntry myEntry = new CalendarEventEntry();
         
@@ -171,15 +171,15 @@ public class EventOptionPanel extends JPanel {
             return;
         }
 
-        Date formattedDateStart = evtStartTime;
-        formattedDateStart.setMonth(eventDate.getMonth()+2);
+        Date formattedDateStart = eventDate;
+        formattedDateStart.setHours(evtStartTime.getHours());
         //formattedDateStart.setDate(eventDate.getDate()+2);
-        formattedDateStart.setYear(eventDate.getYear()-1);
+        formattedDateStart.setMinutes(evtStartTime.getMinutes());
 
-        Date formattedDateEnd = evtEndTime;
-        formattedDateEnd.setMonth(eventDate.getMonth()+2);
+        Date formattedDateEnd = eventDate;
+        formattedDateEnd.setHours(evtEndTime.getHours());
         //formattedDateEnd.setDate(eventDate.getDate());
-        formattedDateEnd.setYear(eventDate.getYear()-1);
+        formattedDateEnd.setMinutes(evtEndTime.getMinutes());
 
         DateTime sTime = new DateTime();
         sTime.setTzShift(-5);
