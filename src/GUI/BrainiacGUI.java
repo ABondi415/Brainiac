@@ -15,22 +15,38 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author A9712
  */
-public class BrainiacGUI extends JFrame implements ActionListener{
+public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
+    private int SERVER_HOST_IP;
+    private boolean initialPopupShown = false;
     private static gCTPane gctp;
+    UIManager manager = new UIManager();
     private JTabbedPane browserChatPane, whiteboardDocumentPane;
     private JPanel mainPanel, chatCalendarPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardDocumentPanel;
     //private JPanel whiteboardPanel;
@@ -798,6 +814,44 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         editBrainstormersDialog.setLocationRelativeTo(this);
         joinSessionDialog.setLocationRelativeTo(this);
         setVisible(true);
+        
+        final JOptionPane optionPane = new JOptionPane(
+                "Do you wish to be the host for the server?",
+                JOptionPane.QUESTION_MESSAGE,
+                JOptionPane.YES_NO_OPTION);
+
+        final JDialog initialDialog = new JDialog(this,
+                "Server Host Option",
+                true);
+        
+        initialDialog.setContentPane(optionPane);
+        initialDialog.setDefaultCloseOperation(
+                JDialog.DO_NOTHING_ON_CLOSE);
+        
+        initialDialog.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {}
+        });
+        optionPane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    public void propertyChange(PropertyChangeEvent e) {
+                        String prop = e.getPropertyName();
+                        if (initialDialog.isVisible() && (e.getSource() == optionPane) 
+                                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            initialDialog.setVisible(false);
+                        }
+                    }
+                });
+        initialDialog.pack();
+        initialDialog.setLocationRelativeTo(null);
+        initialDialog.setVisible(true);
+
+        int value = ((Integer) optionPane.getValue()).intValue();
+        if (value == JOptionPane.YES_OPTION) {
+            setServerHost();
+        } else if (value == JOptionPane.NO_OPTION) {
+            getServerHost();
+        }
+        
     }
     
     public static void main (String [] args){
@@ -908,19 +962,19 @@ public class BrainiacGUI extends JFrame implements ActionListener{
             welcomePanelErrorField.setText("");
             welcomePanelErrorField.setForeground(Color.red);
             // Don't uncomment this unless you wish to test a username and password. 
-            if (true/*sessionNameField.getText().length() > 0*/) {
-                if (true /*verifyConnect()*/) {
-//                    try{
-//                        userIP = InetAddress.getLocalHost().getHostAddress();
-//                    }
-//                    catch (UnknownHostException ex){}
-//                    client.sendRequest("updateUserIP,"+username+","+userIP);
-//                    loadSession();
+            if (sessionNameField.getText().length() > 0) {
+                if (verifyConnect()) {
+                    try{
+                        userIP = InetAddress.getLocalHost().getHostAddress();
+                    }
+                    catch (UnknownHostException ex){}
+                    client.sendRequest("updateUserIP,"+username+","+userIP);
+                    loadSession();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
                     //If you are the host, you can add other brainstormers.
-                    if (true/*username.equals(client.sendRequest("getHostIP,"+sessionName))*/){
+                    if (username.equals(client.sendRequest("getHostIP,"+sessionName))){
                         client.sendRequest("updateHostIP,"+username+","+userIP);
                         addBrainstormersMenuItem.setVisible(true);
                         sms = new SaveMasterServer();
@@ -944,13 +998,13 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                     brainstorming = true;
                 }
             } else {
-                if (true /*verifyUser()*/) {
-//                    try{
-//                        userIP = InetAddress.getLocalHost().getHostAddress();
-//                    }
-//                    catch (UnknownHostException ex){}
-//                    client.sendRequest("updateUserIP,"+username+","+userIP);
-//                    loadSessionless();
+                if (verifyUser()) {
+                    try{
+                        userIP = InetAddress.getLocalHost().getHostAddress();
+                    }
+                    catch (UnknownHostException ex){}
+                    client.sendRequest("updateUserIP,"+username+","+userIP);
+                    loadSessionless();
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
@@ -1048,8 +1102,10 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 //if (f.toString().endsWith(".txt")){ docViewer = fileOpener.getTextEditor(); }
                 //if (f.toString().endsWith(".doc")){}
                 docViewer = fileOpener.getDocViewer();
+                    docViewer.addKeyListener(this);
                 whiteboardDocumentPane.addTab(docViewer.getFileName(),docViewer);
                 whiteboardDocumentPane.setSelectedComponent(docViewer);
+                    docViewer.requestFocusInWindow();
                 mainPanel.revalidate();
             }
         }
@@ -1102,8 +1158,10 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                 File remoteFile = (File) remotePanel.getRemoteFile(selection.substring(0, (selection.length()-1)));
                 fileOpener.readFile(remoteFile);
                 docViewer = fileOpener.getDocViewer();
+                    docViewer.addKeyListener(this);
                 whiteboardDocumentPane.addTab(docViewer.getFileName(),docViewer);
                 whiteboardDocumentPane.setSelectedComponent(docViewer);
+                    docViewer.requestFocusInWindow();
                 mainPanel.revalidate();
             }
         }
@@ -1147,6 +1205,7 @@ public class BrainiacGUI extends JFrame implements ActionListener{
                                         public void mouseClicked(MouseEvent evt){
                                                 dialog.setVisible(false);
                                                 whiteboardDocumentPane.setSelectedComponent(docViewer);
+                                                docViewer.requestFocusInWindow();
                                                 mainPanel.revalidate();
                                         }
                                         });
@@ -1265,4 +1324,57 @@ public class BrainiacGUI extends JFrame implements ActionListener{
         openMaster.addActionListener(this);
         saveMaster.addActionListener(this);
     }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (docViewer instanceof PDFViewer){
+            PDFViewer pdf = (PDFViewer) docViewer;
+            if (e.getKeyChar() == '_') pdf.zoomOut();
+            else if (e.getKeyChar() == '+') pdf.zoomIn();
+            else if (e.getKeyChar() == ')') pdf.zoomReset();
+            else if (e.getKeyChar() == '[') pdf.prevPage();
+            else if (e.getKeyChar() == ']') pdf.nextPage();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
+    
+    private void setServerHost() {
+        BufferedReader reader;
+        try {
+            String IP = InetAddress.getLocalHost().getHostAddress();
+            FileWriter fstream = new FileWriter(".\\HostIP.txt");
+            BufferedWriter out = new BufferedWriter(fstream);
+            out.write(IP);
+            out.close();
+            client.setServerEndpoint(IP);
+        } catch (IOException ex) {
+            Logger.getLogger(BrainiacGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        BrainiacServer server = new BrainiacServer();
+        Thread dbServerThread = new Thread(server);
+        dbServerThread.start();
+    }
+
+    private void getServerHost() {
+        try {
+            String ipString = "";
+            BufferedReader reader = new BufferedReader(new FileReader(".\\HostIP.txt"));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                ipString += line;
+            }
+            client.setServerEndpoint(ipString);
+        } catch (IOException ex) {
+
+        }
+    }
+
+
 }
