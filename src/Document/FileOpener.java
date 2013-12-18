@@ -42,7 +42,7 @@ public class FileOpener extends JPanel implements ActionListener{
         });
 
         //disable cancel button
-        //disableCancelButton(fileChooser);
+        disableCancelButton(fileChooser);
             
         saveLocalBut = new SaveLocal();
         closeFile = new JButton();
@@ -93,9 +93,10 @@ public class FileOpener extends JPanel implements ActionListener{
     
     public void readFile(File selectedFile) {
         String fileStr = selectedFile.toString();
-        if (fileStr.endsWith(".txt")) {docViewer = new TextEditor(selectedFile);}
-        if (fileStr.endsWith(".doc") || fileStr.endsWith(".docx")) {docViewer = new DocEditor(selectedFile);}
-        if (fileStr.endsWith(".pdf")) {docViewer = new PDFViewer(selectedFile);}
+        if (fileStr.endsWith(".txt") || fileStr.endsWith(".TXT")) {docViewer = new TextEditor(selectedFile);}
+        if (fileStr.endsWith(".doc") || fileStr.endsWith(".docx") ||
+                fileStr.endsWith(".DOC") || fileStr.endsWith(".DOCX")) {docViewer = new DocEditor(selectedFile);}
+        if (fileStr.endsWith(".pdf") || fileStr.endsWith(".PDF")) {docViewer = new PDFViewer(selectedFile);}
     }
     
     private void disableCancelButton(Container fileChooser){
@@ -107,6 +108,7 @@ public class FileOpener extends JPanel implements ActionListener{
             if (b != null && b.getText() != null && b.getText().equals("Cancel")){
                 b.setEnabled(false);
                 b.setVisible(false);
+                fileChooser.remove(b);
             }
         }
         else if (comp instanceof Container) {
@@ -114,6 +116,7 @@ public class FileOpener extends JPanel implements ActionListener{
         }
         }
     }
+
     
     public void createRemotePanel(){
         remotePanel = new RemotePanel();   
