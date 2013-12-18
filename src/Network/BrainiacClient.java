@@ -20,7 +20,7 @@ public class BrainiacClient {
     private final static String CRLF = "\r\n";
     //Place the server's IP address here.  This will have to be manually set each 
     //  session for our program.  
-    private final static String SERVER_ENDPOINT = "localhost";
+    private String SERVER_ENDPOINT = "localhost";
     
     public String sendRequest(String request){
         Socket clientSocket;
@@ -44,5 +44,13 @@ public class BrainiacClient {
             System.out.println("We have an exception in the Brainiac Client! ");
         }
         return response;
+    }
+    
+    public String getServerEndpoint(){
+        return SERVER_ENDPOINT;
+    }
+    
+    public void setServerEndpoint(String endpoint){
+        SERVER_ENDPOINT = endpoint;
     }
 }

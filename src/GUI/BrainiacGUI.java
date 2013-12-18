@@ -19,14 +19,23 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -34,7 +43,10 @@ import javax.swing.table.DefaultTableModel;
  * @author A9712
  */
 public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
+    private int SERVER_HOST_IP;
+    private boolean initialPopupShown = false;
     private static gCTPane gctp;
+    UIManager manager = new UIManager();
     private JTabbedPane browserChatPane, whiteboardDocumentPane;
     private JPanel mainPanel, chatCalendarPanel, browserPanel, calendarTasksPanel, chatPanel, whiteboardDocumentPanel;
     //private JPanel whiteboardPanel;
@@ -802,6 +814,44 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
         editBrainstormersDialog.setLocationRelativeTo(this);
         joinSessionDialog.setLocationRelativeTo(this);
         setVisible(true);
+        
+        final JOptionPane optionPane = new JOptionPane(
+                "Do you wish to be the host for the server?",
+                JOptionPane.QUESTION_MESSAGE,
+                JOptionPane.YES_NO_OPTION);
+
+        final JDialog initialDialog = new JDialog(this,
+                "Server Host Option",
+                true);
+        
+        initialDialog.setContentPane(optionPane);
+        initialDialog.setDefaultCloseOperation(
+                JDialog.DO_NOTHING_ON_CLOSE);
+        
+        initialDialog.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {}
+        });
+        optionPane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    public void propertyChange(PropertyChangeEvent e) {
+                        String prop = e.getPropertyName();
+                        if (initialDialog.isVisible() && (e.getSource() == optionPane) 
+                                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            initialDialog.setVisible(false);
+                        }
+                    }
+                });
+        initialDialog.pack();
+        initialDialog.setLocationRelativeTo(null);
+        initialDialog.setVisible(true);
+
+        int value = ((Integer) optionPane.getValue()).intValue();
+        if (value == JOptionPane.YES_OPTION) {
+            setServerHost();
+        } else if (value == JOptionPane.NO_OPTION) {
+            getServerHost();
+        }
+        
     }
     
     public static void main (String [] args){
@@ -1294,4 +1344,37 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
     @Override
     public void keyReleased(KeyEvent e) {
     }
+    
+    private void setServerHost() {
+        BufferedReader reader;
+        try {
+            String IP = InetAddress.getLocalHost().getHostAddress();
+            FileWriter fstream = new FileWriter(".\\HostIP.txt");
+            BufferedWriter out = new BufferedWriter(fstream);
+            out.write(IP);
+            out.close();
+            client.setServerEndpoint(IP);
+        } catch (IOException ex) {
+            Logger.getLogger(BrainiacGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        BrainiacServer server = new BrainiacServer();
+        Thread dbServerThread = new Thread(server);
+        dbServerThread.start();
+    }
+
+    private void getServerHost() {
+        try {
+            String ipString = "";
+            BufferedReader reader = new BufferedReader(new FileReader(".\\HostIP.txt"));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                ipString += line;
+            }
+            client.setServerEndpoint(ipString);
+        } catch (IOException ex) {
+
+        }
+    }
+
+
 }

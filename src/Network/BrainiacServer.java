@@ -16,7 +16,7 @@ import java.net.Socket;
  *
  * @author A9712
  */
-public final class BrainiacServer {
+public final class BrainiacServer implements Runnable {
     //This class handles all database requests and responses.  It should only be ran at
     // one location.  The IP address where the server is being ran must be manually
     // entered into each client's BrainiacClient.java SERVER_ENDPOINT field.
@@ -25,7 +25,8 @@ public final class BrainiacServer {
     //We only need one instance, so DBCreator can be static.
     private static DBCreator dbCreator;
 
-    public static void main(String[] args) {
+    @Override
+    public void run() {
         try {
             //Create a new MySQL database if one doesn't exist as soon as we
             //  start the server.  

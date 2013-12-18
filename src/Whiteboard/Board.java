@@ -22,6 +22,7 @@ public class Board extends JPanel {
     private boolean filled = false;
     private BasicStroke bs;
     private Vector<Shapes> v = new Vector<Shapes>();
+    private Vector<JTextField> fields = new Vector<>();
 
     private Canvas drawPanel;
     private JToggleButton eraserButton;
@@ -34,7 +35,10 @@ public class Board extends JPanel {
     private JButton ovalbutton;
     private JButton rectbutton;
     private JPopupMenu shapeMenu;
+    private JPopupMenu textMenu;
     private JPanel shapeMenuPanel;
+    private JPanel textMenuPanel;
+    private JTextField textMenuField;
     private JButton clearButton;
     private JButton colorButton;
 
@@ -76,11 +80,22 @@ public class Board extends JPanel {
         shapeMenuPanel.add(rectbutton);
         shapeMenu.add(shapeMenuPanel);
         shapeMenu.pack();
+        textMenu = new JPopupMenu();
+        textMenuPanel = new JPanel();
+        textMenuPanel.setLayout(new BorderLayout());
+        textMenuField = new JTextField();
+        Dimension d = new Dimension(200, 25);
+        textMenuField.setPreferredSize(d);
+        textMenuPanel.add(textMenuField, BorderLayout.CENTER);
+        textMenu.add(textMenuPanel);
+        //textMenu.pack();
+        
 
         //this.setBackground(new java.awt.Color(255, 255, 255));
         this.setLayout(new BorderLayout());
 
-        drawPanel.setBackground(new java.awt.Color(255, 255, 255));
+        drawPanel.setBackground(Color.WHITE);
+        //drawPanel.setForeground(Color.WHITE);
 
         colorButton.setBackground(c);
 
@@ -89,7 +104,6 @@ public class Board extends JPanel {
         textButton.setText("Text");
         eraserButton.setText("Eraser");
         clearButton.setText("Clear");
-        
 
         toolBar.setLayout(new GridLayout());
         toolBar.add(freeDrawButton);
@@ -99,15 +113,18 @@ public class Board extends JPanel {
         toolBar.add(clearButton);
         toolBar.add(getSlider());
         toolBar.add(colorButton);
-        
+
         this.add(toolBar, BorderLayout.NORTH);
         this.add(drawPanel, BorderLayout.CENTER);
-        
-        textButton.addMouseListener(new MouseAdapter(){
-            public void mouseClicked(MouseEvent evt){
-                if (textButton.isSelected()){
+
+        textButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                if (textButton.isSelected()) {
                     freeDrawButton.setSelected(false);
                     eraserButton.setSelected(false);
+                    int x = 183;
+                    int y = 5;
+                    textMenu.show(drawPanel, x, y);
                 }
             }
         });
@@ -141,12 +158,12 @@ public class Board extends JPanel {
             }
         });
         ovalbutton.addMouseListener(new MouseAdapter() {
-           public void mouseClicked(MouseEvent evt) {
-               freeDrawButton.setSelected(false);
-               eraserButton.setSelected(false);
-               textButton.setSelected(false);
-               s = new Oval();
-               shapeMenu.setVisible(false);
+            public void mouseClicked(MouseEvent evt) {
+                freeDrawButton.setSelected(false);
+                eraserButton.setSelected(false);
+                textButton.setSelected(false);
+                s = new Oval();
+                shapeMenu.setVisible(false);
             }
         });
         rectbutton.addMouseListener(new MouseAdapter() {
@@ -158,7 +175,7 @@ public class Board extends JPanel {
                 shapeMenu.setVisible(false);
             }
         });
-        
+
         colorButton.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 JColorChooser jcc = new JColorChooser();
@@ -181,50 +198,52 @@ public class Board extends JPanel {
         });
 
         freeDrawButton.addMouseListener(new MouseAdapter() {
-           public void mouseClicked(MouseEvent evt) {
-               eraserButton.setSelected(false);
-               textButton.setSelected(false);
-               s = new Freedraw();
+            public void mouseClicked(MouseEvent evt) {
+                eraserButton.setSelected(false);
+                textButton.setSelected(false);
+                s = new Freedraw();
             }
         });
 
         drawPanel.addMouseMotionListener(new java.awt.event.MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
+                if (!textButton.isSelected()) {
+                    Graphics fgg = fg.getGraphics();
+                    fgg.drawImage(bg, 0, 0, null);
 
-                Graphics fgg = fg.getGraphics();
-                fgg.drawImage(bg, 0, 0, null);
+                    BasicStroke bs = new BasicStroke(widthSlider.getValue() / 4);
 
-                BasicStroke bs = new BasicStroke(widthSlider.getValue() / 4);
+                    newX = e.getX();
+                    newY = e.getY();
 
-                newX = e.getX();
-                newY = e.getY();
-
-                if (s instanceof Freedraw && !eraserButton.isSelected()) {
-                    freeDrawButton.setSelected(true);
-                    s.drawShape(fgg, c, newX, newY, newX, newY, filled, bs);
-                    Graphics bgg = bg.getGraphics();
-                    bgg.setColor(c);
-                    bgg.drawImage(fg, 0, 0, null);
+                    if (s instanceof Freedraw && !eraserButton.isSelected()) {
+                        freeDrawButton.setSelected(true);
+                        s.drawShape(fgg, c, newX, newY, newX, newY, filled, bs);
+                        Graphics bgg = bg.getGraphics();
+                        bgg.setColor(c);
+                        bgg.drawImage(fg, 0, 0, null);
+                    } else if (s instanceof Freedraw && eraserButton.isSelected()) {
+                        s.drawShape(fgg, Color.WHITE, newX, newY, newX, newY, filled, bs);
+                        Graphics bgg = bg.getGraphics();
+                        bgg.setColor(c);
+                        bgg.drawImage(fg, 0, 0, null);
+                    } else {
+                        s.drawShape(fgg, c, oldX, oldY, newX, newY, filled, bs);
+                    }
+                    v.add(s);
+                    Graphics g = drawPanel.getGraphics();
+                    g.drawImage(fg, 0, 0, null);
                 }
-                else if (s instanceof Freedraw && eraserButton.isSelected()) {
-                    s.drawShape(fgg, Color.WHITE, newX, newY, newX, newY, filled, bs);
-                    Graphics bgg = bg.getGraphics();
-                    bgg.setColor(c);
-                    bgg.drawImage(fg, 0, 0, null);
-                } else {
-                    s.drawShape(fgg, c, oldX, oldY, newX, newY, filled, bs);
-                }
-                v.add(s);
-                Graphics g = drawPanel.getGraphics();
-                g.drawImage(fg, 0, 0, null);
             }
 
             @Override
-            public void mouseMoved(MouseEvent e) {}
+            public void mouseMoved(MouseEvent e) {
+            }
         });
 
         drawPanel.addMouseListener(new java.awt.event.MouseListener() {
             public void mousePressed(MouseEvent e) {
+                if (!textButton.isSelected()){
                 if (bg == null) {
                     bg = drawPanel.createImage(drawPanel.getWidth(), drawPanel.getHeight());
                     fg = drawPanel.createImage(drawPanel.getWidth(), drawPanel.getHeight());
@@ -236,6 +255,7 @@ public class Board extends JPanel {
                 }
                 oldX = e.getX();
                 oldY = e.getY();
+                }
             }
 
             public void mouseReleased(MouseEvent e) {
@@ -248,7 +268,21 @@ public class Board extends JPanel {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("Mouse clicked!");
+                if (textButton.isSelected()){
+                    textMenu.setVisible(false);
+                    //textButton.setSelected(false);
+                    System.out.println("Drawing text!");
+                    //Graphics bgg = bg.getGraphics();  //Create new graphics items for double buffering.  
+                    //Graphics fgg = fg.getGraphics();
+                    //fgg.setColor(c); //Sets the color.  
+                    String stringToDraw = textMenuField.getText();
+                    //fgg.drawString(stringToDraw, e.getX(), e.getY());
+                    //repaint();
+                    Graphics2D g2d = (Graphics2D)drawPanel.getGraphics();
+                    g2d.setColor(c);
+                    g2d.drawString(text, e.getX(), e.getY());
+                    //v.add(text);
+                }
             }
 
             @Override
@@ -264,10 +298,11 @@ public class Board extends JPanel {
         });
 
     }
-    
-    public Canvas getDrawCanvas(){
-        return drawPanel;
-    }
+    /*
+     public Canvas getDrawCanvas(){
+     return drawPanel;
+     }
+     */
 
     private JSlider getSlider() {
         if (this.widthSlider == null) {
@@ -287,5 +322,4 @@ public class Board extends JPanel {
         }
         return this.widthSlider;
     }
-
 }
