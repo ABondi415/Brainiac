@@ -914,6 +914,7 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                     createSessionPanel.setVisible(false);
                     mainPanel.setVisible(true);
                     addBrainstormersMenuItem.setVisible(true);
+                    loadSession();
                     JOptionPane.showMessageDialog(mainPanel, "Session created successfully! You are now in the "+sessionName+" session!");
                     brainstorming = true;
                     board.clearPanel();
