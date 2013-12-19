@@ -86,7 +86,7 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
     private DocumentViewer docViewer;
     private SaveLocal saveLocal;
     private SaveMasterServer sms;
-    private JButton closeFileBut, newFileBut, openMaster, saveMaster, uploadMaster;
+    private JButton closeFileBut, newFileBut, openMaster, saveMaster, uploadMaster, refreshMaster;
     private JPopupMenu fileSelectPopup, fileRenamePopup;
     private JList fileSelectList, remoteFileList;
     private JPopupMenu dialog;
@@ -911,6 +911,8 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                         saveMaster.addActionListener(this);
                     uploadMaster = remotePanel.getUploadBut();
                         uploadMaster.addActionListener(this);
+                    refreshMaster = remotePanel.getRefreshBut();
+                        refreshMaster.addActionListener(this);
                     createSessionPanel.setVisible(false);
                     mainPanel.setVisible(true);
                     addBrainstormersMenuItem.setVisible(true);
@@ -994,6 +996,8 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                             saveMaster.addActionListener(this);
                     uploadMaster = remotePanel.getUploadBut();
                         uploadMaster.addActionListener(this);
+                    refreshMaster = remotePanel.getRefreshBut();
+                        refreshMaster.addActionListener(this);
 
                     JOptionPane.showMessageDialog(mainPanel, "You have joined the "+sessionName+" session!");
                     brainstorming = true;
@@ -1169,6 +1173,10 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
             }
             remotePanel.refreshFileList();
             fileOpener.revalidate();
+        }
+        
+        if (o == refreshMaster){
+            remotePanel.refreshFileList();
         }
             
         if (o == closeFileBut){

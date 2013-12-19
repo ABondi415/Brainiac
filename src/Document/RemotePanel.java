@@ -20,7 +20,7 @@ import org.apache.commons.net.ftp.FTPFile;
  * @author Marcus
  */
 public class RemotePanel extends JPanel{
-   private JButton openMasterBut, saveMasterBut, uploadMasterBut;
+   private JButton openMasterBut, saveMasterBut, uploadMasterBut, refreshBut;
    private JList remoteList;
    private SaveMasterClient smc;
     
@@ -34,14 +34,17 @@ public class RemotePanel extends JPanel{
                 saveMasterBut.setText("Save Master");
             uploadMasterBut = new JButton();
                 uploadMasterBut.setText("Upload File");
+            refreshBut = new JButton();
+                refreshBut.setText("Refresh");
                 
             smc = new SaveMasterClient(21, "test");
             
-            JPanel remoteButtonPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+            JPanel remoteButtonPanel = new JPanel(new GridLayout(4, 1, 5, 5));
             remoteButtonPanel.setBorder(new LineBorder(Color.DARK_GRAY));
             remoteButtonPanel.add(openMasterBut);
             remoteButtonPanel.add(saveMasterBut);
             remoteButtonPanel.add(uploadMasterBut);
+            remoteButtonPanel.add(refreshBut);
             
             remoteList = new JList();
             
@@ -68,6 +71,10 @@ public class RemotePanel extends JPanel{
     
     public JButton getSaveMasterBut(){
         return saveMasterBut;
+    }
+    
+    public JButton getRefreshBut(){
+        return refreshBut;
     }
     
     public JList getRemoteFileList(){
