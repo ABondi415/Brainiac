@@ -186,14 +186,10 @@ public class Board extends JPanel {
         });
         clearButton.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
-                //WHY THE FUCK ARE WE GETTING A NULL PTR EXCEPTION HERE!!??!?!?!?!?!?!   
                 freeDrawButton.setSelected(false);
                 eraserButton.setSelected(false);
                 textButton.setSelected(false);
-                Graphics bgg = bg.getGraphics();
-                Graphics fgg = drawPanel.getGraphics();
-                bgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the background
-                fgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the foreground
+                clearPanel();
             }
         });
 
@@ -298,11 +294,15 @@ public class Board extends JPanel {
         });
 
     }
-    /*
-     public Canvas getDrawCanvas(){
-     return drawPanel;
-     }
-     */
+    public void clearPanel(){
+        try {
+            Graphics bgg = bg.getGraphics();
+            Graphics fgg = drawPanel.getGraphics();
+            bgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the background
+            fgg.clearRect(0, 0, 2000, 2000);//clears a rectangle in the foreground
+        }
+        catch (NullPointerException ex){}
+    }
 
     private JSlider getSlider() {
         if (this.widthSlider == null) {

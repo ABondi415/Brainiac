@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -61,7 +62,8 @@ public class LoginPanel extends JPanel {
                     myService.setUserCredentials(userName, password);
                     valid = true;
                 } catch (AuthenticationException ex) {
-                    System.out.println("Credentials do not match credentials on file at Google.");
+                    JOptionPane.showMessageDialog(jPanel2, "The entered usename and password do not match credentials on file at Google!",
+                        "Google Login Warning", JOptionPane.WARNING_MESSAGE);
                     userName = "";
                     password = "";
                     valid = false;

@@ -44,7 +44,6 @@ import javax.swing.table.DefaultTableModel;
  */
 public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
     private int SERVER_HOST_IP;
-    private boolean initialPopupShown = false;
     private static gCTPane gctp;
     UIManager manager = new UIManager();
     private JTabbedPane browserChatPane, whiteboardDocumentPane;
@@ -146,7 +145,9 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
         createAccountLabel = new JLabel();
         createAccountErrorLabel = new JLabel();
         createAccountErrorField = new JTextField();
+        createAccountErrorField.setEditable(false);
         welcomePanelErrorField = new JTextField();
+        welcomePanelErrorField.setEditable(false);
         welcomePanelErrorLabel = new JLabel();
         //Added for the createSession panel 12/09
         createSessionPanel = new JPanel();
@@ -161,6 +162,7 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
         //newSessionButton.addActionListener(this);
         newSessionNameField = new JTextField();
         newSessionErrorField = new JTextField();
+        newSessionErrorField.setEditable(false);
         newSessionNameLabel = new JLabel();
         newSessionErrorLabel = new JLabel();
         newSessionTitleLabel = new JLabel();
@@ -493,24 +495,16 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
         whiteboardDocumentPane.setName("");
         whiteboardDocumentPanel.setLayout(new BorderLayout());
                 
-        
-        //temporaryLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-        //temporaryLabel1.setText("Whiteboard");
-        //whiteboardPanel.add(temporaryLabel1, BorderLayout.CENTER);
-        //whiteboardDocumentPanel.setBackground(Color.white);
         whiteboardDocumentPane.addTab("Whiteboard", board);
         whiteboardDocumentPane.addTab("Browser", browserPanel);
         whiteboardDocumentPanel.add(whiteboardDocumentPane, BorderLayout.CENTER);
 
         mainPanel.add(whiteboardDocumentPanel, BorderLayout.CENTER);
-        //mainPanel.add(textEditor, BorderLayout.CENTER);
         
         //End documents and whiteboard
         calendarTasksPanel.setLayout(new BorderLayout());
 
-        //temporaryLabel3.setText("Calendar/Tasks");
         calendarTasksPanel.add(gctp, BorderLayout.CENTER);
-        
         
         chatCalendarPanel.add(calendarTasksPanel);
 
@@ -718,12 +712,16 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                 else {
                     String sessionToJoin = (String) sessionsModel.getValueAt(selection, 0);
                     String stringUsers = client.sendRequest("getSessionUsers," + sessionToJoin);
+                    String stringHost = client.sendRequest("getSessionHost,"+sessionToJoin);
                     String[] currentUsers = stringUsers.split(":");
                     boolean validJoin = false;
                     for (String user : currentUsers) {
                         if (user.matches(username)) {
                             validJoin = true;
                         }
+                    }
+                    if (username.matches(stringHost)){
+                        validJoin = true;
                     }
                     if (validJoin) {
                         sessionName = sessionToJoin;
@@ -733,6 +731,7 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                         }
                         client.sendRequest("updateUserIP," + username + "," + userIP);
                         loadSession();
+                        board.clearPanel();
                         if (username.equals(client.sendRequest("getSessionHost," + sessionName))) {
                             client.sendRequest("updateHostIP," + username + "," + userIP);
                             addBrainstormersMenuItem.setVisible(true);
@@ -917,6 +916,7 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                     addBrainstormersMenuItem.setVisible(true);
                     JOptionPane.showMessageDialog(mainPanel, "Session created successfully! You are now in the "+sessionName+" session!");
                     brainstorming = true;
+                    board.clearPanel();
                 }
                 else {
                     newSessionErrorField.setText("That Session name is already in use!  Please try a different Session name.");
@@ -974,7 +974,7 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
                     //If you are the host, you can add other brainstormers.
-                    if (username.equals(client.sendRequest("getHostIP,"+sessionName))){
+                    if (username.equals(client.sendRequest("getSessionHost,"+sessionName))){
                         client.sendRequest("updateHostIP,"+username+","+userIP);
                         addBrainstormersMenuItem.setVisible(true);
                         sms = new SaveMasterServer();
@@ -1008,13 +1008,6 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
                     welcomePanel.setVisible(false);
                     mainPanel.setVisible(true);
                     sessionMenu.setVisible(true);
-                    System.out.println("Board is visible? " + board.isVisible());
-                    System.out.println("Board is showing? " + board.isShowing());
-                    System.out.println("Board is displayable? " + board.isDisplayable());
-                    System.out.println("Board is focusable? " + board.isFocusable());
-                    System.out.println("Board is enabled? " + board.isEnabled());
-                    System.out.println("Board is opaque? " + board.isOpaque());
-                    
                 }
             }
         }
@@ -1238,6 +1231,11 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
         userPasswordField.setText("");
         sessionNameField.setText("");
         brainstorming = false;
+        if (chatGUI != null){
+            chatPanel.removeAll();
+        }
+        sms.stop();
+        board.clearPanel();
     }
     
     private boolean verifyUser(){
@@ -1314,9 +1312,11 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
         chatGUI = new ChatClientGUI(client.sendRequest("getHostIP,"+sessionName), 1500, chatPanel);
         chatGUI.login(username, 1500, client.sendRequest("getHostIP,"+sessionName));
         //Start the Browser
+        browser = new Browser(browserPanel);
     }
     
     private void loadSessionless(){
+        //Start the Browser
         browser = new Browser(browserPanel);
     }
     
@@ -1375,6 +1375,5 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
 
         }
     }
-
 
 }

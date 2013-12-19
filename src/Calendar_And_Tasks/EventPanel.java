@@ -67,6 +67,7 @@ public class EventPanel extends javax.swing.JPanel {
                 }
                 createEventFrame.add(eop);
                 createEventFrame.setSize(200, 400);
+                createEventFrame.setLocationRelativeTo(null);
                 createEventFrame.setVisible(true);
             }
         });
@@ -85,6 +86,7 @@ public class EventPanel extends javax.swing.JPanel {
                 gCalendarPane.viewEventsFrame.setVisible(false);
             }
         });
+        
     }
 
     /**
