@@ -51,7 +51,7 @@ public class FileOpener extends JPanel implements ActionListener{
             newFile.setText("New");
             
             
-
+            //new file selection popup
         DefaultListModel<String> model = new DefaultListModel();
         model.addElement("Text File");
         model.addElement("Doc File");
@@ -61,6 +61,7 @@ public class FileOpener extends JPanel implements ActionListener{
         newFileSelect.add(newFileList);
         
         
+        //new file, close, and save local button
         buttonPanelTop = new JPanel();
         buttonPanelTop.setLayout(new GridLayout(1, 2, 5, 5));
         
@@ -74,13 +75,13 @@ public class FileOpener extends JPanel implements ActionListener{
         buttonPanel.add(buttonPanelTop);
         buttonPanel.add(buttonPanelBot);
         
+        //add local files tab to chooser
         fileChooserTabs = new JTabbedPane();
         
         JPanel localPanel = new JPanel(new BorderLayout());
             localPanel.add(fileChooser, BorderLayout.CENTER);
             localPanel.add(buttonPanel, BorderLayout.SOUTH);
                     
-        
         fileChooserTabs.add("Local Files", localPanel);
 
         

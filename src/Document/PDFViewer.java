@@ -46,7 +46,7 @@ public class PDFViewer extends DocumentViewer{
     private float[] scales = {0.01f, 0.1f, 0.25f, 0.4f, 0.5f, 0.6f, 0.75f, .9f, 1.0f, 1.1f, 1.25f, 1.4f, 1.5f, 1.7f, 2.0f, 4.0f, 7.5f, 10.0f};
     private int scaleSelect;
     private String fileName;
-    private PdfDecoder decoder;
+    private PdfDecoder decoder; //this handels most of the important pdf functions/rendering
     private int curPage = 1;
     private JPanel infoBar;
     private JLabel numPageIndicator, curPageIndicator;
