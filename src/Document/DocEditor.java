@@ -54,7 +54,7 @@ public class DocEditor extends DocumentViewer{
     private File inputFile;
     FileInputStream iS;
     //private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
-    private String OpenOfficePath = "E:\\OpenOffice.org 3";
+    private String OpenOfficePath = "C:\\OpenOffice\\";
     final JFrame editorFrame = new JFrame(); 
     private IDocument document;
     
