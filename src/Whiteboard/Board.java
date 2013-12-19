@@ -264,6 +264,7 @@ public class Board extends JPanel {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                /*
                 if (textButton.isSelected()){
                     textMenu.setVisible(false);
                     //textButton.setSelected(false);
@@ -279,6 +280,7 @@ public class Board extends JPanel {
                     g2d.drawString(text, e.getX(), e.getY());
                     //v.add(text);
                 }
+                */
             }
 
             @Override
