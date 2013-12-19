@@ -123,6 +123,10 @@ public class FileOpener extends JPanel implements ActionListener{
         fileChooserTabs.add("Remote Files", remotePanel);
     }
     
+    public void destroyRemotePanel(){
+        fileChooserTabs.remove(remotePanel);
+    }
+    
     public JList getFileList(){
         return newFileList;
     }
