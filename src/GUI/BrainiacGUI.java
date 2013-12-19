@@ -1235,6 +1235,7 @@ public class BrainiacGUI extends JFrame implements ActionListener, KeyListener{
             chatPanel.removeAll();
         }
         sms.stop();
+        fileOpener.destroyRemotePanel();
         board.clearPanel();
     }
     
