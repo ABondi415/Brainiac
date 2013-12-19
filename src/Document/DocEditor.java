@@ -53,8 +53,7 @@ public class DocEditor extends DocumentViewer{
     private String fileName = "";
     private File inputFile;
     FileInputStream iS;
-    //private String OpenOfficePath = "C:\\Program Files (x86)\\OpenOffice.org 3"; 
-    private String OpenOfficePath = "E:\\OpenOffice.org 3";
+    private String OpenOfficePath = ".\\OpenOffice\\";
     final JFrame editorFrame = new JFrame(); 
     private IDocument document;
     
@@ -75,10 +74,9 @@ public class DocEditor extends DocumentViewer{
     }
     private void createDocPanel() {
       
+        //uses the noa4-libre api to create a open office document frame
 
-
-        try {	
-            
+        try {	 
             HashMap config = new HashMap();
             config.put(IOfficeApplication.APPLICATION_HOME_KEY, OpenOfficePath);
             config.put(IOfficeApplication.APPLICATION_TYPE_KEY, IOfficeApplication.LOCAL_APPLICATION);
@@ -86,11 +84,8 @@ public class DocEditor extends DocumentViewer{
 
             editor.activate();
             
-            
-            //final JFrame editorFrame = new JFrame(); 
             editorFrame.setVisible(true);
             editorFrame.setSize(this.getWidth(), this.getHeight());
-            //editorFrame.validate();
             final JPanel editorPanel = new JPanel(new BorderLayout());
             editorFrame.add(editorPanel);
             editorPanel.setVisible(true);
@@ -109,12 +104,6 @@ public class DocEditor extends DocumentViewer{
             officeFrame.disableDispatch(GlobalCommands.CLOSE_DOCUMENT);
             officeFrame.disableDispatch(GlobalCommands.QUIT_APPLICATION);
             officeFrame.updateDispatches();
-            
-            
-            //if (fileName == null)
-            //    editor.getDocumentService().constructNewDocument(officeFrame, IDocument.WRITER, DocumentDescriptor.DEFAULT);
-            //else
-            //    editor.getDocumentService().loadDocument(officeFrame, fileName.toString(), DocumentDescriptor.DEFAULT);
         } catch (Exception ex) {
             Logger.getLogger(DocEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -122,12 +111,11 @@ public class DocEditor extends DocumentViewer{
     }
     
     
-    public String getFileName(){return fileName;}
+    public String getFileName(){
+        return fileName;
+    }
     
     public File getFile(){
-        //document.update();
-        
-        //File file = new File(fileName, document);
         File file = new File("fixMe");
         return file;
     }

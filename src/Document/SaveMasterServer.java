@@ -4,6 +4,7 @@
  */
 package Document;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,7 +32,8 @@ public class SaveMasterServer{
         
         serverFactory.setConnectionConfig(ccf.createConnectionConfig());
         
-
+        File f = new File("C:\\Brainiac\\Temp\\");
+            f.mkdirs();
         serverFactory.setUserManager(addUser("test", "test", "C:\\Brainiac"));
              
         server = serverFactory.createServer();

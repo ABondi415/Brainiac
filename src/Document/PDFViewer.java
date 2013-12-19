@@ -10,6 +10,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedInputStream;
@@ -23,8 +25,10 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
@@ -42,11 +46,10 @@ public class PDFViewer extends DocumentViewer{
     private float[] scales = {0.01f, 0.1f, 0.25f, 0.4f, 0.5f, 0.6f, 0.75f, .9f, 1.0f, 1.1f, 1.25f, 1.4f, 1.5f, 1.7f, 2.0f, 4.0f, 7.5f, 10.0f};
     private int scaleSelect;
     private String fileName;
-    private PdfDecoder decoder;
+    private PdfDecoder decoder; //this handels most of the important pdf functions/rendering
     private int curPage = 1;
     private JPanel infoBar;
     private JLabel numPageIndicator, curPageIndicator;
-    //private JTextField curPageIndicator;
     private File file;
     
     public PDFViewer(File inputFile){
@@ -87,10 +90,16 @@ public class PDFViewer extends DocumentViewer{
                 numPageIndicator.setText(decoder.getPageCount() + "");
             JLabel curPageLabel = new JLabel("Current Page ");
             JLabel colonLabel = new JLabel("  :  ");
+            
+            //instructions panel
+            JLabel instructions = new JLabel("Prev Page = \'[\'\n Next Page = \']\'\n ZoomIn = Shift + \'='\n ZoomOut = Shift + \'-',\n ZoomReset = Shift + \')\'");
+
+            
             infoBar.add(curPageLabel);
             infoBar.add(curPageIndicator);
             infoBar.add(colonLabel);
             infoBar.add(numPageIndicator);
+            infoBar.add(instructions);
         this.add(infoBar, BorderLayout.NORTH);
                 
     }
